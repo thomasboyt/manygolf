@@ -36,6 +36,8 @@ protocol
       - ID
     - ball fell off side of world (reset)
       - ID
+    - new level
+      - level data
   - client events
     - ball hit
       - velocity
