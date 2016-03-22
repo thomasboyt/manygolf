@@ -8,11 +8,11 @@ module.exports = function(config) {
     reporters: ['mocha'],
 
     files: [
-      'app/__tests__/index.js',
+      'src/client/__tests__/index.js',
     ],
 
     preprocessors: {
-      'app/__tests__/index.js': ['webpack', 'sourcemap']
+      'src/client/__tests__/index.js': ['webpack', 'sourcemap']
     },
 
     webpack: webpackConfig,
