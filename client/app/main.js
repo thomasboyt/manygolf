@@ -24,7 +24,7 @@ function update() {
   render(ctx, store.getState());
 }
 
-store.subscribe(update);
+runLoop.subscribe(update);
 update();
 
 const level = {
