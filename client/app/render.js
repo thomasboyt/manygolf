@@ -1,6 +1,8 @@
 import {WIDTH, HEIGHT, HOLE_HEIGHT, HOLE_WIDTH} from './constants';
 
 const skyColor = 'beige';
+const groundColor = 'black';
+const ballColor = 'red';
 
 export default function render(ctx, state) {
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
@@ -15,9 +17,13 @@ export default function render(ctx, state) {
     return;
   }
 
+  //
+  // Draw ground
+  //
+
   const points = level.points;
 
-  ctx.fillStyle = 'black';
+  ctx.fillStyle = groundColor;
 
   ctx.beginPath();
   const firstPoint = points.get(0);
@@ -35,6 +41,9 @@ export default function render(ctx, state) {
 
   ctx.restore();
 
+  //
+  // Draw hole
+  //
   const hole = level.hole;
 
   const hx = hole.get(0) - HOLE_WIDTH / 2;
@@ -42,4 +51,15 @@ export default function render(ctx, state) {
 
   ctx.fillStyle = skyColor;
   ctx.fillRect(hx, hy, HOLE_WIDTH, HOLE_HEIGHT);
+
+  //
+  // Draw ball
+  //
+  const ball = state.game.ball;
+
+  ctx.beginPath();
+  ctx.arc(ball.x, ball.y, 2.5, 0, 2 * Math.PI);
+  ctx.fillStyle = ballColor;
+  ctx.fill();
+  ctx.closePath();
 }
