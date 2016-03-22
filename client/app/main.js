@@ -4,7 +4,7 @@ import './polyfill';
 
 // Set up store
 import createStore from './store';
-const store = createStore(undefined);
+const store = createStore();
 
 // Set up runLoop
 import runLoop from './runLoop';
@@ -26,3 +26,23 @@ function update() {
 
 store.subscribe(update);
 update();
+
+const level = {
+  points: [
+    [0, 200],
+    [100, 200],
+    [200, 150],
+    [300, 200],
+    [500, 200]
+  ],
+  hole: [400, 200],
+  spawn: [50, 200],
+};
+
+store.dispatch({
+  type: 'ws:level',
+  data: level,
+});
+
+// import ws from './ws';
+// ws.init(store);

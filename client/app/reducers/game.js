@@ -7,8 +7,11 @@ import {TICK} from '../ActionTypes';
 //   y: null,
 // })
 //
-// const Level = I.Record({
-// });
+const Level = I.Record({
+  points: null,
+  hole: null,
+  spawn: null,
+});
 
 const State = I.Record({
   balls: I.List(),
@@ -16,7 +19,15 @@ const State = I.Record({
 });
 
 export default createImmutableReducer(new State(), {
-  [TICK]: function(state, action) {
+  [TICK]: (state, action) => {
     return state;
-  }
-})
+  },
+
+  'ws:level': (state, action) => {
+    const level = action.data;
+
+    const levelRec = new Level(I.fromJS(level));
+
+    return state.set('level', levelRec);
+  },
+});
