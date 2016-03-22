@@ -1,4 +1,5 @@
 import {WIDTH, HEIGHT, HOLE_HEIGHT, HOLE_WIDTH} from './constants';
+import {calcVectorDegrees} from './util/math';
 
 const skyColor = 'beige';
 const groundColor = 'black';
@@ -51,4 +52,23 @@ export default function render(ctx, state) {
   ctx.fillStyle = ballColor;
   ctx.fill();
   ctx.closePath();
+
+  //
+  // Draw aim arrow
+  //
+  if (state.game.allowHit) {
+    const aimDirection = state.game.aimDirection;
+
+    const offset = 10;
+    const lineLength = 20;
+    const startOffset = calcVectorDegrees(offset, aimDirection);
+    const endOffset = calcVectorDegrees(offset + lineLength, aimDirection);
+
+    ctx.beginPath();
+    ctx.strokeStyle = 'black';
+    ctx.moveTo(ball.x + startOffset.x, ball.y + startOffset.y);
+    ctx.lineTo(ball.x + endOffset.x, ball.y + endOffset.y);
+    ctx.stroke();
+    ctx.closePath();
+  }
 }

@@ -1,4 +1,4 @@
-import {Store} from 'redux';
+import {keysDown} from './inputter';
 
 import {
   TICK,
@@ -29,6 +29,7 @@ class RunLoop {
     this.store.dispatch({
       type: TICK,
       dt,
+      keysDown: new Set(keysDown),  // create new copy of set
     });
 
     this._listeners.forEach((listener) => listener());

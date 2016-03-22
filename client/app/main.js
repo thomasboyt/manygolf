@@ -46,3 +46,7 @@ store.dispatch({
 
 // import ws from './ws';
 // ws.init(store);
+
+// set up input
+import {registerListeners} from './inputter';
+registerListeners();
