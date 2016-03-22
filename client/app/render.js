@@ -42,17 +42,6 @@ export default function render(ctx, state) {
   ctx.restore();
 
   //
-  // Draw hole
-  //
-  const hole = level.hole;
-
-  const hx = hole.get(0) - HOLE_WIDTH / 2;
-  const hy = hole.get(1);
-
-  ctx.fillStyle = skyColor;
-  ctx.fillRect(hx, hy, HOLE_WIDTH, HOLE_HEIGHT);
-
-  //
   // Draw ball
   //
   const ball = state.game.ball;
