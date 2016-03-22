@@ -7,7 +7,14 @@ import {TICK} from '../ActionTypes';
 import keyCodes from '../keyCodes';
 import {calcVectorDegrees} from '../util/math';
 
-import {WIDTH, HEIGHT, HOLE_HEIGHT, HOLE_WIDTH, BALL_RADIUS} from '../constants';
+import {
+  WIDTH,
+  HEIGHT,
+  HOLE_HEIGHT,
+  HOLE_WIDTH,
+  BALL_RADIUS,
+  MAX_POWER,
+} from '../constants';
 
 import clamp from 'lodash.clamp';
 
@@ -62,10 +69,15 @@ function beginSwing(state) {
 
 function continueSwing(state, dt) {
   const step = dt * 50;
-  return state.update('swingPower', (swingPower) => swingPower + step);
+
+  // TODO: if swingPower > MAX_POWER, descend to 0
+  // const swingPower = state.swingPower + step;
+
+  return state.update('swingPower', (swingPower) => clamp(swingPower + step, MAX_POWER));
 }
 
 function endSwing(state) {
+  // TODO: Send vector to server!
   const vec = calcVectorDegrees(state.swingPower, state.aimDirection);
   state.ball.body.velocity[0] = vec.x;
   state.ball.body.velocity[1] = vec.y;

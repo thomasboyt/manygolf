@@ -1,9 +1,11 @@
-import {WIDTH, HEIGHT, HOLE_HEIGHT, HOLE_WIDTH} from './constants';
+import {WIDTH, HEIGHT, MAX_POWER} from './constants';
 import {calcVectorDegrees} from './util/math';
 
 const skyColor = 'beige';
-const groundColor = 'black';
+const groundColor = 'orange';
 const ballColor = 'red';
+const meterBoxColor = 'skyblue';
+const meterFillColor = 'blue';
 
 export default function render(ctx, state) {
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
@@ -70,5 +72,23 @@ export default function render(ctx, state) {
     ctx.lineTo(ball.x + endOffset.x, ball.y + endOffset.y);
     ctx.stroke();
     ctx.closePath();
+  }
+
+  //
+  // Draw swing meter
+  //
+  if (state.game.inSwing) {
+    const meterWidth = 50;
+    const meterHeight = 10;
+    const meterX = state.game.ball.x - meterWidth / 2;
+    const meterY = state.game.ball.y + 10;
+
+    ctx.fillStyle = meterBoxColor;
+    ctx.fillRect(meterX, meterY, meterWidth, meterHeight);
+
+    const fillWidth = (state.game.swingPower / MAX_POWER) * meterWidth;
+
+    ctx.fillStyle = meterFillColor;
+    ctx.fillRect(meterX, meterY, fillWidth, meterHeight);
   }
 }
