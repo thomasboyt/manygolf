@@ -7,8 +7,9 @@
   "scripts": {
     "test": "karma start --single-run",
     "karma": "karma start",
-    "lint": "eslint app/",
+    "lint": "eslint src/",
     "ci": "karma start --single-run --browsers Firefox",
+    "server": "node src/server/entry.js",
     "dev": "webpack-dev-server --config webpack/dev.js",
     "prod": "webpack-dev-server --config webpack/production.js"
   },
@@ -53,10 +54,12 @@
     "babel-polyfill": "^6.3.14",
     "babel-regenerator-runtime": "^6.3.13",
     "core-js": "^2.0.3",
+    "express": "^4.13.4",
     "immutable": "^3.7.3",
     "lodash.clamp": "^4.0.1",
     "p2": "^0.7.1",
     "redux": "^3.0.4",
-    "redux-thunk": "^2.0.1"
+    "redux-thunk": "^2.0.1",
+    "ws": "^1.0.1"
   }
 }

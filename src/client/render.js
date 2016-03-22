@@ -1,4 +1,4 @@
-import {WIDTH, HEIGHT, MAX_POWER} from './constants';
+import {WIDTH, HEIGHT, MAX_POWER} from '../universal/constants';
 import {calcVectorDegrees} from './util/math';
 
 const skyColor = 'beige';

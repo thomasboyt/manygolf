@@ -2,7 +2,7 @@ var createVendorChunk = require('webpack-create-vendor-chunk');
 
 module.exports = {
   entry: {
-    app: './app/main.js',
+    app: './src/client/main.js',
   },
 
   output: {

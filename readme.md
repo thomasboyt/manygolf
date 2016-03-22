@@ -1,5 +1,14 @@
 massively multiplayer proceedurally-generated 2d golf in the style of trackmania
 
+in two different sessions:
+
+```
+npm run server
+npm run dev
+```
+
+and navigate to localhost:8080
+
 architecture
   - server 
     - generate level

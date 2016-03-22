@@ -1,9 +1,5 @@
 import {keysDown} from './inputter';
 
-import {
-  TICK,
-} from './ActionTypes';
-
 class RunLoop {
   constructor() {
     this.store = null;
@@ -27,7 +23,7 @@ class RunLoop {
     this._lastTickMs = now;
 
     this.store.dispatch({
-      type: TICK,
+      type: 'tick',
       dt,
       keysDown: new Set(keysDown),  // create new copy of set
     });

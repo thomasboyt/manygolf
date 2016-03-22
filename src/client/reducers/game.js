@@ -3,9 +3,12 @@ import p2 from 'p2';
 
 import createImmutableReducer from '../util/createImmutableReducer';
 
-import {TICK} from '../ActionTypes';
 import keyCodes from '../keyCodes';
 import {calcVectorDegrees} from '../util/math';
+
+import {
+  TYPES_LEVEL,
+} from '../../universal/protocol';
 
 import {
   WIDTH,
@@ -14,7 +17,7 @@ import {
   HOLE_WIDTH,
   BALL_RADIUS,
   MAX_POWER,
-} from '../constants';
+} from '../../universal/constants';
 
 import clamp from 'lodash.clamp';
 
@@ -88,7 +91,7 @@ function endSwing(state) {
 }
 
 export default createImmutableReducer(new State(), {
-  [TICK]: (state, {dt, keysDown}) => {
+  'tick': (state, {dt, keysDown}) => {
     dt = dt / 1000;  // ms -> s
 
     if (!state.world) {
@@ -128,7 +131,7 @@ export default createImmutableReducer(new State(), {
       .set('allowHit', allowHit);
   },
 
-  'ws:level': (state, action) => {
+  [`ws:${TYPES_LEVEL}`]: (state, action) => {
     const level = action.data;
 
     let levelRec = new Level(I.fromJS(level));
