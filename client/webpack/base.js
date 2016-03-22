@@ -58,5 +58,12 @@ module.exports = {
 
   devServer: {
     historyApiFallback: true,
+
+    proxy: {
+      '/server': {
+        target: 'ws://localhost:4080',
+        ws: true,
+      },
+    },
   },
 };
