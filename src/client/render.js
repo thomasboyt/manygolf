@@ -91,4 +91,17 @@ export default function render(ctx, state) {
     ctx.fillStyle = meterFillColor;
     ctx.fillRect(meterX, meterY, fillWidth, meterHeight);
   }
+
+  //
+  // Draw ghost balls
+  //
+  state.ghostBalls.forEach((ball) => {
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, 2.5, 0, 2 * Math.PI);
+    ctx.strokeStyle = 'black';
+    ctx.fillStyle = ball.color;
+    ctx.fill();
+    ctx.stroke();
+    ctx.closePath();
+  });
 }

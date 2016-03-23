@@ -3,15 +3,6 @@ import p2 from 'p2';
 
 import createImmutableReducer from '../universal/createImmutableReducer';
 
-// import {
-//   WIDTH,
-//   HEIGHT,
-//   HOLE_HEIGHT,
-//   HOLE_WIDTH,
-//   BALL_RADIUS,
-//   MAX_POWER,
-// } from '../../universal/constants';
-
 import {
   createWorld,
   createBall,
@@ -21,8 +12,7 @@ import {
 
 const Ball = I.Record({
   body: null,
-  x: null,
-  y: null,
+  ws: null,
 });
 
 const Level = I.Record({
@@ -55,22 +45,22 @@ export default createImmutableReducer(new State(), {
     return state;
   },
 
-  'addBall': (state, {id}) => {
+  'addBall': (state, {id, ws}) => {
     const ballBody = createBall(state.level.spawn);
 
     state.world.addBody(ballBody);
 
-    const [ballX, ballY] = ballBody.interpolatedPosition;
-
     return state.setIn(['balls', id], new Ball({
-      x: ballX,
-      y: ballY,
       body: ballBody,
+      ws,
     }));
   },
 
+  'removeBall': (state, {id}) => {
+    return state.deleteIn(['balls', id]);
+  },
+
   'swing': (state, {id, vec}) => {
-    // TODO: enforce MAX_POWER
     const ball = state.balls.get(id);
 
     if (ball.body.sleepState !== p2.Body.SLEEPING) {

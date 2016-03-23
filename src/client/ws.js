@@ -5,6 +5,8 @@ class WSConnection {
     this._ws = new WebSocket(`ws://${document.location.host}/server`);
 
     this._ws.onmessage = this.handleMessage.bind(this);
+
+    this._ws.onclose = this.handleClose.bind(this);
   }
 
   handleMessage(evt) {
@@ -14,6 +16,16 @@ class WSConnection {
       type: `ws:${msg.type}`,
       data: msg.data,
     });
+  }
+
+  handleClose() {
+    console.error('lost ws connection');
+  }
+
+  send(msg) {
+    const strMsg = JSON.stringify(msg);
+
+    this._ws.send(strMsg);
   }
 }
 

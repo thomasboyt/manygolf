@@ -1,16 +1,18 @@
 import I from 'immutable';
 import p2 from 'p2';
+import randomColor from 'randomcolor';
 
 import createImmutableReducer from '../universal/createImmutableReducer';
 
 import keyCodes from './keyCodes';
 import {calcVectorDegrees} from './util/math';
 
-// import ws from '../ws';
+import ws from './ws';
 
 import {
-  TYPE_LEVEL,
-  // TYPE_SWING,
+  TYPE_SNAPSHOT,
+  TYPE_SWING,
+  TYPE_POSITION,
 } from '../universal/protocol';
 
 import {
@@ -32,6 +34,12 @@ const Ball = I.Record({
   y: null,
 });
 
+const DumbBall = I.Record({
+  x: null,
+  y: null,
+  color: null,
+});
+
 const Level = I.Record({
   points: null,
   hole: null,
@@ -41,7 +49,7 @@ const Level = I.Record({
 const State = I.Record({
   world: null,
   ball: Ball(),
-  ghostBalls: I.List(),
+  ghostBalls: I.Map(),
   level: null,
   aimDirection: -45,  // angle (in degrees) relative to pointing ->
   allowHit: false,
@@ -83,10 +91,15 @@ function continueSwing(state, dt) {
 }
 
 function endSwing(state) {
-  // TODO: Send vector to server!
   const vec = calcVectorDegrees(state.swingPower, state.aimDirection);
   state.ball.body.velocity[0] = vec.x;
   state.ball.body.velocity[1] = vec.y;
+
+  // TODO: do this somewhere else...
+  ws.send({
+    type: TYPE_SWING,
+    data: {vec},
+  });
 
   return state
     .set('inSwing', false)
@@ -134,8 +147,8 @@ export default createImmutableReducer(new State(), {
       .set('allowHit', allowHit);
   },
 
-  [`ws:${TYPE_LEVEL}`]: (state, action) => {
-    const levelData = action.data;
+  [`ws:${TYPE_SNAPSHOT}`]: (state, action) => {
+    const levelData = action.data.level;
 
     const level = new Level(I.fromJS(levelData))
       .update(addHolePoints);
@@ -153,4 +166,20 @@ export default createImmutableReducer(new State(), {
       .set('level', level)
       .setIn(['ball', 'body'], ballBody);
   },
+
+  [`ws:${TYPE_POSITION}`]: (state, {data}) => {
+    const {positions} = data;
+
+    return positions.reduce((state, {x, y, id}) => {
+      if (!state.ghostBalls.get(id)) {
+        return state.setIn(['ghostBalls', id], new DumbBall({
+          x,
+          y,
+          color: randomColor(),
+        }));
+      }
+
+      return state.updateIn(['ghostBalls', id], (ball) => ball.merge({x, y}));
+    }, state);
+  }
 });

@@ -4,10 +4,13 @@ import express from 'express';
 import { createStore } from 'redux';
 
 import reducer from './reducer';
+import runLoop from './runLoop';
 
 import {
-  TYPE_LEVEL,
+  // TYPE_LEVEL,
+  TYPE_SNAPSHOT,
   TYPE_SWING,
+  TYPE_POSITION,
 } from '../universal/protocol';
 
 const server = http.createServer();
@@ -33,6 +36,9 @@ store.dispatch({
   type: 'level',
   data: level,
 });
+
+runLoop.setStore(store);
+runLoop.start();
 
 let idCounter = 0;
 
@@ -62,15 +68,48 @@ wss.on('connection', (ws) => {
     }
   });
 
-  store.dispatch({
-    type: 'addBall',
-    id,
+  ws.on('close', () => {
+    store.dispatch({
+      type: 'removeBall',
+      id,
+    });
   });
 
   ws.send(JSON.stringify({
-    type: TYPE_LEVEL,
-    data: level,
+    type: TYPE_SNAPSHOT,
+    data: {
+      level,
+    },
   }));
+
+  store.dispatch({
+    type: 'addBall',
+    id,
+    ws,
+  });
+});
+
+runLoop.subscribe(() => {
+  const state = store.getState();
+
+  const positions = state.balls.map((ball, id) => {
+    return {
+      id,
+      x: ball.body.interpolatedPosition[0],
+      y: ball.body.interpolatedPosition[1],
+    };
+  }).toList().toJS();
+
+  state.balls.forEach((ball) => {
+    ball.ws.send(JSON.stringify({
+      type: TYPE_POSITION,
+      data: {positions},
+    }), (err) => {
+      if (err) {
+        console.error('error sending position', err);
+      }
+    });
+  });
 });
 
 server.on('request', app);
