@@ -3,8 +3,9 @@ require('../../styles/main.less');
 import './polyfill';
 
 // Set up store
-import createStore from './store';
-const store = createStore();
+import { createStore } from 'redux';
+import reducer from './reducer';
+const store = createStore(reducer);
 
 // Set up runLoop
 import runLoop from './runLoop';

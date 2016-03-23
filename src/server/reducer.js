@@ -70,6 +70,7 @@ export default createImmutableReducer(new State(), {
   },
 
   'swing': (state, {id, vec}) => {
+    // TODO: enforce MAX_POWER
     const ball = state.balls.get(id);
 
     if (ball.body.sleepState !== p2.Body.SLEEPING) {
@@ -95,7 +96,6 @@ export default createImmutableReducer(new State(), {
 
     world.addBody(groundBody);
 
-    // Set up friction
     return state
       .set('world', world)
       .set('level', level);

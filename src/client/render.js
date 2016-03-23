@@ -15,7 +15,7 @@ export default function render(ctx, state) {
   ctx.fillStyle = skyColor;
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-  const level = state.game.level;
+  const level = state.level;
   if (!level) {
     return;
   }
@@ -47,7 +47,7 @@ export default function render(ctx, state) {
   //
   // Draw ball
   //
-  const ball = state.game.ball;
+  const ball = state.ball;
 
   ctx.beginPath();
   ctx.arc(ball.x, ball.y, 2.5, 0, 2 * Math.PI);
@@ -58,8 +58,8 @@ export default function render(ctx, state) {
   //
   // Draw aim arrow
   //
-  if (state.game.allowHit) {
-    const aimDirection = state.game.aimDirection;
+  if (state.allowHit) {
+    const aimDirection = state.aimDirection;
 
     const offset = 10;
     const lineLength = 20;
@@ -77,16 +77,16 @@ export default function render(ctx, state) {
   //
   // Draw swing meter
   //
-  if (state.game.inSwing) {
+  if (state.inSwing) {
     const meterWidth = 50;
     const meterHeight = 10;
-    const meterX = state.game.ball.x - meterWidth / 2;
-    const meterY = state.game.ball.y + 10;
+    const meterX = state.ball.x - meterWidth / 2;
+    const meterY = state.ball.y + 10;
 
     ctx.fillStyle = meterBoxColor;
     ctx.fillRect(meterX, meterY, meterWidth, meterHeight);
 
-    const fillWidth = (state.game.swingPower / MAX_POWER) * meterWidth;
+    const fillWidth = (state.swingPower / MAX_POWER) * meterWidth;
 
     ctx.fillStyle = meterFillColor;
     ctx.fillRect(meterX, meterY, fillWidth, meterHeight);
