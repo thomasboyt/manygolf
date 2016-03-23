@@ -53,6 +53,7 @@
   "dependencies": {
     "babel-polyfill": "^6.3.14",
     "babel-regenerator-runtime": "^6.3.13",
+    "babel-register": "^6.7.2",
     "core-js": "^2.0.3",
     "express": "^4.13.4",
     "immutable": "^3.7.3",
