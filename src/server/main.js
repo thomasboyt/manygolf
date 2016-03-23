@@ -1,9 +1,13 @@
 import http from 'http';
 import ws from 'ws';
 import express from 'express';
+import { createStore } from 'redux';
+
+import reducer from './reducer';
 
 import {
-  TYPES_LEVEL,
+  TYPE_LEVEL,
+  TYPE_SWING,
 } from '../universal/protocol';
 
 const server = http.createServer();
@@ -23,13 +27,48 @@ const level = {
   spawn: [50, 200],
 };
 
+const store = createStore(reducer);
+
+store.dispatch({
+  type: 'level',
+  data: level,
+});
+
+let idCounter = 0;
+
 wss.on('connection', (ws) => {
-  ws.on('message', (message) => {
-    console.log('received: %s', message);
+  idCounter += 1;
+  const id = idCounter;
+
+  ws.on('message', (strMsg) => {
+    console.log('received: %s', strMsg);
+
+    let msg;
+    try {
+      msg = JSON.parse(strMsg);
+    } catch(err) {
+      console.error('ignoring malformed message');
+    }
+
+    if (msg.type === TYPE_SWING) {
+      store.dispatch({
+        type: 'swing',
+        id,
+        ...msg.data,
+      });
+
+    } else {
+      console.error(`unrecognized message type ${msg.type}`);
+    }
+  });
+
+  store.dispatch({
+    type: 'addBall',
+    id,
   });
 
   ws.send(JSON.stringify({
-    type: TYPES_LEVEL,
+    type: TYPE_LEVEL,
     data: level,
   }));
 });

@@ -1,13 +1,16 @@
 import I from 'immutable';
 import p2 from 'p2';
 
-import createImmutableReducer from '../util/createImmutableReducer';
+import createImmutableReducer from '../../universal/createImmutableReducer';
 
 import keyCodes from '../keyCodes';
 import {calcVectorDegrees} from '../util/math';
 
+// import ws from '../ws';
+
 import {
-  TYPES_LEVEL,
+  TYPE_LEVEL,
+  // TYPE_SWING,
 } from '../../universal/protocol';
 
 import {
@@ -25,8 +28,6 @@ const Ball = I.Record({
   body: null,
   x: null,
   y: null,
-  // vx: null,
-  // vy: null,
 });
 
 const Level = I.Record({
@@ -131,7 +132,7 @@ export default createImmutableReducer(new State(), {
       .set('allowHit', allowHit);
   },
 
-  [`ws:${TYPES_LEVEL}`]: (state, action) => {
+  [`ws:${TYPE_LEVEL}`]: (state, action) => {
     const level = action.data;
 
     let levelRec = new Level(I.fromJS(level));
