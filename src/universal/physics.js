@@ -18,6 +18,9 @@ const ballGroundContact = new p2.ContactMaterial(ballMaterial, groundMaterial, {
   restitution: 0.5,
 });
 
+const BALL_GROUP = Math.pow(2,1);
+const GROUND_GROUP = Math.pow(2,2);
+
 export function createWorld() {
   const world = new p2.World({
     gravity: [0, 20],
@@ -33,6 +36,8 @@ export function createWorld() {
 export function createBall(spawn) {
   const ballShape = new p2.Circle({
     radius: BALL_RADIUS,
+    collisionGroup: BALL_GROUP,
+    collisionMask: GROUND_GROUP,
   });
   ballShape.material = ballMaterial;
 
@@ -88,6 +93,8 @@ export function createGround(level) {
 
   for (let shape of groundBody.shapes) {
     shape.material = groundMaterial;
+    shape.collisionGroup = GROUND_GROUP;
+    shape.collisionMask = BALL_GROUP;
   }
 
   return groundBody;
