@@ -10,6 +10,7 @@ const interruptKeyCodes = new Set([
   keyCodes.RIGHT_ARROW,
   keyCodes.UP_ARROW,
   keyCodes.DOWN_ARROW,
+  keyCodes.SPACE,
 ]);
 
 export function registerListeners() {
