@@ -89,6 +89,17 @@ wss.on('connection', (ws) => {
   });
 });
 
+function sendAll(state, msg) {
+  state.balls.forEach((ball) => {
+    ball.ws.send(JSON.stringify(msg), (err) => {
+      if (err) {
+        // TODO: ignore if it's a closed thing
+        console.error('error sending', err);
+      }
+    });
+  });
+}
+
 runLoop.subscribe(() => {
   const state = store.getState();
 
@@ -100,15 +111,9 @@ runLoop.subscribe(() => {
     };
   }).toList().toJS();
 
-  state.balls.forEach((ball) => {
-    ball.ws.send(JSON.stringify({
-      type: TYPE_POSITION,
-      data: {positions},
-    }), (err) => {
-      if (err) {
-        console.error('error sending position', err);
-      }
-    });
+  sendAll(state, {
+    type: TYPE_POSITION,
+    data: {positions},
   });
 });
 

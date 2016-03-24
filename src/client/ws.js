@@ -20,6 +20,10 @@ class WSConnection {
 
   handleClose() {
     console.error('lost ws connection');
+
+    this._store.dispatch({
+      type: 'disconnect',
+    });
   }
 
   send(msg) {

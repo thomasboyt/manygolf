@@ -17,6 +17,9 @@ import {
 
 import {
   MAX_POWER,
+  STATE_CONNECTING,
+  STATE_IN_GAME,
+  STATE_DISCONNECTED,
 } from '../universal/constants';
 
 import {
@@ -47,6 +50,7 @@ const Level = I.Record({
 });
 
 const State = I.Record({
+  state: STATE_CONNECTING,
   world: null,
   ball: Ball(),
   ghostBalls: I.Map(),
@@ -162,6 +166,7 @@ export default createImmutableReducer(new State(), {
     world.addBody(ballBody);
 
     return state
+      .set('state', STATE_IN_GAME)
       .set('world', world)
       .set('level', level)
       .setIn(['ball', 'body'], ballBody);
@@ -181,5 +186,9 @@ export default createImmutableReducer(new State(), {
 
       return state.updateIn(['ghostBalls', id], (ball) => ball.merge({x, y}));
     }, state);
+  },
+
+  'disconnect': (state) => {
+    return state.set('state', STATE_DISCONNECTED);
   }
 });

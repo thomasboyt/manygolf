@@ -1,4 +1,12 @@
-import {WIDTH, HEIGHT, MAX_POWER} from '../universal/constants';
+import {
+  WIDTH,
+  HEIGHT,
+  MAX_POWER,
+  STATE_CONNECTING,
+  STATE_IN_GAME,
+  STATE_DISCONNECTED,
+} from '../universal/constants';
+
 import {calcVectorDegrees} from './util/math';
 
 const skyColor = 'beige';
@@ -7,22 +15,25 @@ const ballColor = 'red';
 const meterBoxColor = 'skyblue';
 const meterFillColor = 'blue';
 
-export default function render(ctx, state) {
-  ctx.clearRect(0, 0, WIDTH, HEIGHT);
+function renderConnecting(ctx) {
+  ctx.fillStyle = 'black';
+  ctx.font = '16px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Connecting...', WIDTH / 2, HEIGHT / 2);
+}
 
-  ctx.save();
+function renderDisconnected(ctx) {
+  ctx.fillStyle = 'black';
+  ctx.font = '16px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Disconnected! Try reloading?', WIDTH / 2, HEIGHT / 2);
+}
 
-  ctx.fillStyle = skyColor;
-  ctx.fillRect(0, 0, WIDTH, HEIGHT);
-
-  const level = state.level;
-  if (!level) {
-    return;
-  }
-
+function renderInGame(ctx, state) {
   //
   // Draw ground
   //
+  const level = state.level;
 
   const points = level.points;
 
@@ -41,8 +52,6 @@ export default function render(ctx, state) {
 
   ctx.fill();
   ctx.closePath();
-
-  ctx.restore();
 
   //
   // Draw ball
@@ -104,4 +113,25 @@ export default function render(ctx, state) {
     ctx.stroke();
     ctx.closePath();
   });
+}
+
+export default function render(ctx, state) {
+  ctx.clearRect(0, 0, WIDTH, HEIGHT);
+
+  ctx.save();
+
+  ctx.fillStyle = skyColor;
+  ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+  if (state.state === STATE_CONNECTING) {
+    renderConnecting(ctx, state);
+  } else if (state.state === STATE_IN_GAME) {
+    renderInGame(ctx, state);
+  } else if (state.state === STATE_DISCONNECTED) {
+    renderDisconnected(ctx, state);
+  } else {
+    throw new Error(`Unrecognized state ${state.state}`);
+  }
+
+  ctx.restore();
 }
