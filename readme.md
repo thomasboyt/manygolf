@@ -1,4 +1,6 @@
-massively multiplayer proceedurally-generated 2d golf in the style of trackmania
+massively multiplayer proceedurally-generated 2d golf. think desert golf + trackmania
+
+play: http://manygolf.disco.zone/
 
 ### develop
 
@@ -10,6 +12,10 @@ npm run dev
 ```
 
 and navigate to localhost:8080
+
+### test
+
+this space intentionally left blank
 
 ### production
 
