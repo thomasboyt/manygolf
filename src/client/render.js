@@ -113,6 +113,18 @@ function renderInGame(ctx, state) {
     ctx.stroke();
     ctx.closePath();
   });
+
+  //
+  // Draw timer
+  //
+
+  const expTime = state.expTime;
+  const remainingMs = Math.ceil((expTime - Date.now()) / 1000);
+
+  ctx.fillStyle = 'black';
+  ctx.font = '14px sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText(remainingMs, WIDTH - 10, 20);
 }
 
 export default function render(ctx, state) {

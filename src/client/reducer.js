@@ -59,6 +59,7 @@ const State = I.Record({
   allowHit: false,
   inSwing: false,
   swingPower: 0,
+  expTime: null,
 });
 
 const fixedStep = 1 / 60;
@@ -153,6 +154,7 @@ export default createImmutableReducer(new State(), {
 
   [`ws:${TYPE_LEVEL}`]: (state, action) => {
     const levelData = action.data.level;
+    const expTime = action.data.expTime;
 
     const level = new Level(I.fromJS(levelData))
       .update(addHolePoints);
@@ -169,6 +171,7 @@ export default createImmutableReducer(new State(), {
       .set('state', STATE_IN_GAME)
       .set('world', world)
       .set('level', level)
+      .set('expTime', expTime)
       .setIn(['ball', 'body'], ballBody)
       .setIn(['ball', 'x'], level.spawn[0])
       .setIn(['ball', 'y'], level.spawn[1]);

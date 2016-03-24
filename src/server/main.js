@@ -39,22 +39,27 @@ const store = createStore(reducer);
 runLoop.setStore(store);
 runLoop.start();
 
-function startLevel() {
+function nextLevel() {
+  console.log('Cycling level');
+
+  const expTime = Date.now() + 20 * 1000;
+
   store.dispatch({
     type: 'level',
-    data: level,
+    levelData: level,
+    expTime,
   });
 
   sendAll(store.getState(), {
     type: TYPE_LEVEL,
     data: {
       level,
+      expTime,
     },
   });
 }
 
-startLevel();
-setInterval(startLevel, 10 * 1000);
+nextLevel();
 
 
 let idCounter = 0;
@@ -62,6 +67,7 @@ let idCounter = 0;
 wss.on('connection', (ws) => {
   idCounter += 1;
   const id = idCounter;
+  const state = store.getState();
 
   ws.on('message', (strMsg) => {
     console.log('received: %s', strMsg);
@@ -96,6 +102,7 @@ wss.on('connection', (ws) => {
     type: TYPE_LEVEL,
     data: {
       level,
+      expTime: state.expTime,
     },
   }));
 
@@ -119,6 +126,11 @@ function sendAll(state, msg) {
 
 runLoop.subscribe(() => {
   const state = store.getState();
+
+  if (state.expTime !== null && state.expTime < Date.now()) {
+    nextLevel();
+    return;
+  }
 
   const positions = state.balls.map((ball, id) => {
     return {

@@ -26,6 +26,7 @@ const State = I.Record({
   level: null,
   balls: I.Map(),
   sockets: I.Map(),  // id -> ws
+  expTime: null,
 });
 
 const fixedStep = 1 / 60;
@@ -82,9 +83,7 @@ export default createImmutableReducer(new State(), {
     }
   },
 
-  'level': (state, action) => {
-    const levelData = action.data;
-
+  'level': (state, {levelData, expTime}) => {
     const level = new Level(I.fromJS(levelData))
       .update(addHolePoints);
 
@@ -96,7 +95,8 @@ export default createImmutableReducer(new State(), {
 
     const nextState = state
       .set('world', world)
-      .set('level', level);
+      .set('level', level)
+      .set('expTime', expTime);
 
     return nextState.balls.reduce((state, ball, id) => {
       return addBall(state, id);
