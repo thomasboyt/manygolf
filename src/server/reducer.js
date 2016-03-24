@@ -25,10 +25,22 @@ const State = I.Record({
   world: null,
   level: null,
   balls: I.Map(),
+  sockets: I.Map(),  // id -> ws
 });
 
 const fixedStep = 1 / 60;
 const maxSubSteps = 10;
+
+function addBall(state, id) {
+  const ballBody = createBall(state.level.spawn);
+
+  state.world.addBody(ballBody);
+
+  return state
+    .setIn(['balls', id], new Ball({
+      body: ballBody,
+    }));
+}
 
 export default createImmutableReducer(new State(), {
   'tick': (state, {dt}) => {
@@ -45,19 +57,15 @@ export default createImmutableReducer(new State(), {
     return state;
   },
 
-  'addBall': (state, {id, ws}) => {
-    const ballBody = createBall(state.level.spawn);
-
-    state.world.addBody(ballBody);
-
-    return state.setIn(['balls', id], new Ball({
-      body: ballBody,
-      ws,
-    }));
+  'playerConnected': (state, {id, ws}) => {
+    return addBall(state, id)
+      .setIn(['sockets', id], ws);
   },
 
-  'removeBall': (state, {id}) => {
-    return state.deleteIn(['balls', id]);
+  'playerDisconnected': (state, {id}) => {
+    return state
+      .deleteIn(['balls', id])
+      .deleteIn(['sockets', id]);
   },
 
   'swing': (state, {id, vec}) => {
@@ -86,8 +94,12 @@ export default createImmutableReducer(new State(), {
 
     world.addBody(groundBody);
 
-    return state
+    const nextState = state
       .set('world', world)
       .set('level', level);
+
+    return nextState.balls.reduce((state, ball, id) => {
+      return addBall(state, id);
+    }, nextState);
   },
 });

@@ -10,7 +10,7 @@ import {calcVectorDegrees} from './util/math';
 import ws from './ws';
 
 import {
-  TYPE_SNAPSHOT,
+  TYPE_LEVEL,
   TYPE_SWING,
   TYPE_POSITION,
 } from '../universal/protocol';
@@ -151,7 +151,7 @@ export default createImmutableReducer(new State(), {
       .set('allowHit', allowHit);
   },
 
-  [`ws:${TYPE_SNAPSHOT}`]: (state, action) => {
+  [`ws:${TYPE_LEVEL}`]: (state, action) => {
     const levelData = action.data.level;
 
     const level = new Level(I.fromJS(levelData))
@@ -169,7 +169,9 @@ export default createImmutableReducer(new State(), {
       .set('state', STATE_IN_GAME)
       .set('world', world)
       .set('level', level)
-      .setIn(['ball', 'body'], ballBody);
+      .setIn(['ball', 'body'], ballBody)
+      .setIn(['ball', 'x'], level.spawn[0])
+      .setIn(['ball', 'y'], level.spawn[1]);
   },
 
   [`ws:${TYPE_POSITION}`]: (state, {data}) => {

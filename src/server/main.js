@@ -7,11 +7,16 @@ import reducer from './reducer';
 import runLoop from './runLoop';
 
 import {
-  // TYPE_LEVEL,
-  TYPE_SNAPSHOT,
+  TYPE_LEVEL,
   TYPE_SWING,
   TYPE_POSITION,
 } from '../universal/protocol';
+
+
+/*
+ * TODO:
+ * this file is a complete mess
+ */
 
 const server = http.createServer();
 const wss = new ws.Server({server});
@@ -31,14 +36,26 @@ const level = {
 };
 
 const store = createStore(reducer);
-
-store.dispatch({
-  type: 'level',
-  data: level,
-});
-
 runLoop.setStore(store);
 runLoop.start();
+
+function startLevel() {
+  store.dispatch({
+    type: 'level',
+    data: level,
+  });
+
+  sendAll(store.getState(), {
+    type: TYPE_LEVEL,
+    data: {
+      level,
+    },
+  });
+}
+
+startLevel();
+setInterval(startLevel, 10 * 1000);
+
 
 let idCounter = 0;
 
@@ -70,28 +87,28 @@ wss.on('connection', (ws) => {
 
   ws.on('close', () => {
     store.dispatch({
-      type: 'removeBall',
+      type: 'playerDisconnected',
       id,
     });
   });
 
   ws.send(JSON.stringify({
-    type: TYPE_SNAPSHOT,
+    type: TYPE_LEVEL,
     data: {
       level,
     },
   }));
 
   store.dispatch({
-    type: 'addBall',
+    type: 'playerConnected',
     id,
     ws,
   });
 });
 
 function sendAll(state, msg) {
-  state.balls.forEach((ball) => {
-    ball.ws.send(JSON.stringify(msg), (err) => {
+  state.sockets.forEach((socket) => {
+    socket.send(JSON.stringify(msg), (err) => {
       if (err) {
         // TODO: ignore if it's a closed thing
         console.error('error sending', err);
