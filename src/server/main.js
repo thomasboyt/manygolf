@@ -44,7 +44,7 @@ function cycleLevel() {
   sendAll(store.getState(), {
     type: TYPE_LEVEL,
     data: {
-      nextLevel,
+      level: nextLevel,
       expTime,
     },
   });
