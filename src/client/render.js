@@ -115,14 +115,22 @@ function renderInGame(ctx, state) {
   });
 
   //
-  // Draw timer
+  // Draw UI
   //
 
+  ctx.fillStyle = 'black';
+  ctx.font = 'bold 20px Hyperspace';
+
+  // Hole
+
+  // Stroke count
+  ctx.textAlign = 'left';
+  ctx.fillText('STROKE 1', 10, 20);
+
+  // Timer
   const expTime = state.expTime;
   const remainingMs = Math.ceil((expTime - Date.now()) / 1000);
 
-  ctx.fillStyle = 'black';
-  ctx.font = '14px sans-serif';
   ctx.textAlign = 'right';
   ctx.fillText(remainingMs, WIDTH - 10, 20);
 }
