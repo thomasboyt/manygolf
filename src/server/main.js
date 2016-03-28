@@ -5,6 +5,7 @@ import { createStore } from 'redux';
 
 import reducer from './reducer';
 import runLoop from './runLoop';
+import levelGen from './levelGen';
 
 import {
   TYPE_LEVEL,
@@ -23,43 +24,33 @@ const wss = new ws.Server({server});
 const app = express();
 const port = 4080;
 
-const level = {
-  points: [
-    [0, 200],
-    [100, 200],
-    [200, 150],
-    [300, 200],
-    [500, 200]
-  ],
-  hole: [400, 200],
-  spawn: [50, 200],
-};
-
 const store = createStore(reducer);
 runLoop.setStore(store);
 runLoop.start();
 
-function nextLevel() {
+function cycleLevel() {
   console.log('Cycling level');
 
   const expTime = Date.now() + 20 * 1000;
 
+  const nextLevel = levelGen();
+
   store.dispatch({
     type: 'level',
-    levelData: level,
+    levelData: nextLevel,
     expTime,
   });
 
   sendAll(store.getState(), {
     type: TYPE_LEVEL,
     data: {
-      level,
+      nextLevel,
       expTime,
     },
   });
 }
 
-nextLevel();
+cycleLevel();
 
 
 let idCounter = 0;
@@ -101,7 +92,7 @@ wss.on('connection', (ws) => {
   ws.send(JSON.stringify({
     type: TYPE_LEVEL,
     data: {
-      level,
+      level: state.levelData,
       expTime: state.expTime,
     },
   }));
@@ -128,7 +119,7 @@ runLoop.subscribe(() => {
   const state = store.getState();
 
   if (state.expTime !== null && state.expTime < Date.now()) {
-    nextLevel();
+    cycleLevel();
     return;
   }
 

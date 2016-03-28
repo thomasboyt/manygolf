@@ -22,6 +22,7 @@ const Level = I.Record({
 });
 
 const State = I.Record({
+  levelData: null,
   world: null,
   level: null,
   balls: I.Map(),
@@ -96,7 +97,8 @@ export default createImmutableReducer(new State(), {
     const nextState = state
       .set('world', world)
       .set('level', level)
-      .set('expTime', expTime);
+      .set('expTime', expTime)
+      .set('levelData', levelData);
 
     return nextState.balls.reduce((state, ball, id) => {
       return addBall(state, id);
