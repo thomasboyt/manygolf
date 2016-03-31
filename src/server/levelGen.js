@@ -11,6 +11,10 @@ import {WIDTH, HEIGHT} from '../universal/constants';
 //   hole: [400, 200],
 //   spawn: [50, 200],
 // };
+//
+// export default function levelGen() {
+//   return level;
+// }
 
 /* get an int between min and max inclusive */
 function randInt(min, max) {

@@ -8,6 +8,7 @@ import {
   createWorld,
   createBall,
   createGround,
+  createHoleSensor,
   addHolePoints,
 } from '../universal/physics';
 
@@ -15,6 +16,7 @@ const Player = I.Record({
   body: null,
   color: null,
   strokes: 0,
+  scored: false,
   socket: null,
 });
 
@@ -30,6 +32,7 @@ const State = I.Record({
   level: null,
   players: I.Map(),
   expTime: null,
+  holeSensor: null,
 });
 
 const fixedStep = 1 / 60;
@@ -65,11 +68,30 @@ export default createImmutableReducer(new State(), {
       return state;
     }
 
+    // overlaps() can't be used on a sleeping object, so we check overlapping before tick
+    const isOverlapping = state.players.map((player) => {
+      return player.body.overlaps(state.holeSensor);
+    });
+
     // XXX: MMMMMonster hack
     // dt is set to dt * 3 because that's the speed I actually want
     state.world.step(fixedStep, dt * 3, maxSubSteps);
 
-    return state;
+    return state.update('players', (players) => players.map((player, id) => {
+      if (player.scored) {
+        return player;
+
+      } else {
+        const isSleeping = player.body.sleepState === p2.Body.SLEEPING;
+        const scored = isOverlapping.get(id) && isSleeping;
+
+        if (scored) {
+          console.log(`*** Player ${id} scored`);
+        }
+
+        return player.set('scored', scored);
+      }
+    }));
   },
 
   'playerConnected': (state, {id, ws}) => {
@@ -103,14 +125,17 @@ export default createImmutableReducer(new State(), {
     const world = createWorld();
 
     const groundBody = createGround(level);
-
     world.addBody(groundBody);
+
+    const holeSensor = createHoleSensor(level.hole);
+    world.addBody(holeSensor);
 
     return state
       .set('world', world)
       .set('level', level)
       .set('expTime', expTime)
       .set('levelData', levelData)
+      .set('holeSensor', holeSensor)
       // TODO: better way to do this?
       .update('players', (players) => {
         return players.map((player) => {

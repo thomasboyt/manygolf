@@ -31,7 +31,7 @@ runLoop.start();
 function cycleLevel() {
   console.log('Cycling level');
 
-  const expTime = Date.now() + 20 * 1000;
+  const expTime = Date.now() + 60 * 1000;
 
   const nextLevel = levelGen();
 
