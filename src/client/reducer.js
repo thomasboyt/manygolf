@@ -59,6 +59,7 @@ const State = I.Record({
   inSwing: false,
   swingPower: 0,
   expTime: null,
+  strokes: 0,
 });
 
 const fixedStep = 1 / 60;
@@ -107,7 +108,8 @@ function endSwing(state) {
 
   return state
     .set('inSwing', false)
-    .set('swingPower', 0);
+    .set('swingPower', 0)
+    .update('strokes', (strokes) => strokes + 1);
 }
 
 export default createImmutableReducer(new State(), {
@@ -171,6 +173,7 @@ export default createImmutableReducer(new State(), {
       .set('world', world)
       .set('level', level)
       .set('expTime', expTime)
+      .set('strokes', 0)
       .setIn(['ball', 'body'], ballBody)
       .setIn(['ball', 'x'], level.spawn[0])
       .setIn(['ball', 'y'], level.spawn[1]);

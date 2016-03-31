@@ -125,7 +125,7 @@ function renderInGame(ctx, state) {
 
   // Stroke count
   ctx.textAlign = 'left';
-  ctx.fillText('STROKE 1', 10, 20);
+  ctx.fillText(`STROKES ${state.strokes}`, 10, 20);
 
   // Timer
   const expTime = state.expTime;
