@@ -8,6 +8,9 @@ import runLoop from './runLoop';
 import levelGen from './levelGen';
 
 import {
+  TYPE_INITIAL,
+  TYPE_PLAYER_CONNECTED,
+  TYPE_PLAYER_DISCONNECTED,
   TYPE_LEVEL,
   TYPE_SWING,
   TYPE_POSITION,
@@ -41,7 +44,7 @@ function cycleLevel() {
     expTime,
   });
 
-  sendAll(store.getState(), {
+  sendAll({
     type: TYPE_LEVEL,
     data: {
       level: nextLevel,
@@ -55,61 +58,98 @@ cycleLevel();
 
 let idCounter = 0;
 
+function handleCloseSocket(id, didError) {
+  const reason = didError ? '(errored)' : '';
+  console.log(`*** ID ${id} disconnected ${reason}`);
+
+  store.dispatch({
+    type: 'playerDisconnected',
+    id,
+  });
+
+  sendAll({
+    type: TYPE_PLAYER_DISCONNECTED,
+    data: {
+      id,
+    }
+  });
+}
+
+function handleMessage(id, strMsg) {
+  console.log('received: %s', strMsg);
+
+  let msg;
+  try {
+    msg = JSON.parse(strMsg);
+  } catch(err) {
+    console.error('ignoring malformed message');
+  }
+
+  if (msg.type === TYPE_SWING) {
+    store.dispatch({
+      type: 'swing',
+      id,
+      ...msg.data,
+    });
+
+  } else {
+    console.error(`unrecognized message type ${msg.type}`);
+  }
+}
+
 wss.on('connection', (ws) => {
   idCounter += 1;
   const id = idCounter;
-  const state = store.getState();
 
-  ws.on('message', (strMsg) => {
-    console.log('received: %s', strMsg);
+  console.log(`*** ID ${id} connected`);
 
-    let msg;
-    try {
-      msg = JSON.parse(strMsg);
-    } catch(err) {
-      console.error('ignoring malformed message');
-    }
-
-    if (msg.type === TYPE_SWING) {
-      store.dispatch({
-        type: 'swing',
-        id,
-        ...msg.data,
-      });
-
-    } else {
-      console.error(`unrecognized message type ${msg.type}`);
-    }
-  });
-
-  ws.on('close', () => {
-    store.dispatch({
-      type: 'playerDisconnected',
-      id,
-    });
-  });
-
-  ws.send(JSON.stringify({
-    type: TYPE_LEVEL,
-    data: {
-      level: state.levelData,
-      expTime: state.expTime,
-    },
-  }));
+  ws.on('message', (strMsg) => handleMessage(id, strMsg));
+  ws.on('close', () => handleCloseSocket(id, false));
+  ws.on('error', () => handleCloseSocket(id, true));
 
   store.dispatch({
     type: 'playerConnected',
     id,
     ws,
   });
+
+  const state = store.getState();
+
+  const color = state.getIn(['players', id, 'color']);
+
+  ws.send(JSON.stringify({
+    type: TYPE_INITIAL,
+    data: {
+      id,
+      color,
+
+      players: state.players.map((player, id) => {
+        return {
+          id,
+          color: player.color,
+        };
+      }).toList().toJS(),
+
+      level: state.levelData,
+      expTime: state.expTime,
+    },
+  }));
+
+  sendAll({
+    type: TYPE_PLAYER_CONNECTED,
+    data: {
+      id,
+      color,
+    }
+  });
 });
 
-function sendAll(state, msg) {
-  state.players.forEach((player) => {
+function sendAll(msg) {
+  const state = store.getState();
+  state.players.forEach((player, id) => {
     player.socket.send(JSON.stringify(msg), (err) => {
       if (err) {
-        // TODO: ignore if it's a closed thing
-        console.error('error sending', err);
+        console.log(`error sending to ${id}`, err);
       }
     });
   });
@@ -128,12 +168,10 @@ runLoop.subscribe(() => {
       id,
       x: player.body.interpolatedPosition[0],
       y: player.body.interpolatedPosition[1],
-      // TODO: send this beforehand so you don't have to send on every frame
-      color: player.color
     };
   }).toList().toJS();
 
-  sendAll(state, {
+  sendAll({
     type: TYPE_POSITION,
     data: {positions},
   });

@@ -126,13 +126,13 @@ function renderInGame(ctx, state) {
   //
   // Draw UI
   //
-
   ctx.fillStyle = 'black';
   ctx.font = 'bold 20px Hyperspace';
 
   // Stroke count
   ctx.textAlign = 'left';
   ctx.fillText(`STROKES ${state.strokes}`, 10, 20);
+  ctx.fillText(`PLAYERS ${state.ghostBalls.size}`, 10, 40);
 
   // Timer
   const expTime = state.expTime;

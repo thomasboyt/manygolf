@@ -9,6 +9,9 @@ import {calcVectorDegrees} from './util/math';
 import ws from './ws';
 
 import {
+  TYPE_INITIAL,
+  TYPE_PLAYER_CONNECTED,
+  TYPE_PLAYER_DISCONNECTED,
   TYPE_LEVEL,
   TYPE_SWING,
   TYPE_POSITION,
@@ -115,6 +118,37 @@ function endSwing(state) {
     .update('strokes', (strokes) => strokes + 1);
 }
 
+function newLevel(state, data) {
+  const levelData = data.level;
+  const expTime = data.expTime;
+
+  const level = new Level(I.fromJS(levelData))
+    .update(addHolePoints);
+
+  const world = createWorld();
+
+  const groundBody = createGround(level);
+  world.addBody(groundBody);
+
+  const ballBody = createBall(level.spawn);
+  world.addBody(ballBody);
+
+  const holeSensor = createHoleSensor(level.hole);
+  world.addBody(holeSensor);
+
+  return state
+    .set('state', STATE_IN_GAME)
+    .set('world', world)
+    .set('level', level)
+    .set('expTime', expTime)
+    .set('strokes', 0)
+    .set('holeSensor', holeSensor)
+    .set('scored', false)
+    .setIn(['ball', 'body'], ballBody)
+    .setIn(['ball', 'x'], level.spawn[0])
+    .setIn(['ball', 'y'], level.spawn[1]);
+}
+
 export default createImmutableReducer(new State(), {
   'tick': (state, {dt, keysDown}) => {
     dt = dt / 1000;  // ms -> s
@@ -168,48 +202,34 @@ export default createImmutableReducer(new State(), {
   },
 
   [`ws:${TYPE_LEVEL}`]: (state, action) => {
-    const levelData = action.data.level;
-    const expTime = action.data.expTime;
+    return newLevel(state, action.data);
+  },
 
-    const level = new Level(I.fromJS(levelData))
-      .update(addHolePoints);
-
-    const world = createWorld();
-
-    const groundBody = createGround(level);
-    world.addBody(groundBody);
-
-    const ballBody = createBall(level.spawn);
-    world.addBody(ballBody);
-
-    const holeSensor = createHoleSensor(level.hole);
-    world.addBody(holeSensor);
-
+  [`ws:${TYPE_INITIAL}`]: (state, action) => {
+    // TODO: use data.id, data.color for ?!?
     return state
-      .set('state', STATE_IN_GAME)
-      .set('world', world)
-      .set('level', level)
-      .set('expTime', expTime)
-      .set('strokes', 0)
-      .set('holeSensor', holeSensor)
-      .set('scored', false)
-      .setIn(['ball', 'body'], ballBody)
-      .setIn(['ball', 'x'], level.spawn[0])
-      .setIn(['ball', 'y'], level.spawn[1]);
+      .set('ghostBalls', action.data.players.reduce((balls, player) => {
+        return balls.set(player.id, new DumbBall({
+          color: player.color,
+        }));
+      }, I.Map()))
+      .update((s) => newLevel(s, action.data));
+  },
+
+  [`ws:${TYPE_PLAYER_CONNECTED}`]: (state, action) => {
+    return state.setIn(['ghostBalls', action.data.id], new DumbBall({
+      color: action.data.color,
+    }));
+  },
+
+  [`ws:${TYPE_PLAYER_DISCONNECTED}`]: (state, action) => {
+    return state.deleteIn(['ghostBalls', action.data.id]);
   },
 
   [`ws:${TYPE_POSITION}`]: (state, {data}) => {
     const {positions} = data;
 
-    return positions.reduce((state, {x, y, id, color}) => {
-      if (!state.ghostBalls.get(id)) {
-        return state.setIn(['ghostBalls', id], new DumbBall({
-          x,
-          y,
-          color,
-        }));
-      }
-
+    return positions.reduce((state, {x, y, id}) => {
       return state.updateIn(['ghostBalls', id], (ball) => ball.merge({x, y}));
     }, state);
   },
