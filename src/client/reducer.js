@@ -1,6 +1,5 @@
 import I from 'immutable';
 import p2 from 'p2';
-import randomColor from 'randomcolor';
 
 import createImmutableReducer from '../universal/createImmutableReducer';
 
@@ -180,12 +179,12 @@ export default createImmutableReducer(new State(), {
   [`ws:${TYPE_POSITION}`]: (state, {data}) => {
     const {positions} = data;
 
-    return positions.reduce((state, {x, y, id}) => {
+    return positions.reduce((state, {x, y, id, color}) => {
       if (!state.ghostBalls.get(id)) {
         return state.setIn(['ghostBalls', id], new DumbBall({
           x,
           y,
-          color: randomColor(),
+          color,
         }));
       }
 

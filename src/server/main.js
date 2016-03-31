@@ -105,8 +105,8 @@ wss.on('connection', (ws) => {
 });
 
 function sendAll(state, msg) {
-  state.sockets.forEach((socket) => {
-    socket.send(JSON.stringify(msg), (err) => {
+  state.players.forEach((player) => {
+    player.socket.send(JSON.stringify(msg), (err) => {
       if (err) {
         // TODO: ignore if it's a closed thing
         console.error('error sending', err);
@@ -123,11 +123,13 @@ runLoop.subscribe(() => {
     return;
   }
 
-  const positions = state.balls.map((ball, id) => {
+  const positions = state.players.map((player, id) => {
     return {
       id,
-      x: ball.body.interpolatedPosition[0],
-      y: ball.body.interpolatedPosition[1],
+      x: player.body.interpolatedPosition[0],
+      y: player.body.interpolatedPosition[1],
+      // TODO: send this beforehand so you don't have to send on every frame
+      color: player.color
     };
   }).toList().toJS();
 

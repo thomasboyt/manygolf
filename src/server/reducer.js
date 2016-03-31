@@ -2,6 +2,7 @@ import I from 'immutable';
 import p2 from 'p2';
 
 import createImmutableReducer from '../universal/createImmutableReducer';
+import randomColor from 'randomcolor';
 
 import {
   createWorld,
@@ -10,9 +11,11 @@ import {
   addHolePoints,
 } from '../universal/physics';
 
-const Ball = I.Record({
+const Player = I.Record({
   body: null,
-  ws: null,
+  color: null,
+  strokes: 0,
+  socket: null,
 });
 
 const Level = I.Record({
@@ -25,23 +28,33 @@ const State = I.Record({
   levelData: null,
   world: null,
   level: null,
-  balls: I.Map(),
-  sockets: I.Map(),  // id -> ws
+  players: I.Map(),
   expTime: null,
 });
 
 const fixedStep = 1 / 60;
 const maxSubSteps = 10;
 
-function addBall(state, id) {
-  const ballBody = createBall(state.level.spawn);
+function addPlayer(state, {id, ws}) {
+  // XXX: in the future avoid generating color here...
+  const color = randomColor();
 
-  state.world.addBody(ballBody);
+  const body = addBall(state);
 
   return state
-    .setIn(['balls', id], new Ball({
-      body: ballBody,
+    .setIn(['players', id], new Player({
+      body,
+      color,
+      socket: ws,
     }));
+}
+
+function addBall({level, world}) {
+  const ballBody = createBall(level.spawn);
+
+  world.addBody(ballBody);
+
+  return ballBody;
 }
 
 export default createImmutableReducer(new State(), {
@@ -60,27 +73,26 @@ export default createImmutableReducer(new State(), {
   },
 
   'playerConnected': (state, {id, ws}) => {
-    return addBall(state, id)
-      .setIn(['sockets', id], ws);
+    return addPlayer(state, {id, ws});
   },
 
   'playerDisconnected': (state, {id}) => {
     return state
-      .deleteIn(['balls', id])
-      .deleteIn(['sockets', id]);
+      .deleteIn(['players', id]);
   },
 
   'swing': (state, {id, vec}) => {
-    const ball = state.balls.get(id);
+    const body = state.players.get(id).get('body');
 
-    if (ball.body.sleepState !== p2.Body.SLEEPING) {
+    if (body.sleepState !== p2.Body.SLEEPING) {
       // ignore
       return state;
 
     } else {
-      ball.body.velocity[0] = vec.x;
-      ball.body.velocity[1] = vec.y;
-      return state;
+      body.velocity[0] = vec.x;
+      body.velocity[1] = vec.y;
+
+      return state.updateIn(['players', id, 'strokes'], (strokes) => strokes + 1);
     }
   },
 
@@ -94,14 +106,18 @@ export default createImmutableReducer(new State(), {
 
     world.addBody(groundBody);
 
-    const nextState = state
+    return state
       .set('world', world)
       .set('level', level)
       .set('expTime', expTime)
-      .set('levelData', levelData);
-
-    return nextState.balls.reduce((state, ball, id) => {
-      return addBall(state, id);
-    }, nextState);
+      .set('levelData', levelData)
+      // TODO: better way to do this?
+      .update('players', (players) => {
+        return players.map((player) => {
+          return player
+            .set('body', addBall({level, world}))
+            .set('strokes', 0);
+        });
+      });
   },
 });
