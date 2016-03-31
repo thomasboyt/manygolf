@@ -20,18 +20,14 @@ function randInt(min, max) {
 export default function levelGen() {
   const numSegments = randInt(10, 30);
 
-  const spawnX = randInt(20, Math.floor(WIDTH / 3));
-  const holeX = randInt(Math.floor(WIDTH / 3) * 2, WIDTH - 20);
+  const spawnSegment = randInt(2, Math.floor(numSegments / 3));
+  const holeSegment = randInt(Math.floor(numSegments / 3) * 2, numSegments);
 
   // ceil to prevent sum(segment widths) with being < WIDTH
   const segmentWidth = Math.ceil(WIDTH / numSegments);
 
-  // TODO: Prevent spawning on the "corner" of a segment
-  // TODO: center hole within Segment
-  // Use ball radius/hole width to help with this!
-
   const points = [];
-  let spawnY, holeY;
+  let spawnX, spawnY, holeX, holeY;
 
   for (let idx = 0; idx <= numSegments; idx++) {
     let x, y;
@@ -49,14 +45,16 @@ export default function levelGen() {
     // TODO: lol
     y = randInt(HEIGHT - 150, HEIGHT - 20);
 
-    if (x > holeX && holeY === undefined) {
-      y = points[idx - 1][1];
-      holeY = y;
-    }
-
-    if (x > spawnX && spawnY === undefined) {
+    if (idx === spawnSegment) {
+      spawnX = x - Math.round(segmentWidth / 2);
       y = points[idx - 1][1];
       spawnY = y;
+    }
+
+    if (idx === holeSegment) {
+      holeX = x - Math.round(segmentWidth / 2);
+      y = points[idx - 1][1];
+      holeY = y;
     }
 
     points.push([x, y]);
