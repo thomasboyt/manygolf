@@ -27,6 +27,10 @@ class WSConnection {
   }
 
   send(msg) {
+    if (!this._ws) {
+      return;
+    }
+
     const strMsg = JSON.stringify(msg);
 
     this._ws.send(strMsg);
