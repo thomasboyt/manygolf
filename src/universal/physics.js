@@ -99,3 +99,24 @@ export function createGround(level) {
 
   return groundBody;
 }
+
+export function createHoleSensor(pos) {
+  const sensorShape = new p2.Box({
+    width: HOLE_WIDTH,
+    height: HOLE_HEIGHT,
+  });
+
+  sensorShape.sensor = true;
+  sensorShape.collisionGroup = GROUND_GROUP;
+  sensorShape.collisionMask = BALL_GROUP;
+
+  // Sensor is purposely built halfway into the ground so top edge collisions are avoided
+  const sensorBody = new p2.Body({
+    position: [pos.get(0) - HOLE_WIDTH / 2, pos.get(1) + HOLE_WIDTH / 2],
+  });
+  sensorBody.damping = 0;
+  sensorBody.addShape(sensorShape);
+  sensorBody.active = false;
+
+  return sensorBody;
+}

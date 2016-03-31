@@ -25,6 +25,7 @@ import {
   createWorld,
   createBall,
   createGround,
+  createHoleSensor,
   addHolePoints,
 } from '../universal/physics';
 
@@ -60,6 +61,8 @@ const State = I.Record({
   swingPower: 0,
   expTime: null,
   strokes: 0,
+  holeSensor: null,
+  scored: false,
 });
 
 const fixedStep = 1 / 60;
@@ -120,7 +123,7 @@ export default createImmutableReducer(new State(), {
       return state;
     }
 
-    if (state.allowHit) {
+    if (state.allowHit && !state.scored) {
       if (keysDown.has(keyCodes.A) || keysDown.has(keyCodes.LEFT_ARROW)) {
         state = setAim(state, 'left', dt);
       }
@@ -139,18 +142,29 @@ export default createImmutableReducer(new State(), {
       }
     }
 
+    // overlaps() can't be used on a sleeping object, so we check overlapping before tick
+    const overlapping = state.ball.body.overlaps(state.holeSensor);
+
     // XXX: MMMMMonster hack
     // dt is set to dt * 3 because that's the speed I actually want
     state.world.step(fixedStep, dt * 3, maxSubSteps);
 
-    const [ballX, ballY] = state.ball.body.interpolatedPosition;
+    if (state.scored) {
+      return state;
 
-    const allowHit = state.ball.body.sleepState === p2.Body.SLEEPING;
+    } else {
+      const isSleeping = state.ball.body.sleepState === p2.Body.SLEEPING;
 
-    return state
-      .setIn(['ball', 'x'], ballX)
-      .setIn(['ball', 'y'], ballY)
-      .set('allowHit', allowHit);
+      const scored = overlapping && isSleeping;
+
+      const [ballX, ballY] = state.ball.body.interpolatedPosition;
+
+      return state
+        .setIn(['ball', 'x'], ballX)
+        .setIn(['ball', 'y'], ballY)
+        .set('allowHit', isSleeping)
+        .set('scored', scored);
+    }
   },
 
   [`ws:${TYPE_LEVEL}`]: (state, action) => {
@@ -168,12 +182,17 @@ export default createImmutableReducer(new State(), {
     const ballBody = createBall(level.spawn);
     world.addBody(ballBody);
 
+    const holeSensor = createHoleSensor(level.hole);
+    world.addBody(holeSensor);
+
     return state
       .set('state', STATE_IN_GAME)
       .set('world', world)
       .set('level', level)
       .set('expTime', expTime)
       .set('strokes', 0)
+      .set('holeSensor', holeSensor)
+      .set('scored', false)
       .setIn(['ball', 'body'], ballBody)
       .setIn(['ball', 'x'], level.spawn[0])
       .setIn(['ball', 'y'], level.spawn[1]);

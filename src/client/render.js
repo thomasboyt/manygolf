@@ -67,7 +67,7 @@ function renderInGame(ctx, state) {
   //
   // Draw aim arrow
   //
-  if (state.allowHit) {
+  if (state.allowHit && !state.scored) {
     const aimDirection = state.aimDirection;
 
     const offset = 10;
@@ -114,14 +114,21 @@ function renderInGame(ctx, state) {
     ctx.closePath();
   });
 
+  // Hole (debug)
+  // ctx.fillStyle = 'red';
+  // ctx.fillRect(
+  //   state.holeSensor.interpolatedPosition[0],
+  //   state.holeSensor.interpolatedPosition[1],
+  //   10,
+  //   10
+  // );
+
   //
   // Draw UI
   //
 
   ctx.fillStyle = 'black';
   ctx.font = 'bold 20px Hyperspace';
-
-  // Hole
 
   // Stroke count
   ctx.textAlign = 'left';
