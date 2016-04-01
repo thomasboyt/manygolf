@@ -5,6 +5,8 @@ import {
   STATE_CONNECTING,
   STATE_IN_GAME,
   STATE_DISCONNECTED,
+  // HOLE_WIDTH,
+  // HOLE_HEIGHT,
 } from '../universal/constants';
 
 import {calcVectorDegrees} from './util/math';
@@ -117,8 +119,8 @@ function renderInGame(ctx, state) {
   // Hole (debug)
   // ctx.fillStyle = 'red';
   // ctx.fillRect(
-  //   state.holeSensor.interpolatedPosition[0],
-  //   state.holeSensor.interpolatedPosition[1],
+  //   state.holeSensor.interpolatedPosition[0] - (HOLE_WIDTH / 2),
+  //   state.holeSensor.interpolatedPosition[1] - (HOLE_HEIGHT / 2),
   //   10,
   //   10
   // );
@@ -131,8 +133,8 @@ function renderInGame(ctx, state) {
 
   // Stroke count
   ctx.textAlign = 'left';
-  ctx.fillText(`STROKES ${state.strokes}`, 10, 20);
-  ctx.fillText(`PLAYERS ${state.ghostBalls.size}`, 10, 40);
+  ctx.fillText(`Stroke ${state.strokes}`, 10, 20);
+  ctx.fillText(`Players ${state.ghostBalls.size}`, 10, 40);
 
   // Timer
   const expTime = state.expTime;

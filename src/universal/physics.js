@@ -126,7 +126,7 @@ export function createHoleSensor(pos) {
 
   // Sensor is purposely built halfway into the ground so top edge collisions are avoided
   const sensorBody = new p2.Body({
-    position: [pos.get(0) - HOLE_WIDTH / 2, pos.get(1) + HOLE_WIDTH / 2],
+    position: [pos.get(0), pos.get(1) + HOLE_HEIGHT],
   });
   sensorBody.damping = 0;
   sensorBody.addShape(sensorShape);
