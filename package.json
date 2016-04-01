@@ -54,6 +54,7 @@
     "express": "^4.13.4",
     "immutable": "^3.7.3",
     "lodash.clamp": "^4.0.1",
+    "lodash.sample": "^4.1.1",
     "p2": "^0.7.1",
     "raf": "^3.2.0",
     "randomcolor": "^0.4.3",

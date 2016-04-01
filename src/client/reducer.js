@@ -22,6 +22,7 @@ import {
   STATE_CONNECTING,
   STATE_IN_GAME,
   STATE_DISCONNECTED,
+  goalWords,
 } from '../universal/constants';
 
 import {
@@ -33,6 +34,7 @@ import {
 } from '../universal/physics';
 
 import clamp from 'lodash.clamp';
+import sample from 'lodash.sample';
 
 const Ball = I.Record({
   body: null,
@@ -54,18 +56,24 @@ const Level = I.Record({
 
 const State = I.Record({
   state: STATE_CONNECTING,
+  level: null,
+  ghostBalls: I.Map(),
+
+  // This all needs to get reset on level change...
   world: null,
   ball: Ball(),
-  ghostBalls: I.Map(),
-  level: null,
+  holeSensor: null,
+
   aimDirection: -45,  // angle (in degrees) relative to pointing ->
+  swingPower: 0,
   allowHit: false,
   inSwing: false,
-  swingPower: 0,
+
   expTime: null,
   strokes: 0,
-  holeSensor: null,
+
   scored: false,
+  goalText: null,
 });
 
 const fixedStep = 1 / 60;
@@ -118,6 +126,14 @@ function endSwing(state) {
     .update('strokes', (strokes) => strokes + 1);
 }
 
+function enterScored(state) {
+  const goalText = sample(goalWords);
+
+  return state
+    .set('scored', true)
+    .set('goalText', goalText);
+}
+
 function newLevel(state, data) {
   const levelData = data.level;
   const expTime = data.expTime;
@@ -149,6 +165,29 @@ function newLevel(state, data) {
     .setIn(['ball', 'y'], level.spawn[1]);
 }
 
+function handleInput(state, {dt, keysDown}) {
+  if (state.allowHit && !state.scored) {
+    if (keysDown.has(keyCodes.A) || keysDown.has(keyCodes.LEFT_ARROW)) {
+      state = setAim(state, 'left', dt);
+    }
+    if (keysDown.has(keyCodes.D) || keysDown.has(keyCodes.RIGHT_ARROW)) {
+      state = setAim(state, 'right', dt);
+    }
+
+    if (state.inSwing) {
+      if (keysDown.has(keyCodes.SPACE)) {
+        state = continueSwing(state, dt);
+      } else {
+        state = endSwing(state);
+      }
+    } else if (keysDown.has(keyCodes.SPACE)) {
+      state = beginSwing(state);
+    }
+  }
+
+  return state;
+}
+
 export default createImmutableReducer(new State(), {
   'tick': (state, {dt, keysDown}) => {
     dt = dt / 1000;  // ms -> s
@@ -157,24 +196,7 @@ export default createImmutableReducer(new State(), {
       return state;
     }
 
-    if (state.allowHit && !state.scored) {
-      if (keysDown.has(keyCodes.A) || keysDown.has(keyCodes.LEFT_ARROW)) {
-        state = setAim(state, 'left', dt);
-      }
-      if (keysDown.has(keyCodes.D) || keysDown.has(keyCodes.RIGHT_ARROW)) {
-        state = setAim(state, 'right', dt);
-      }
-
-      if (state.inSwing) {
-        if (keysDown.has(keyCodes.SPACE)) {
-          state = continueSwing(state, dt);
-        } else {
-          state = endSwing(state);
-        }
-      } else if (keysDown.has(keyCodes.SPACE)) {
-        state = beginSwing(state);
-      }
-    }
+    state = handleInput(state, {dt, keysDown});
 
     // overlaps() can't be used on a sleeping object, so we check overlapping before tick
     const overlapping = state.ball.body.overlaps(state.holeSensor);
@@ -183,22 +205,24 @@ export default createImmutableReducer(new State(), {
     // dt is set to dt * 3 because that's the speed I actually want
     state.world.step(fixedStep, dt * 3, maxSubSteps);
 
-    if (state.scored) {
-      return state;
-
-    } else {
+    if (!state.scored) {
       const isSleeping = state.ball.body.sleepState === p2.Body.SLEEPING;
-
       const scored = overlapping && isSleeping;
 
-      const [ballX, ballY] = state.ball.body.interpolatedPosition;
+      if (scored) {
+        state = enterScored(state);
 
-      return state
-        .setIn(['ball', 'x'], ballX)
-        .setIn(['ball', 'y'], ballY)
-        .set('allowHit', isSleeping)
-        .set('scored', scored);
+      } else {
+        state = state
+          .set('allowHit', isSleeping);
+      }
     }
+
+    const [ballX, ballY] = state.ball.body.interpolatedPosition;
+
+    return state
+      .setIn(['ball', 'x'], ballX)
+      .setIn(['ball', 'y'], ballY)
   },
 
   [`ws:${TYPE_LEVEL}`]: (state, action) => {

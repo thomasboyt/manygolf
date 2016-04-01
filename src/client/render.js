@@ -127,7 +127,7 @@ function renderInGame(ctx, state) {
   // Draw UI
   //
   ctx.fillStyle = 'black';
-  ctx.font = 'bold 20px Hyperspace';
+  ctx.font = 'normal 16px "Press Start 2P"';
 
   // Stroke count
   ctx.textAlign = 'left';
@@ -137,6 +137,11 @@ function renderInGame(ctx, state) {
   // Timer
   const expTime = state.expTime;
   const remainingMs = Math.ceil((expTime - Date.now()) / 1000);
+
+  if (state.scored) {
+    ctx.textAlign = 'center';
+    ctx.fillText(`${state.goalText.toUpperCase()}!!`, WIDTH / 2, HEIGHT / 2);
+  }
 
   ctx.textAlign = 'right';
   ctx.fillText(remainingMs, WIDTH - 10, 20);
