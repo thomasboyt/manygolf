@@ -25,7 +25,11 @@ export default function levelGen() {
   const numSegments = randInt(10, 30);
 
   const spawnSegment = randInt(2, Math.floor(numSegments / 3));
-  const holeSegment = randInt(Math.floor(numSegments / 3) * 2, numSegments);
+
+  // hole can't be on the last segment because it may be smaller than the rest
+  // this causes the hole alignment to be off which causes an invalid shape that the ball just
+  // kinda falls through
+  const holeSegment = randInt(Math.floor(numSegments / 3) * 2, numSegments - 1);
 
   // ceil to prevent sum(segment widths) with being < WIDTH
   const segmentWidth = Math.ceil(WIDTH / numSegments);

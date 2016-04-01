@@ -59,13 +59,27 @@ export function createBall(spawn) {
 
 export function addHolePoints(level) {
   // points has to start with x=0 and end with x=WIDTH
-  if (level.points.get(0).get(0) !== 0 || level.points.get(-1).get(0) !== WIDTH) {
-    throw new Error('invalid points');
+  if (level.points.get(0).get(0) !== 0) {
+    throw new Error('invalid points: first x !== 0');
+  }
+  if (level.points.get(-1).get(0) !== WIDTH) {
+    throw new Error(`invalid points: last x !== WIDTH (${WIDTH})`);
   }
 
   // insert hole
   // get the first point after the hole...
   const idxAfterHole = level.points.findIndex((point) => point.get(0) > level.hole.get(0));
+
+  const x1 = level.hole.get(0) - HOLE_WIDTH / 2;
+  const x2 = level.hole.get(0) + HOLE_WIDTH / 2;
+
+  if (x1 <= level.points.get(idxAfterHole - 1).get(0)) {
+    throw new Error('invalid points: hole x1 cannot be <= the previous x');
+  }
+
+  if (x2 >= level.points.get(idxAfterHole).get(0)) {
+    throw new Error('invalid points: hole x2 cannot be >= the previous x');
+  }
 
   // ...then insert hole between points
   const holePoints = I.fromJS([
