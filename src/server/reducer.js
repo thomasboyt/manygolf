@@ -33,6 +33,7 @@ const State = I.Record({
   players: I.Map(),
   expTime: null,
   holeSensor: null,
+  levelOver: false,
 });
 
 const fixedStep = 1 / 60;
@@ -77,7 +78,7 @@ export default createImmutableReducer(new State(), {
     // dt is set to dt * 3 because that's the speed I actually want
     state.world.step(fixedStep, dt * 3, maxSubSteps);
 
-    return state.update('players', (players) => players.map((player, id) => {
+    state = state.update('players', (players) => players.map((player, id) => {
       if (player.scored) {
         return player;
 
@@ -92,6 +93,20 @@ export default createImmutableReducer(new State(), {
         return player.set('scored', scored);
       }
     }));
+
+    // Move to 'levelOver' state when all players have finished the level, updating time
+    // XXX: will need to move this to runLoop listener if we want to send updated expTime to
+    // clients
+    if (!state.levelOver && state.players.size > 0 &&
+        state.players.filter((player) => player.scored).size === state.players.size) {
+      console.log('All players have finished');
+
+      state = state
+        .set('levelOver', true)
+        .set('expTime', Date.now() + 5 * 1000);
+    }
+
+    return state;
   },
 
   'playerConnected': (state, {id, ws}) => {
@@ -136,12 +151,14 @@ export default createImmutableReducer(new State(), {
       .set('expTime', expTime)
       .set('levelData', levelData)
       .set('holeSensor', holeSensor)
+      .set('levelOver', false)
       // TODO: better way to do this?
       .update('players', (players) => {
         return players.map((player) => {
           return player
             .set('body', addBall({level, world}))
-            .set('strokes', 0);
+            .set('strokes', 0)
+            .set('scored', false);
         });
       });
   },

@@ -37,6 +37,7 @@ function cycleLevel() {
   const expTime = Date.now() + 60 * 1000;
 
   const nextLevel = levelGen();
+  console.log(JSON.stringify(nextLevel));
 
   store.dispatch({
     type: 'level',
