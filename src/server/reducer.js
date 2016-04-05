@@ -145,21 +145,19 @@ export default createImmutableReducer(new State(), {
     const holeSensor = createHoleSensor(level.hole);
     world.addBody(holeSensor);
 
-    return state
-      .set('world', world)
-      .set('level', level)
-      .set('expTime', expTime)
-      .set('levelData', levelData)
-      .set('holeSensor', holeSensor)
-      .set('levelOver', false)
-      // TODO: better way to do this?
-      .update('players', (players) => {
-        return players.map((player) => {
-          return player
-            .set('body', addBall({level, world}))
-            .set('strokes', 0)
-            .set('scored', false);
-        });
-      });
+    return new State({
+      levelData,
+      world,
+      level,
+      expTime,
+      holeSensor,
+
+      players: state.players.map((player) => {
+        return player
+          .set('body', addBall({level, world}))
+          .set('strokes', 0)
+          .set('scored', false);
+      })
+    });
   },
 });

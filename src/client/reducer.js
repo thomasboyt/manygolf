@@ -152,17 +152,21 @@ function newLevel(state, data) {
   const holeSensor = createHoleSensor(level.hole);
   world.addBody(holeSensor);
 
-  return state
-    .set('state', STATE_IN_GAME)
-    .set('world', world)
-    .set('level', level)
-    .set('expTime', expTime)
-    .set('strokes', 0)
-    .set('holeSensor', holeSensor)
-    .set('scored', false)
-    .setIn(['ball', 'body'], ballBody)
-    .setIn(['ball', 'x'], level.spawn[0])
-    .setIn(['ball', 'y'], level.spawn[1]);
+  return new State({
+    state: STATE_IN_GAME,
+    ghostBalls: state.ghostBalls,
+
+    world,
+    level,
+    expTime,
+    holeSensor,
+
+    ball: new Ball({
+      body: ballBody,
+      x: level.spawn[0],
+      y: level.spawn[1],
+    }),
+  });
 }
 
 function handleInput(state, {dt, keysDown}) {
@@ -222,7 +226,7 @@ export default createImmutableReducer(new State(), {
 
     return state
       .setIn(['ball', 'x'], ballX)
-      .setIn(['ball', 'y'], ballY)
+      .setIn(['ball', 'y'], ballY);
   },
 
   [`ws:${TYPE_LEVEL}`]: (state, action) => {
