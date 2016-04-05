@@ -38,8 +38,6 @@ import sample from 'lodash.sample';
 
 const Ball = I.Record({
   body: null,
-  x: null,
-  y: null,
 });
 
 const DumbBall = I.Record({
@@ -163,8 +161,6 @@ function newLevel(state, data) {
 
     ball: new Ball({
       body: ballBody,
-      x: level.spawn[0],
-      y: level.spawn[1],
     }),
   });
 }
@@ -222,11 +218,7 @@ export default createImmutableReducer(new State(), {
       }
     }
 
-    const [ballX, ballY] = state.ball.body.interpolatedPosition;
-
-    return state
-      .setIn(['ball', 'x'], ballX)
-      .setIn(['ball', 'y'], ballY);
+    return state;
   },
 
   [`ws:${TYPE_LEVEL}`]: (state, action) => {

@@ -58,10 +58,10 @@ function renderInGame(ctx, state) {
   //
   // Draw ball
   //
-  const ball = state.ball;
+  const ballPos = state.ball.body.interpolatedPosition;
 
   ctx.beginPath();
-  ctx.arc(ball.x, ball.y, 2.5, 0, 2 * Math.PI);
+  ctx.arc(ballPos[0], ballPos[1], 2.5, 0, 2 * Math.PI);
   ctx.fillStyle = ballColor;
   ctx.fill();
   ctx.closePath();
@@ -79,8 +79,8 @@ function renderInGame(ctx, state) {
 
     ctx.beginPath();
     ctx.strokeStyle = 'black';
-    ctx.moveTo(ball.x + startOffset.x, ball.y + startOffset.y);
-    ctx.lineTo(ball.x + endOffset.x, ball.y + endOffset.y);
+    ctx.moveTo(ballPos[0] + startOffset.x, ballPos[1] + startOffset.y);
+    ctx.lineTo(ballPos[0] + endOffset.x, ballPos[1] + endOffset.y);
     ctx.stroke();
     ctx.closePath();
   }
@@ -91,8 +91,8 @@ function renderInGame(ctx, state) {
   if (state.inSwing) {
     const meterWidth = 50;
     const meterHeight = 10;
-    const meterX = state.ball.x - meterWidth / 2;
-    const meterY = state.ball.y + 10;
+    const meterX = ballPos[0] - meterWidth / 2;
+    const meterY = ballPos[1] + 10;
 
     ctx.fillStyle = meterBoxColor;
     ctx.fillRect(meterX, meterY, meterWidth, meterHeight);
