@@ -33,6 +33,16 @@ export function createWorld() {
   return world;
 }
 
+/*
+ * Resets the ball position to level spawn if ball fell off world.
+ */
+export function ensureBallInBounds(body, level) {
+  if (body.interpolatedPosition[1] > HEIGHT + 20) {
+    body.position = [level.spawn.get(0), level.spawn.get(1) - BALL_RADIUS];
+    body.velocity = [0, 0];
+  }
+}
+
 export function createBall(spawn) {
   const ballShape = new p2.Circle({
     radius: BALL_RADIUS,

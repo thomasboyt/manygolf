@@ -10,6 +10,7 @@ import {
   createGround,
   createHoleSensor,
   addHolePoints,
+  ensureBallInBounds,
 } from '../universal/physics';
 
 const Player = I.Record({
@@ -68,6 +69,10 @@ export default createImmutableReducer(new State(), {
     if (!state.world) {
       return state;
     }
+
+    state.players.forEach((player) => {
+      ensureBallInBounds(player.body, state.level);
+    });
 
     // overlaps() can't be used on a sleeping object, so we check overlapping before tick
     const isOverlapping = state.players.map((player) => {

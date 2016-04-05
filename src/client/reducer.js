@@ -31,6 +31,7 @@ import {
   createGround,
   createHoleSensor,
   addHolePoints,
+  ensureBallInBounds,
 } from '../universal/physics';
 
 import clamp from 'lodash.clamp';
@@ -54,10 +55,9 @@ const Level = I.Record({
 
 const State = I.Record({
   state: STATE_CONNECTING,
-  level: null,
   ghostBalls: I.Map(),
 
-  // This all needs to get reset on level change...
+  level: null,
   world: null,
   ball: Ball(),
   holeSensor: null,
@@ -197,6 +197,8 @@ export default createImmutableReducer(new State(), {
     }
 
     state = handleInput(state, {dt, keysDown});
+
+    ensureBallInBounds(state.ball.body, state.level);
 
     // overlaps() can't be used on a sleeping object, so we check overlapping before tick
     const overlapping = state.ball.body.overlaps(state.holeSensor);
