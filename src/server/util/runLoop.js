@@ -23,12 +23,16 @@ class RunLoop {
     const dt = now - this._lastTickMs;
     this._lastTickMs = now;
 
+    const prevState = this.store.getState();
+
     this.store.dispatch({
       type: 'tick',
       dt,
     });
 
-    this._listeners.forEach((listener) => listener());
+    const nextState = this.store.getState();
+
+    this._listeners.forEach((listener) => listener(nextState, prevState));
 
     requestAnimationFrame(this._nextTick);
   }

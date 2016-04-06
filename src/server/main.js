@@ -3,23 +3,19 @@ import ws from 'ws';
 import express from 'express';
 import { createStore } from 'redux';
 
+import runLoop from './util/runLoop';
+import ManygolfSocketManager from './ManygolfSocketManager';
 import reducer from './reducer';
-import runLoop from './runLoop';
 import levelGen from './levelGen';
 
 import {
-  TYPE_INITIAL,
-  TYPE_PLAYER_CONNECTED,
-  TYPE_PLAYER_DISCONNECTED,
   TYPE_LEVEL,
-  TYPE_SWING,
   TYPE_POSITION,
+  // TYPE_LEVEL_OVER,
 } from '../universal/protocol';
 
-
 /*
- * TODO:
- * this file is a complete mess
+ * Initialize server
  */
 
 const server = http.createServer();
@@ -30,6 +26,13 @@ const port = 4080;
 const store = createStore(reducer);
 runLoop.setStore(store);
 runLoop.start();
+
+const socks = new ManygolfSocketManager(wss, store);
+
+
+/*
+ * Run loop
+ */
 
 function cycleLevel() {
   console.log('Cycling level');
@@ -45,7 +48,7 @@ function cycleLevel() {
     expTime,
   });
 
-  sendAll({
+  socks.sendAll({
     type: TYPE_LEVEL,
     data: {
       level: nextLevel,
@@ -56,108 +59,25 @@ function cycleLevel() {
 
 cycleLevel();
 
+runLoop.subscribe((state) => {
+  // Move to 'levelOver' state when all players have finished the level, updating time
+  if (!state.levelOver && state.players.size > 0 &&
+      state.players.filter((player) => player.scored).size === state.players.size) {
+    console.log('All players have finished');
 
-let idCounter = 0;
-
-function handleCloseSocket(id, didError) {
-  const reason = didError ? '(errored)' : '';
-  console.log(`*** ID ${id} disconnected ${reason}`);
-
-  store.dispatch({
-    type: 'playerDisconnected',
-    id,
-  });
-
-  sendAll({
-    type: TYPE_PLAYER_DISCONNECTED,
-    data: {
-      id,
-    }
-  });
-}
-
-function handleMessage(id, strMsg) {
-  console.log('received: %s', strMsg);
-
-  let msg;
-  try {
-    msg = JSON.parse(strMsg);
-  } catch(err) {
-    console.error('ignoring malformed message');
-  }
-
-  if (msg.type === TYPE_SWING) {
     store.dispatch({
-      type: 'swing',
-      id,
-      ...msg.data,
+      type: 'levelOver',
     });
 
-  } else {
-    console.error(`unrecognized message type ${msg.type}`);
+    // socks.sendAll({
+    //   type: TYPE_LEVEL_OVER,
+    //   data: {
+    //     scores: getScores(state)
+    //   },
+    // });
+
+    return;
   }
-}
-
-wss.on('connection', (ws) => {
-  idCounter += 1;
-  const id = idCounter;
-
-  console.log(`*** ID ${id} connected`);
-
-  ws.on('message', (strMsg) => handleMessage(id, strMsg));
-  ws.on('close', () => handleCloseSocket(id, false));
-  ws.on('error', () => handleCloseSocket(id, true));
-
-  store.dispatch({
-    type: 'playerConnected',
-    id,
-    ws,
-  });
-
-  const state = store.getState();
-
-  const color = state.getIn(['players', id, 'color']);
-
-  ws.send(JSON.stringify({
-    type: TYPE_INITIAL,
-    data: {
-      id,
-      color,
-
-      players: state.players.map((player, id) => {
-        return {
-          id,
-          color: player.color,
-        };
-      }).toList().toJS(),
-
-      level: state.levelData,
-      expTime: state.expTime,
-    },
-  }));
-
-  sendAll({
-    type: TYPE_PLAYER_CONNECTED,
-    data: {
-      id,
-      color,
-    }
-  });
-});
-
-function sendAll(msg) {
-  const state = store.getState();
-  state.players.forEach((player, id) => {
-    player.socket.send(JSON.stringify(msg), (err) => {
-      if (err) {
-        console.log(`error sending to ${id}`, err);
-      }
-    });
-  });
-}
-
-runLoop.subscribe(() => {
-  const state = store.getState();
 
   if (state.expTime !== null && state.expTime < Date.now()) {
     cycleLevel();
@@ -172,7 +92,7 @@ runLoop.subscribe(() => {
     };
   }).toList().toJS();
 
-  sendAll({
+  socks.sendAll({
     type: TYPE_POSITION,
     data: {positions},
   });

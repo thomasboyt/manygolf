@@ -18,7 +18,6 @@ const Player = I.Record({
   color: null,
   strokes: 0,
   scored: false,
-  socket: null,
 });
 
 const Level = I.Record({
@@ -40,7 +39,7 @@ const State = I.Record({
 const fixedStep = 1 / 60;
 const maxSubSteps = 10;
 
-function addPlayer(state, {id, ws}) {
+function addPlayer(state, {id}) {
   // XXX: in the future avoid generating color here...
   const color = randomColor();
 
@@ -50,7 +49,6 @@ function addPlayer(state, {id, ws}) {
     .setIn(['players', id], new Player({
       body,
       color,
-      socket: ws,
     }));
 }
 
@@ -99,23 +97,17 @@ export default createImmutableReducer(new State(), {
       }
     }));
 
-    // Move to 'levelOver' state when all players have finished the level, updating time
-    // XXX: will need to move this to runLoop listener if we want to send updated expTime to
-    // clients
-    if (!state.levelOver && state.players.size > 0 &&
-        state.players.filter((player) => player.scored).size === state.players.size) {
-      console.log('All players have finished');
-
-      state = state
-        .set('levelOver', true)
-        .set('expTime', Date.now() + 5 * 1000);
-    }
-
     return state;
   },
 
-  'playerConnected': (state, {id, ws}) => {
-    return addPlayer(state, {id, ws});
+  'levelOver': (state) => {
+    return state
+      .set('levelOver', true)
+      .set('expTime', Date.now() + 5 * 1000);
+  },
+
+  'playerConnected': (state, {id}) => {
+    return addPlayer(state, {id});
   },
 
   'playerDisconnected': (state, {id}) => {

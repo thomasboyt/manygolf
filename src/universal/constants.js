@@ -10,6 +10,7 @@ export const MAX_POWER = 100;
 export const STATE_CONNECTING = 'connecting';
 export const STATE_IN_GAME = 'ingame';
 export const STATE_DISCONNECTED = 'disconnected';
+export const STATE_LEVEL_OVER = 'levelover';
 
 // thx friends
 export const goalWords = [
