@@ -8,8 +8,8 @@ import reducer from './reducer';
 const store = createStore(reducer);
 
 // Set up runLoop
-import runLoop from './runLoop';
-runLoop.setStore(store);
+import RunLoop from './RunLoop';
+const runLoop = new RunLoop(store);
 runLoop.start();
 
 // set up canvas
@@ -58,9 +58,9 @@ registerListeners();
 // render on runLoop tick
 import render from './render';
 
-function update() {
-  render(ctx, store.getState());
+function update(state) {
+  render(ctx, state);
 }
 
 runLoop.subscribe(update);
-update();
+update(store.getState());

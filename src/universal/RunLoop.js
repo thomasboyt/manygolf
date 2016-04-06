@@ -2,8 +2,8 @@ import raf from 'raf';
 raf.polyfill();
 
 class RunLoop {
-  constructor() {
-    this.store = null;
+  constructor(store) {
+    this.store = store;
     this._listeners = [];
   }
 
@@ -18,6 +18,10 @@ class RunLoop {
     this._nextTick = () => {};
   }
 
+  getTickPayload() {
+    return {};
+  }
+
   _runLoop() {
     const now = Date.now();
     const dt = now - this._lastTickMs;
@@ -25,9 +29,12 @@ class RunLoop {
 
     const prevState = this.store.getState();
 
+    const tickPayload = this.getTickPayload();
+
     this.store.dispatch({
       type: 'tick',
       dt,
+      ...tickPayload,
     });
 
     const nextState = this.store.getState();
@@ -56,6 +63,4 @@ class RunLoop {
   }
 }
 
-const runLoop = new RunLoop();
-
-export default runLoop;
+export default RunLoop;

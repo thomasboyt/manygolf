@@ -3,7 +3,7 @@ import ws from 'ws';
 import express from 'express';
 import { createStore } from 'redux';
 
-import runLoop from './util/runLoop';
+import RunLoop from '../universal/RunLoop';
 import ManygolfSocketManager from './ManygolfSocketManager';
 import reducer from './reducer';
 import levelGen from './levelGen';
@@ -24,7 +24,7 @@ const app = express();
 const port = 4080;
 
 const store = createStore(reducer);
-runLoop.setStore(store);
+const runLoop = new RunLoop(store);
 runLoop.start();
 
 const socks = new ManygolfSocketManager(wss, store);
