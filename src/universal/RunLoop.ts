@@ -10,7 +10,7 @@ class RunLoop {
   _listeners: Array<ListenerFn>;
   _lastTickMs: number;
   _nextTick: () => any;
-  
+
   constructor(store: Store) {
     this.store = store;
     this._listeners = [];

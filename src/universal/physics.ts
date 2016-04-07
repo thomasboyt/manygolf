@@ -36,14 +36,14 @@ export function createWorld() {
 /*
  * Resets the ball position to level spawn if ball fell off world.
  */
-export function ensureBallInBounds(body, level) {
+export function ensureBallInBounds(body: p2.Body, level: any) {
   if (body.interpolatedPosition[1] > HEIGHT + 20) {
     body.position = [level.spawn.get(0), level.spawn.get(1) - BALL_RADIUS];
     body.velocity = [0, 0];
   }
 }
 
-export function createBall(spawn) {
+export function createBall(spawn: I.List<number>) {
   const ballShape = new p2.Circle({
     radius: BALL_RADIUS,
     collisionGroup: BALL_GROUP,
@@ -67,7 +67,7 @@ export function createBall(spawn) {
   return ballBody;
 }
 
-export function addHolePoints(level) {
+export function addHolePoints(level: any) {
   // points has to start with x=0 and end with x=WIDTH
   if (level.points.get(0).get(0) !== 0) {
     throw new Error('invalid points: first x !== 0');
@@ -107,7 +107,7 @@ export function addHolePoints(level) {
   return level.set('points', pointsWithHole);
 }
 
-export function createGround(level) {
+export function createGround(level: any) {
   // Create ground
   const groundBody = new p2.Body({
     mass: 0,
@@ -124,7 +124,7 @@ export function createGround(level) {
   return groundBody;
 }
 
-export function createHoleSensor(pos) {
+export function createHoleSensor(pos: I.List<number>) {
   const sensorShape = new p2.Box({
     width: HOLE_WIDTH,
     height: HOLE_HEIGHT,
@@ -140,7 +140,6 @@ export function createHoleSensor(pos) {
   });
   sensorBody.damping = 0;
   sensorBody.addShape(sensorShape);
-  sensorBody.active = false;
 
   return sensorBody;
 }

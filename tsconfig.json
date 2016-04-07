@@ -4,8 +4,10 @@
     "module": "es2015",
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
+    "outDir": "tmp-see-ts-loader-issue-171",
     "sourceMap": true
   },
+  "compileOnSave": false,
   "exclude": [
     "node_modules",
     "typings/main.d.ts",
