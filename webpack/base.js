@@ -24,6 +24,12 @@ module.exports = {
 
   devtool: 'source-map',
 
+  ts: {
+    compilerOptions: {
+      noEmit: false,
+    },
+  },
+
   module: {
     loaders: [
       {

@@ -5,7 +5,8 @@
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "outDir": "tmp-see-ts-loader-issue-171",
-    "sourceMap": true
+    "sourceMap": true,
+    "noEmit": true
   },
   "compileOnSave": false,
   "exclude": [
