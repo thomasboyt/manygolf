@@ -1,8 +1,17 @@
-import raf from 'raf';
+const raf = require('raf');
 raf.polyfill();
 
+import {Store} from 'redux';
+
+type ListenerFn = (prevState: any, nextState: any) => void;
+
 class RunLoop {
-  constructor(store) {
+  store: Store;
+  _listeners: Array<ListenerFn>;
+  _lastTickMs: number;
+  _nextTick: () => any;
+  
+  constructor(store: Store) {
     this.store = store;
     this._listeners = [];
   }
@@ -31,11 +40,10 @@ class RunLoop {
 
     const tickPayload = this.getTickPayload();
 
-    this.store.dispatch({
+    this.store.dispatch(Object.assign({
       type: 'tick',
       dt,
-      ...tickPayload,
-    });
+    }, tickPayload));
 
     const nextState = this.store.getState();
 
@@ -44,15 +52,15 @@ class RunLoop {
     requestAnimationFrame(this._nextTick);
   }
 
-  setStore(store) {
+  setStore(store: Store) {
     this.store = store;
   }
 
-  subscribe(listener) {
+  subscribe(listener: ListenerFn) {
     this._listeners.push(listener);
   }
 
-  unsubscribe(listener) {
+  unsubscribe(listener: ListenerFn) {
     const idx = this._listeners.indexOf(listener);
 
     if (idx === -1) {

@@ -70,11 +70,10 @@ export default class ManygolfSocketManager extends SocketManager {
 
   onMessage(id, msg) {
     if (msg.type === TYPE_SWING) {
-      this.store.dispatch({
+      this.store.dispatch(Object.assign({
         type: 'swing',
         id,
-        ...msg.data,
-      });
+      }, msg.data));
 
     } else {
       console.error(`unrecognized message type ${msg.type}`);

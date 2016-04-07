@@ -15,6 +15,8 @@ module.exports = {
   ],
 
   resolve: {
+    extensions: ['', '.jsx', '.js', '.tsx', '.ts'],
+
     alias: {
       '__root': process.cwd(),
     },
@@ -24,6 +26,11 @@ module.exports = {
 
   module: {
     loaders: [
+      {
+        test: /\.tsx?$/,
+        loaders: ['babel', 'ts']
+      },
+
       {
         test: /\.js$/,
         exclude: /(node_modules\/)/,
