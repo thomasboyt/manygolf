@@ -1,4 +1,5 @@
 import SocketManager from './util/SocketManager';
+import {Store} from 'redux';
 
 import {
   TYPE_INITIAL,
@@ -12,7 +13,9 @@ import {
  */
 
 export default class ManygolfSocketManager extends SocketManager {
-  constructor(wss, store) {
+  store: Store;
+
+  constructor(wss, store: Store) {
     super(wss);
     this.store = store;
   }

@@ -1,12 +1,21 @@
-export default class SocketManager {
-  constructor(wss) {
+import WebSocket, {Server} from 'ws';
+
+abstract class SocketManager {
+  idCounter: number;
+  _sockets: Map<number, WebSocket>;
+
+  abstract onConnect(id: number);
+  abstract onMessage(id: number, msg: Object);
+  abstract onDisconnect(id: number);
+
+  constructor(wss: Server) {
     this.idCounter = 0;
     this._sockets = new Map();
 
     wss.on('connection', (ws) => this.handleConnection(ws));
   }
 
-  handleConnection(ws) {
+  handleConnection(ws: WebSocket) {
     const id = this.idCounter;
     this.idCounter += 1;
 
@@ -19,7 +28,7 @@ export default class SocketManager {
     this.onConnect(id);
   }
 
-  handleMessage(id, strMsg) {
+  handleMessage(id: number, strMsg: string) {
     console.log('received: %s', strMsg);
 
     let msg;
@@ -32,7 +41,7 @@ export default class SocketManager {
     this.onMessage(id, msg);
   }
 
-  handleCloseSocket(id, didError) {
+  handleCloseSocket(id: number, didError: boolean) {
     const reason = didError ? '(errored)' : '';
     console.log(`*** ID ${id} disconnected ${reason}`);
 
@@ -41,7 +50,7 @@ export default class SocketManager {
     this._sockets.delete(id);
   }
 
-  _getSocket(id) {
+  _getSocket(id: number) {
     return this._sockets.get(id);
   }
 
@@ -52,7 +61,7 @@ export default class SocketManager {
     return this._sockets;
   }
 
-  sendTo(id, msg) {
+  sendTo(id: number, msg: Object) {
     return this._getSocket(id).send(JSON.stringify(msg), (err) => {
       if (err) {
         console.log(`error sending to ${id}`, err);
@@ -60,7 +69,7 @@ export default class SocketManager {
     });
   }
 
-  sendAll(msg) {
+  sendAll(msg: Object) {
     const msgStr = JSON.stringify(msg);
 
     this._getSockets().forEach((socket, id) => {
@@ -72,3 +81,5 @@ export default class SocketManager {
     });
   }
 }
+
+export default SocketManager;

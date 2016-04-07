@@ -1,5 +1,7 @@
 {
   "ambientDependencies": {
-    "redux": "registry:dt/redux#3.3.1+20160326112656"
+    "node": "registry:dt/node#4.0.0+20160330064709",
+    "redux": "registry:dt/redux#3.3.1+20160326112656",
+    "ws": "registry:dt/ws#0.0.0+20160317120654"
   }
 }
