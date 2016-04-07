@@ -100,3 +100,8 @@ runLoop.subscribe((state) => {
 
 server.on('request', app);
 server.listen(port, () => { console.log('Listening on ' + server.address().port); });
+
+process.on('unhandledRejection', (err) => {
+  console.error(err.stack);
+  process.exit(1);
+});

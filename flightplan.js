@@ -18,9 +18,13 @@ plan.target('production', {
   // might be okay to chown but idk?
   // remote.npm('install -g forever');
 // });
+//
+plan.remote((remote) => {
+  remote.rm('-rf /tmp/manygolf', {failsafe: true});
+});
 
 plan.local((local) => {
-  local.log('Building assets...');
+  local.log('Building...');
   local.rm('-rf build');
   local.npm('run build');
 
@@ -51,7 +55,7 @@ plan.remote((remote) => {
 
     remote.log('Restarting app...');
 
-    remote.exec('forever stop src/server/entry.js', {failsafe: true});
-    remote.exec('forever start src/server/entry.js');
+    remote.exec('forever stop bin/server', {failsafe: true});
+    remote.exec('forever start bin/server');
   });
 });

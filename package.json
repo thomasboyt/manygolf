@@ -9,10 +9,10 @@
     "karma": "karma start",
     "lint": "eslint src/",
     "ci": "karma start --single-run --browsers Firefox",
-    "server": "webpack --config webpack/server.js && node build/server.bundle.js",
+    "server": "webpack --config webpack/server.js && node bin/server",
     "dev": "webpack-dev-server --config webpack/dev.js",
     "prod": "webpack-dev-server --config webpack/production.js",
-    "build": "webpack --config webpack/production.js",
+    "build": "webpack --config webpack/production.js && webpack --config webpack/server.js",
     "deploy": "fly production"
   },
   "devDependencies": {
