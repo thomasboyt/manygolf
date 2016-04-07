@@ -1,4 +1,8 @@
 #!/usr/env/bin node
 
-require('babel-register')();
+process.on('unhandledRejection', (err) => {
+  console.error(err.stack);
+  process.exit(1);
+});
+
 require('./main');
