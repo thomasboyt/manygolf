@@ -43,6 +43,12 @@ module.exports = {
                              { raw: true, entryOnly: false })
   ],
 
+  ts: {
+    compilerOptions: {
+      noEmit: false,
+    },
+  },
+
   module: {
     loaders: [
       {
