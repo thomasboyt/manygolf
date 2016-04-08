@@ -37,55 +37,30 @@ import {
 import clamp from 'lodash.clamp';
 import sample from 'lodash.sample';
 
-const Ball = I.Record({
-  body: null,
-});
-
-const DumbBall = I.Record({
-  x: null,
-  y: null,
-  color: null,
-});
-
-const Level = I.Record({
-  points: null,
-  hole: null,
-  spawn: null,
-});
-
-const State = I.Record({
-  state: STATE_CONNECTING,
-  ghostBalls: I.Map(),
-
-  level: null,
-  world: null,
-  ball: Ball(),
-  holeSensor: null,
-
-  aimDirection: -45,  // angle (in degrees) relative to pointing ->
-  swingPower: 0,
-  allowHit: false,
-  inSwing: false,
-
-  expTime: null,
-  strokes: 0,
-
-  scored: false,
-  goalText: null,
-});
+import {
+  State,
+  Level,
+  Ball,
+  DumbBall
+} from './records';
 
 const fixedStep = 1 / 60;
 const maxSubSteps = 10;
 
 const moveSpeed = 50;  // degrees per second
 
-function setAim(state, direction, dt) {
+enum AimDirection {
+  left,
+  right,
+}
+
+function setAim(state: State, direction: AimDirection, dt: number) {
   const dir = state.get('aimDirection');
 
   let step;
-  if (direction === 'left') {
+  if (direction === AimDirection.left) {
     step = -moveSpeed * dt;
-  } else if (direction === 'right') {
+  } else if (direction === AimDirection.right) {
     step = moveSpeed * dt;
   }
 
@@ -94,11 +69,11 @@ function setAim(state, direction, dt) {
   return state.set('aimDirection', newDir);
 }
 
-function beginSwing(state) {
+function beginSwing(state: State) {
   return state.set('inSwing', true);
 }
 
-function continueSwing(state, dt) {
+function continueSwing(state: State, dt: number) {
   const step = dt * 50;
 
   // TODO: if swingPower > MAX_POWER, descend to 0
@@ -107,7 +82,7 @@ function continueSwing(state, dt) {
   return state.update('swingPower', (swingPower) => clamp(swingPower + step, MAX_POWER));
 }
 
-function endSwing(state) {
+function endSwing(state: State) {
   const vec = calcVectorDegrees(state.swingPower, state.aimDirection);
   state.ball.body.velocity[0] = vec.x;
   state.ball.body.velocity[1] = vec.y;
@@ -124,7 +99,7 @@ function endSwing(state) {
     .update('strokes', (strokes) => strokes + 1);
 }
 
-function enterScored(state) {
+function enterScored(state: State) {
   const goalText = sample(goalWords);
 
   return state
@@ -132,7 +107,7 @@ function enterScored(state) {
     .set('goalText', goalText);
 }
 
-function newLevel(state, data) {
+function newLevel(state: State, data) {
   const levelData = data.level;
   const expTime = data.expTime;
 
@@ -165,13 +140,13 @@ function newLevel(state, data) {
   });
 }
 
-function handleInput(state, {dt, keysDown}) {
+function handleInput(state: State, {dt, keysDown}: {dt: number; keysDown: Set<number>}) {
   if (state.allowHit && !state.scored) {
     if (keysDown.has(keyCodes.A) || keysDown.has(keyCodes.LEFT_ARROW)) {
-      state = setAim(state, 'left', dt);
+      state = setAim(state, AimDirection.left, dt);
     }
     if (keysDown.has(keyCodes.D) || keysDown.has(keyCodes.RIGHT_ARROW)) {
-      state = setAim(state, 'right', dt);
+      state = setAim(state, AimDirection.right, dt);
     }
 
     if (state.inSwing) {
@@ -189,7 +164,7 @@ function handleInput(state, {dt, keysDown}) {
 }
 
 export default createImmutableReducer(new State(), {
-  'tick': (state, {dt, keysDown}) => {
+  'tick': (state: State, {dt, keysDown}: {dt: number; keysDown: Set<number>}) => {
     dt = dt / 1000;  // ms -> s
 
     if (!state.world) {
@@ -223,11 +198,11 @@ export default createImmutableReducer(new State(), {
     return state;
   },
 
-  [`ws:${TYPE_LEVEL}`]: (state, action) => {
+  [`ws:${TYPE_LEVEL}`]: (state: State, action) => {
     return newLevel(state, action.data);
   },
 
-  [`ws:${TYPE_INITIAL}`]: (state, action) => {
+  [`ws:${TYPE_INITIAL}`]: (state: State, action) => {
     // TODO: use data.id, data.color for ?!?
     return state
       .set('ghostBalls', action.data.players.reduce((balls, player) => {
@@ -238,17 +213,17 @@ export default createImmutableReducer(new State(), {
       .update((s) => newLevel(s, action.data));
   },
 
-  [`ws:${TYPE_PLAYER_CONNECTED}`]: (state, action) => {
+  [`ws:${TYPE_PLAYER_CONNECTED}`]: (state: State, action) => {
     return state.setIn(['ghostBalls', action.data.id], new DumbBall({
       color: action.data.color,
     }));
   },
 
-  [`ws:${TYPE_PLAYER_DISCONNECTED}`]: (state, action) => {
+  [`ws:${TYPE_PLAYER_DISCONNECTED}`]: (state: State, action) => {
     return state.deleteIn(['ghostBalls', action.data.id]);
   },
 
-  [`ws:${TYPE_POSITION}`]: (state, {data}) => {
+  [`ws:${TYPE_POSITION}`]: (state: State, {data}) => {
     const {positions} = data;
 
     return positions.reduce((state, {x, y, id}) => {
@@ -256,7 +231,7 @@ export default createImmutableReducer(new State(), {
     }, state);
   },
 
-  'disconnect': (state) => {
+  'disconnect': (state: State) => {
     return state.set('state', STATE_DISCONNECTED);
   }
 });

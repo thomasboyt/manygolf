@@ -27,7 +27,7 @@ const LevelRec = I.Record({
 });
 
 export class Level extends LevelRec {
-  points: I.List<number>;
+  points: I.List<I.List<number>>;
   hole: I.List<number>;
   spawn: I.List<number>;
 }

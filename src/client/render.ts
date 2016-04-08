@@ -9,6 +9,10 @@ import {
   // HOLE_HEIGHT,
 } from '../universal/constants';
 
+import {
+  State,
+} from './records';
+
 import {calcVectorDegrees} from './util/math';
 
 const skyColor = 'beige';
@@ -17,21 +21,21 @@ const ballColor = 'red';
 const meterBoxColor = 'skyblue';
 const meterFillColor = 'blue';
 
-function renderConnecting(ctx) {
+function renderConnecting(ctx: CanvasRenderingContext2D, state: State) {
   ctx.fillStyle = 'black';
   ctx.font = '16px sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText('Connecting...', WIDTH / 2, HEIGHT / 2);
 }
 
-function renderDisconnected(ctx) {
+function renderDisconnected(ctx: CanvasRenderingContext2D, state: State) {
   ctx.fillStyle = 'black';
   ctx.font = '16px sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText('Disconnected! Try reloading?', WIDTH / 2, HEIGHT / 2);
 }
 
-function renderInGame(ctx, state) {
+function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
   //
   // Draw ground
   //
@@ -146,10 +150,10 @@ function renderInGame(ctx, state) {
   }
 
   ctx.textAlign = 'right';
-  ctx.fillText(remainingMs, WIDTH - 10, 20);
+  ctx.fillText(remainingMs + '', WIDTH - 10, 20);
 }
 
-export default function render(ctx, state) {
+export default function render(ctx: CanvasRenderingContext2D, state: State) {
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
 
   ctx.save();
