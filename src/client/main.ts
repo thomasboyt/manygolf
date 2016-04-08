@@ -15,7 +15,7 @@ runLoop.start();
 // set up canvas
 import {WIDTH, HEIGHT} from '../universal/constants';
 
-const canvas = document.getElementById('game');
+const canvas = <HTMLCanvasElement> document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
 canvas.width = WIDTH;

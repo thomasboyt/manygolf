@@ -3,7 +3,7 @@
 
 import keyCodes from './keyCodes';
 
-export const keysDown = new Set();
+export const keysDown = new Set<number>();
 
 const interruptKeyCodes = new Set([
   keyCodes.LEFT_ARROW,

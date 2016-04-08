@@ -1,5 +1,10 @@
+import {Store} from 'redux';
+
 class WSConnection {
-  init(store) {
+  private _ws: WebSocket;
+  private _store: Store;
+
+  init(store: Store) {
     this._store = store;
 
     this._ws = new WebSocket(`ws://${document.location.host}/server`);
@@ -9,7 +14,7 @@ class WSConnection {
     this._ws.onclose = this.handleClose.bind(this);
   }
 
-  handleMessage(evt) {
+  handleMessage(evt: MessageEvent) {
     const msg = JSON.parse(evt.data);
 
     this._store.dispatch({
@@ -26,7 +31,7 @@ class WSConnection {
     });
   }
 
-  send(msg) {
+  send(msg: Object) {
     if (!this._ws) {
       return;
     }
