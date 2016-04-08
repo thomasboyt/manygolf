@@ -8,6 +8,10 @@ import {
   TYPE_SWING,
 } from '../universal/protocol';
 
+import {
+  State,
+} from './records';
+
 /*
  * Connection manager
  */
@@ -26,7 +30,7 @@ export default class ManygolfSocketManager extends SocketManager {
       id,
     });
 
-    const state = this.store.getState();
+    const state: State = this.store.getState();
 
     const color = state.getIn(['players', id, 'color']);
 

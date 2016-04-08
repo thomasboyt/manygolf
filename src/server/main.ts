@@ -14,6 +14,10 @@ import {
   // TYPE_LEVEL_OVER,
 } from '../universal/protocol';
 
+import {
+  State,
+} from './records';
+
 /*
  * Initialize server
  */
@@ -59,7 +63,7 @@ function cycleLevel() {
 
 cycleLevel();
 
-runLoop.subscribe((state) => {
+runLoop.subscribe((state: State) => {
   // Move to 'levelOver' state when all players have finished the level, updating time
   if (!state.levelOver && state.players.size > 0 &&
       state.players.filter((player) => player.scored).size === state.players.size) {
