@@ -163,7 +163,7 @@ function handleInput(state: State, {dt, keysDown}: {dt: number; keysDown: Set<nu
   return state;
 }
 
-export default createImmutableReducer(new State(), {
+export default createImmutableReducer<State>(new State(), {
   'tick': (state: State, {dt, keysDown}: {dt: number; keysDown: Set<number>}) => {
     dt = dt / 1000;  // ms -> s
 
@@ -224,9 +224,11 @@ export default createImmutableReducer(new State(), {
   },
 
   [`ws:${TYPE_POSITION}`]: (state: State, {data}) => {
-    const {positions} = data;
+    // this is defined so we're able to define positions.reduce below
+    const positions: Array<any> = data.positions;
 
-    return positions.reduce((state, {x, y, id}) => {
+    // manually specify <State> due to https://github.com/Microsoft/TypeScript/issues/7014
+    return positions.reduce<State>((state: State, {x, y, id}) => {
       return state.updateIn(['ghostBalls', id], (ball) => ball.merge({x, y}));
     }, state);
   },

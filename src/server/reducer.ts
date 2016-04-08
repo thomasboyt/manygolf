@@ -45,7 +45,7 @@ function addBall({level, world}: {level: Level, world: p2.World}) {
   return ballBody;
 }
 
-export default createImmutableReducer(new State(), {
+export default createImmutableReducer<State>(new State(), {
   'tick': (state: State, {dt}: {dt: number}) => {
     dt = dt / 1000;  // ms -> s
 
@@ -141,5 +141,5 @@ export default createImmutableReducer(new State(), {
           .set('scored', false);
       })
     });
-  },
+  }
 });

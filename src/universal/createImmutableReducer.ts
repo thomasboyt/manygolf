@@ -10,8 +10,12 @@
  * });
  */
 
-export default function createImmutableReducer(initialState, handlers) {
-  return (state = initialState, action) => {
+interface Handlers<T> {
+  [type: string]: (state: T, action: any) => T;
+}
+
+export default function createImmutableReducer<T>(initialState: T, handlers: Handlers<T>) {
+  return (state = initialState, action?: any) => {
     if (handlers[action.type]) {
       const newState = handlers[action.type](state, action);
       return newState;
