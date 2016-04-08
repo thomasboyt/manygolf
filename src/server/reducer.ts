@@ -2,6 +2,7 @@ import I from 'immutable';
 import p2 from 'p2';
 
 import createImmutableReducer from '../universal/createImmutableReducer';
+
 import randomColor from 'randomcolor';
 
 import {
@@ -13,20 +14,38 @@ import {
   ensureBallInBounds,
 } from '../universal/physics';
 
-const Player = I.Record({
+interface Coordinates {
+  x: number;
+  y: number;
+}
+
+const PlayerRec = I.Record({
   body: null,
   color: null,
   strokes: 0,
   scored: false,
 });
 
-const Level = I.Record({
+class Player extends PlayerRec {
+  body: p2.Body;
+  color: string;
+  strokes: number;
+  scored: boolean;
+}
+
+const LevelRec = I.Record({
   points: null,
   hole: null,
   spawn: null,
 });
 
-const State = I.Record({
+class Level extends LevelRec {
+  points: I.List<number>;
+  hole: I.List<number>;
+  spawn: I.List<number>;
+}
+
+const StateRec = I.Record({
   levelData: null,
   world: null,
   level: null,
@@ -36,10 +55,20 @@ const State = I.Record({
   levelOver: false,
 });
 
+class State extends StateRec {
+  levelData: any;  // TODO
+  world: p2.World;
+  level: Level;
+  players: I.Map<number, Player>;
+  expTime: number;
+  holeSensor: p2.Body;
+  levelOver: boolean;
+}
+
 const fixedStep = 1 / 60;
 const maxSubSteps = 10;
 
-function addPlayer(state, {id}) {
+function addPlayer(state: State, {id}: {id: number}) {
   // XXX: in the future avoid generating color here...
   const color = randomColor();
 
@@ -52,7 +81,7 @@ function addPlayer(state, {id}) {
     }));
 }
 
-function addBall({level, world}) {
+function addBall({level, world}: {level: Level, world: p2.World}) {
   const ballBody = createBall(level.spawn);
 
   world.addBody(ballBody);
@@ -61,7 +90,7 @@ function addBall({level, world}) {
 }
 
 export default createImmutableReducer(new State(), {
-  'tick': (state, {dt}) => {
+  'tick': (state: State, {dt}: {dt: number}) => {
     dt = dt / 1000;  // ms -> s
 
     if (!state.world) {
@@ -100,23 +129,23 @@ export default createImmutableReducer(new State(), {
     return state;
   },
 
-  'levelOver': (state) => {
+  'levelOver': (state: State) => {
     return state
       .set('levelOver', true)
       .set('expTime', Date.now() + 5 * 1000);
   },
 
-  'playerConnected': (state, {id}) => {
+  'playerConnected': (state: State, {id}: {id: number}) => {
     return addPlayer(state, {id});
   },
 
-  'playerDisconnected': (state, {id}) => {
+  'playerDisconnected': (state: State, {id}: {id: number}) => {
     return state
       .deleteIn(['players', id]);
   },
 
-  'swing': (state, {id, vec}) => {
-    const body = state.players.get(id).get('body');
+  'swing': (state: State, {id, vec}: {id: number; vec: Coordinates}) => {
+    const body = state.players.get(id).body;
 
     if (body.sleepState !== p2.Body.SLEEPING) {
       // ignore
@@ -130,7 +159,7 @@ export default createImmutableReducer(new State(), {
     }
   },
 
-  'level': (state, {levelData, expTime}) => {
+  'level': (state: State, {levelData, expTime}: {levelData: any; expTime: number}) => {
     const level = new Level(I.fromJS(levelData))
       .update(addHolePoints);
 

@@ -1,7 +1,11 @@
 {
   "ambientDependencies": {
+    "express": "registry:dt/express#4.0.0+20160317120654",
+    "express-serve-static-core": "registry:dt/express-serve-static-core#0.0.0+20160322035842",
+    "mime": "registry:dt/mime#0.0.0+20160316155526",
     "node": "registry:dt/node#4.0.0+20160330064709",
     "redux": "registry:dt/redux#3.3.1+20160326112656",
+    "serve-static": "registry:dt/serve-static#0.0.0+20160317120654",
     "ws": "registry:dt/ws#0.0.0+20160317120654"
   }
 }
