@@ -9,6 +9,10 @@ import reducer from './reducer';
 import levelGen from './levelGen';
 
 import {
+  TIMER_MS,
+} from '../universal/constants';
+
+import {
   TYPE_LEVEL,
   TYPE_POSITION,
   messageDisplayMessage,
@@ -42,7 +46,7 @@ const socks = new ManygolfSocketManager(wss, store);
 function cycleLevel() {
   console.log('Cycling level');
 
-  const expTime = Date.now() + 60 * 1000;
+  const expTime = Date.now() + TIMER_MS;
 
   const nextLevel = levelGen();
   console.log(JSON.stringify(nextLevel));
@@ -69,8 +73,9 @@ runLoop.subscribe((state: State, prevState: State) => {
   // Send scored messages if players scored
   state.players.forEach((player, id) => {
     if (player.scored && !prevState.players.get(id).scored) {
+      const elapsed = ((Date.now() - (state.expTime - TIMER_MS)) / 1000).toFixed(2);
       socks.sendAll(messageDisplayMessage({
-        messageText: `${player.name} scored!`
+        messageText: `${player.name} scored! (${player.strokes} strokes in ${elapsed}s)`
       }));
     }
   })

@@ -7,6 +7,8 @@ export const BALL_RADIUS = 2.5;
 
 export const MAX_POWER = 100;
 
+export const TIMER_MS = 60 * 1000;
+
 export const STATE_CONNECTING = 'connecting';
 export const STATE_IN_GAME = 'ingame';
 export const STATE_DISCONNECTED = 'disconnected';
