@@ -96,7 +96,7 @@ export function addHolePoints(level: any) {
     [level.hole.get(0) - HOLE_WIDTH / 2, level.hole.get(1)],
     [level.hole.get(0) - HOLE_WIDTH / 2, level.hole.get(1) + HOLE_HEIGHT],
     [level.hole.get(0) + HOLE_WIDTH / 2, level.hole.get(1) + HOLE_HEIGHT],
-    [level.hole.get(0) + HOLE_WIDTH / 2, level.hole.get(1)],
+    [level.hole.get(0) + HOLE_WIDTH / 2, level.hole.get(1)]
   ]);
 
   const pointsWithHole = level.points
@@ -107,21 +107,39 @@ export function addHolePoints(level: any) {
   return level.set('points', pointsWithHole);
 }
 
-export function createGround(level: any) {
-  // Create ground
-  const groundBody = new p2.Body({
-    mass: 0,
-  });
+export function createGround(level: any): p2.Body[] {
+  // This used to create a single ground shape.
+  // Now it creates 3 because this mysteriously fixes a bug where the ground after the hole wasn't
+  // working correctly? man I don't even know
+  const beforeHole = level.points.filter((point) => point.get(0) < level.hole.get(0));
+  const afterHole = level.points.filter((point) => point.get(0) > level.hole.get(0));
 
-  groundBody.fromPolygon(level.points.toJS().concat([[WIDTH, HEIGHT], [0, HEIGHT]]));
+  const vertsBeforeHole = beforeHole.toJS().concat([[beforeHole.last().get(0), HEIGHT], [0, HEIGHT]]);
+  const vertsHole = [
+    [level.hole.get(0) - HOLE_WIDTH / 2, level.hole.get(1) + HOLE_HEIGHT],
+    [level.hole.get(0) + HOLE_WIDTH / 2, level.hole.get(1) + HOLE_HEIGHT],
+    [level.hole.get(0) + HOLE_WIDTH / 2, HEIGHT],
+    [level.hole.get(0) - HOLE_WIDTH / 2, HEIGHT],
+  ]
+  const vertsAfterHole = afterHole.toJS().concat([[WIDTH, HEIGHT], [afterHole.get(0).get(0), HEIGHT]]);
 
-  for (let shape of groundBody.shapes) {
-    shape.material = groundMaterial;
-    shape.collisionGroup = GROUND_GROUP;
-    shape.collisionMask = BALL_GROUP;
-  }
+  const grounds = [vertsBeforeHole, vertsHole, vertsAfterHole].map((verts) => {
+    const body = new p2.Body({
+      mass: 0
+    });
 
-  return groundBody;
+    body.fromPolygon(verts);
+
+    for (let shape of body.shapes) {
+      shape.material = groundMaterial;
+      shape.collisionGroup = GROUND_GROUP;
+      shape.collisionMask = BALL_GROUP;
+    }
+
+    return body;
+  })
+
+  return grounds;
 }
 
 export function createHoleSensor(pos: I.List<number>) {

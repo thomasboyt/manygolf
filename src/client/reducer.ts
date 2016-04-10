@@ -120,8 +120,10 @@ function newLevel(state: State, data: MessageInitial) {
 
   const world = createWorld();
 
-  const groundBody = createGround(level);
-  world.addBody(groundBody);
+  const groundBodies = createGround(level);
+  for (let body of groundBodies) {
+    world.addBody(body);
+  }
 
   const ballBody = createBall(level.spawn);
   world.addBody(ballBody);

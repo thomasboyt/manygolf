@@ -117,8 +117,10 @@ export default createImmutableReducer<State>(new State(), {
 
     const world = createWorld();
 
-    const groundBody = createGround(level);
-    world.addBody(groundBody);
+    const groundBodies = createGround(level);
+    for (let body of groundBodies) {
+      world.addBody(body);
+    }
 
     const holeSensor = createHoleSensor(level.hole);
     world.addBody(holeSensor);
