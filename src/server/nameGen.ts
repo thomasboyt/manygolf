@@ -4,6 +4,22 @@ const adjectives = [
   'green',
   'rough',
   'iron',
+  'angry',
+  'sad',
+  'happy',
+  'sleepy',
+  'amazing',
+  'super',
+  'boring',
+  'unpleasant',
+  'grumpy',
+  'great',
+  'ok',
+  'mediocre',
+  'explosive',
+  'incredible',
+  'extreme',
+  'dull'
 ];
 
 const nouns = [
