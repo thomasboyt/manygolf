@@ -15,7 +15,10 @@ import {
   TYPE_LEVEL,
   TYPE_SWING,
   TYPE_POSITION,
+  TYPE_DISPLAY_MESSAGE,
   MessageInitial,
+  MessagePlayerConnected,
+  MessageDisplayMessage,
 } from '../universal/protocol';
 
 import {
@@ -221,15 +224,17 @@ export default createImmutableReducer<State>(new State(), {
           name: player.name,
         }));
       }, I.Map()))
-      .set('name', data.self.name)
-      .set('displayMessage', `Welcome ${data.self.name}`)
-      .set('displayMessageTimeout', Date.now() + 5 * 1000);
+      .set('name', data.self.name);
   },
 
   [`ws:${TYPE_PLAYER_CONNECTED}`]: (state: State, action) => {
-    return state.setIn(['ghostBalls', action.data.id], new DumbBall({
-      color: action.data.color,
-    }));
+    const data = <MessagePlayerConnected>action.data;
+
+    return state
+      .setIn(['ghostBalls', action.data.id], new DumbBall({
+        color: data.color,
+        name: data.name,
+      }));
   },
 
   [`ws:${TYPE_PLAYER_DISCONNECTED}`]: (state: State, action) => {
@@ -244,6 +249,14 @@ export default createImmutableReducer<State>(new State(), {
     return positions.reduce<State>((state: State, {x, y, id}) => {
       return state.updateIn(['ghostBalls', id], (ball) => ball.merge({x, y}));
     }, state);
+  },
+
+  [`ws:${TYPE_DISPLAY_MESSAGE}`]: (state: State, action) => {
+    const data = <MessageDisplayMessage>action.data;
+
+    return state
+      .set('displayMessage', data.messageText)
+      .set('displayMessageTimeout', Date.now() + 5 * 1000);
   },
 
   'disconnect': (state: State) => {

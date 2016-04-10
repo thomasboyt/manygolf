@@ -6,7 +6,8 @@ import nameGen from './nameGen';
 
 import {
   messageInitial,
-  TYPE_PLAYER_CONNECTED,
+  messagePlayerConnected,
+  messageDisplayMessage,
   TYPE_PLAYER_DISCONNECTED,
   TYPE_SWING,
 } from '../universal/protocol';
@@ -59,16 +60,22 @@ export default class ManygolfSocketManager extends SocketManager {
       expTime: state.expTime,
     }));
 
-    this.sendAll({
-      type: TYPE_PLAYER_CONNECTED,
-      data: {
-        id,
-        color,
-      }
-    });
+    this.sendAll(messagePlayerConnected({
+      id,
+      color,
+      name,
+    }));
+
+    this.sendAll(messageDisplayMessage({
+      messageText: `${name} connected`,
+    }));
   }
 
   onDisconnect(id) {
+    const state: State = this.store.getState();
+
+    const name = state.players.get(id).name;
+
     this.store.dispatch({
       type: 'playerDisconnected',
       id,
@@ -80,6 +87,10 @@ export default class ManygolfSocketManager extends SocketManager {
         id,
       }
     });
+
+    this.sendAll(messageDisplayMessage({
+      messageText: `${name} left`,
+    }));
   }
 
   onMessage(id, msg) {

@@ -17,12 +17,14 @@ const DumbBallRec = I.Record({
   x: null,
   y: null,
   color: null,
+  name: null,
 });
 
 export class DumbBall extends DumbBallRec {
   x: number;
   y: number;
   color: string;
+  name: string;
 }
 
 const LevelRec = I.Record({

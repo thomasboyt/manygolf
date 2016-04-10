@@ -11,6 +11,7 @@ import levelGen from './levelGen';
 import {
   TYPE_LEVEL,
   TYPE_POSITION,
+  messageDisplayMessage,
   // TYPE_LEVEL_OVER,
 } from '../universal/protocol';
 
@@ -63,7 +64,17 @@ function cycleLevel() {
 
 cycleLevel();
 
-runLoop.subscribe((state: State) => {
+runLoop.subscribe((state: State, prevState: State) => {
+
+  // Send scored messages if players scored
+  state.players.forEach((player, id) => {
+    if (player.scored && !prevState.players.get(id).scored) {
+      socks.sendAll(messageDisplayMessage({
+        messageText: `${player.name} scored!`
+      }));
+    }
+  })
+
   // Move to 'levelOver' state when all players have finished the level, updating time
   if (!state.levelOver && state.players.size > 0 &&
       state.players.filter((player) => player.scored).size === state.players.size) {
