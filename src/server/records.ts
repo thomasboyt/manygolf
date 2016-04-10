@@ -9,6 +9,7 @@ export interface Coordinates {
 const PlayerRec = I.Record({
   body: null,
   color: null,
+  name: null,
   strokes: 0,
   scored: false,
 });
@@ -16,6 +17,7 @@ const PlayerRec = I.Record({
 export class Player extends PlayerRec {
   body: p2.Body;
   color: string;
+  name: string;
   strokes: number;
   scored: boolean;
 }

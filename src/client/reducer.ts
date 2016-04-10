@@ -15,6 +15,7 @@ import {
   TYPE_LEVEL,
   TYPE_SWING,
   TYPE_POSITION,
+  MessageInitial,
 } from '../universal/protocol';
 
 import {
@@ -107,7 +108,7 @@ function enterScored(state: State) {
     .set('goalText', goalText);
 }
 
-function newLevel(state: State, data) {
+function newLevel(state: State, data: MessageInitial) {
   const levelData = data.level;
   const expTime = data.expTime;
 
@@ -195,6 +196,12 @@ export default createImmutableReducer<State>(new State(), {
       }
     }
 
+    if (state.displayMessageTimeout && Date.now() > state.displayMessageTimeout) {
+      state = state
+        .set('displayMessage', null)
+        .set('displayMessageTimeout', null);
+    }
+
     return state;
   },
 
@@ -203,14 +210,20 @@ export default createImmutableReducer<State>(new State(), {
   },
 
   [`ws:${TYPE_INITIAL}`]: (state: State, action) => {
+    const data = <MessageInitial>action.data;
+
     // TODO: use data.id, data.color for ?!?
     return state
-      .set('ghostBalls', action.data.players.reduce((balls, player) => {
+      .update((s) => newLevel(s, data))
+      .set('ghostBalls', data.players.reduce((balls, player) => {
         return balls.set(player.id, new DumbBall({
           color: player.color,
+          name: player.name,
         }));
       }, I.Map()))
-      .update((s) => newLevel(s, action.data));
+      .set('name', data.self.name)
+      .set('displayMessage', `Welcome ${data.self.name}`)
+      .set('displayMessageTimeout', Date.now() + 5 * 1000);
   },
 
   [`ws:${TYPE_PLAYER_CONNECTED}`]: (state: State, action) => {

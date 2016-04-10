@@ -41,6 +41,10 @@ const StateRec = I.Record({
   state: STATE_CONNECTING,
   ghostBalls: I.Map(),
 
+  name: null,
+  displayMessage: null,
+  displayMessageTimeout: null,
+
   level: null,
   world: null,
   ball: new Ball(),
@@ -62,6 +66,10 @@ export class State extends StateRec {
   state: string;  // TODO: use enum here
 
   ghostBalls: I.Map<number, DumbBall>;
+
+  name: string;
+  displayMessage: string;
+  displayMessageTimeout: number;
 
   level: Level;
   world: p2.World;

@@ -3,8 +3,6 @@ import p2 from 'p2';
 
 import createImmutableReducer from '../universal/createImmutableReducer';
 
-import randomColor from 'randomcolor';
-
 import {
   createWorld,
   createBall,
@@ -24,16 +22,14 @@ import {
 const fixedStep = 1 / 60;
 const maxSubSteps = 10;
 
-function addPlayer(state: State, {id}: {id: number}) {
-  // XXX: in the future avoid generating color here...
-  const color = randomColor();
-
+function addPlayer(state: State, {id, name, color}: {id: number, name: string, color: string}) {
   const body = addBall(state);
 
   return state
     .setIn(['players', id], new Player({
       body,
       color,
+      name,
     }));
 }
 
@@ -91,8 +87,8 @@ export default createImmutableReducer<State>(new State(), {
       .set('expTime', Date.now() + 5 * 1000);
   },
 
-  'playerConnected': (state: State, {id}: {id: number}) => {
-    return addPlayer(state, {id});
+  'playerConnected': (state: State, action) => {
+    return addPlayer(state, action);
   },
 
   'playerDisconnected': (state: State, {id}: {id: number}) => {

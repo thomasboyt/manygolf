@@ -6,3 +6,29 @@ export const TYPE_INITIAL = 'initial';
 export const TYPE_PLAYER_CONNECTED = 'connected';
 export const TYPE_PLAYER_DISCONNECTED = 'disconnected';
 export const TYPE_LEVEL_OVER = 'levelOver';
+
+interface Player {
+  id: number;
+  color: string;
+  name: string;
+}
+
+interface Level {
+  points: Array<Array<number>>;
+  hole: Array<number>;
+  spawn: Array<number>
+}
+
+export interface MessageInitial {
+  self: Player;
+  players: Array<Player>;
+  level: Level;
+  expTime: number;
+}
+
+export function messageInitial(params: MessageInitial) {
+  return {
+    type: TYPE_INITIAL,
+    data: params,
+  }
+}

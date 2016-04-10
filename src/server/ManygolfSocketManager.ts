@@ -1,8 +1,11 @@
-import SocketManager from './util/SocketManager';
 import {Store} from 'redux';
+import randomColor from 'randomcolor';
+
+import SocketManager from './util/SocketManager';
+import nameGen from './nameGen';
 
 import {
-  TYPE_INITIAL,
+  messageInitial,
   TYPE_PLAYER_CONNECTED,
   TYPE_PLAYER_DISCONNECTED,
   TYPE_SWING,
@@ -24,33 +27,37 @@ export default class ManygolfSocketManager extends SocketManager {
     this.store = store;
   }
 
-  onConnect(id) {
+  onConnect(id: number) {
+    const color = randomColor();
+    const name = nameGen();
+
     this.store.dispatch({
       type: 'playerConnected',
       id,
+      color,
+      name,
     });
 
     const state: State = this.store.getState();
 
-    const color = state.getIn(['players', id, 'color']);
-
-    this.sendTo(id, {
-      type: TYPE_INITIAL,
-      data: {
+    this.sendTo(id, messageInitial({
+      self: {
         id,
         color,
-
-        players: state.players.map((player, id) => {
-          return {
-            id,
-            color: player.color,
-          };
-        }).toList().toJS(),
-
-        level: state.levelData,
-        expTime: state.expTime,
+        name,
       },
-    });
+
+      players: state.players.map((player, id) => {
+        return {
+          id,
+          color: player.color,
+          name: player.name,
+        };
+      }).toList().toJS(),
+
+      level: state.levelData,
+      expTime: state.expTime,
+    }));
 
     this.sendAll({
       type: TYPE_PLAYER_CONNECTED,

@@ -151,6 +151,13 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
 
   ctx.textAlign = 'right';
   ctx.fillText(remainingMs + '', WIDTH - 10, 20);
+
+  // Messages
+  if (state.displayMessage) {
+    ctx.font = 'normal 8px "Press Start 2P"';
+    ctx.textAlign = 'left';
+    ctx.fillText(state.displayMessage, 10, HEIGHT - 10)
+  }
 }
 
 export default function render(ctx: CanvasRenderingContext2D, state: State) {
