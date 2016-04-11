@@ -22,17 +22,28 @@ function randInt(min, max) {
 }
 
 export default function levelGen() {
-  const numSegments = randInt(10, 30);
+  // const numSegments = randInt(10, 30);
+  let numSegments = 26;
+
+  // ceil to prevent sum(segment widths) with being < WIDTH...
+  const segmentWidth = Math.ceil(WIDTH / numSegments);
+
+  // ...but with ceil() you can end up in an annoying edge case where points[n - 1].x >= 500
+  // example: n=26, width=500, segmentWidth=20, 20*25 = 500
+  // this causes two points with x=width to exist which can break ground polygon creation
+  //
+  // as a hack, we just decrease numSegments by 1 if this scenario is encountered, but keep
+  // the previous segment width
+  if (segmentWidth * (numSegments - 1) >= WIDTH) {
+    numSegments -= 1;
+  }
 
   const spawnSegment = randInt(2, Math.floor(numSegments / 3));
 
   // hole can't be on the last segment because it may be smaller than the rest
   // this causes the hole alignment to be off which causes an invalid shape that the ball just
   // kinda falls through
-  const holeSegment = randInt(Math.floor(numSegments / 3) * 2, numSegments - 2);
-
-  // ceil to prevent sum(segment widths) with being < WIDTH
-  const segmentWidth = Math.ceil(WIDTH / numSegments);
+  const holeSegment = randInt(Math.floor(numSegments / 3) * 2, numSegments - 1);
 
   const points = [];
   let spawnX, spawnY, holeX, holeY;
