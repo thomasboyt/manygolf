@@ -7,8 +7,8 @@ import nameGen from './nameGen';
 import {
   messageInitial,
   messagePlayerConnected,
+  messagePlayerDisconnected,
   messageDisplayMessage,
-  TYPE_PLAYER_DISCONNECTED,
   TYPE_SWING,
 } from '../universal/protocol';
 
@@ -43,7 +43,7 @@ export default class ManygolfSocketManager extends SocketManager {
 
     this.sendTo(id, messageInitial({
       roundState: state.roundState,
-      
+
       self: {
         id,
         color,
@@ -84,12 +84,9 @@ export default class ManygolfSocketManager extends SocketManager {
       id,
     });
 
-    this.sendAll({
-      type: TYPE_PLAYER_DISCONNECTED,
-      data: {
-        id,
-      }
-    });
+    this.sendAll(messagePlayerDisconnected({
+      id,
+    }));
 
     this.sendAll(messageDisplayMessage({
       messageText: `{{${player.name}}} left`,

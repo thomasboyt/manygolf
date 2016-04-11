@@ -2,16 +2,6 @@ import {
   RoundState
 } from '../universal/constants';
 
-// message types
-export const TYPE_SWING = 'swing';
-export const TYPE_LEVEL = 'level';
-export const TYPE_POSITION = 'position';
-export const TYPE_INITIAL = 'initial';
-export const TYPE_PLAYER_CONNECTED = 'connected';
-export const TYPE_PLAYER_DISCONNECTED = 'disconnected';
-export const TYPE_LEVEL_OVER = 'levelOver';
-export const TYPE_DISPLAY_MESSAGE = 'displayMessage';
-
 interface Player {
   id: number;
   color: string;
@@ -23,6 +13,15 @@ interface Level {
   hole: Array<number>;
   spawn: Array<number>
 }
+
+interface Position {
+  id: number;
+  x: number;
+  y: number;
+}
+
+
+export const TYPE_INITIAL = 'initial';
 
 export interface MessageInitial {
   self: Player;
@@ -39,6 +38,9 @@ export function messageInitial(params: MessageInitial) {
   }
 }
 
+
+export const TYPE_PLAYER_CONNECTED = 'connected';
+
 export interface MessagePlayerConnected {
   id: number;
   color: string;
@@ -52,6 +54,23 @@ export function messagePlayerConnected(params: MessagePlayerConnected) {
   }
 }
 
+
+export const TYPE_PLAYER_DISCONNECTED = 'disconnected';
+
+export interface MessagePlayerDisconnected {
+  id: number;
+}
+
+export function messagePlayerDisconnected(params: MessagePlayerDisconnected) {
+  return {
+    type: TYPE_PLAYER_DISCONNECTED,
+    data: params,
+  }
+}
+
+
+export const TYPE_DISPLAY_MESSAGE = 'displayMessage';
+
 export interface MessageDisplayMessage {
   messageText: string;
   color: string;
@@ -64,6 +83,9 @@ export function messageDisplayMessage(params: MessageDisplayMessage) {
   }
 }
 
+
+export const TYPE_LEVEL_OVER = 'levelOver';
+
 export interface MessageLevelOver {
   winnerId: number;
 }
@@ -71,6 +93,52 @@ export interface MessageLevelOver {
 export function messageLevelOver(params: MessageLevelOver) {
   return {
     type: TYPE_LEVEL_OVER,
+    data: params,
+  }
+}
+
+
+export const TYPE_LEVEL = 'level';
+
+export interface MessageLevel {
+  level: Level;
+  expTime: number;
+}
+
+export function messageLevel(params: MessageLevel) {
+  return {
+    type: TYPE_LEVEL,
+    data: params,
+  }
+}
+
+
+export const TYPE_POSITION = 'position';
+
+export interface MessagePositions {
+  positions: Array<Position>;
+}
+
+export function messagePositions(params: MessagePositions) {
+  return {
+    type: TYPE_POSITION,
+    data: params,
+  }
+}
+
+
+export const TYPE_SWING = 'swing';
+
+export interface MessageSwing {
+  vec: {
+    x: number;
+    y: number;
+  };
+}
+
+export function messageSwing(params: MessageSwing) {
+  return {
+    type: TYPE_SWING,
     data: params,
   }
 }

@@ -14,10 +14,10 @@ import {
 } from '../universal/constants';
 
 import {
-  TYPE_LEVEL,
-  TYPE_POSITION,
+  messageLevel,
   messageDisplayMessage,
   messageLevelOver,
+  messagePositions,
 } from '../universal/protocol';
 
 import {
@@ -99,13 +99,10 @@ function cycleLevel() {
     expTime,
   });
 
-  socks.sendAll({
-    type: TYPE_LEVEL,
-    data: {
-      level: nextLevel,
-      expTime,
-    },
-  });
+  socks.sendAll(messageLevel({
+    level: nextLevel,
+    expTime,
+  }));
 }
 
 cycleLevel();
@@ -154,10 +151,9 @@ runLoop.subscribe((state: State, prevState: State) => {
       };
     }).toList().toJS();
 
-    socks.sendAll({
-      type: TYPE_POSITION,
-      data: {positions},
-    });
+    socks.sendAll(messagePositions({
+      positions,
+    }));
   }
 
 });

@@ -13,7 +13,6 @@ import {
   TYPE_PLAYER_CONNECTED,
   TYPE_PLAYER_DISCONNECTED,
   TYPE_LEVEL,
-  TYPE_SWING,
   TYPE_POSITION,
   TYPE_DISPLAY_MESSAGE,
   TYPE_LEVEL_OVER,
@@ -21,6 +20,7 @@ import {
   MessagePlayerConnected,
   MessageDisplayMessage,
   MessageLevelOver,
+  messageSwing,
 } from '../universal/protocol';
 
 import {
@@ -113,10 +113,9 @@ function endSwing(state: State) {
   state.ball.body.velocity[1] = vec.y;
 
   // TODO: do this somewhere else...
-  ws.send({
-    type: TYPE_SWING,
-    data: {vec},
-  });
+  ws.send(messageSwing({
+    vec,
+  }));
 
   return state
     .set('inSwing', false)
