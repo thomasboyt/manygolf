@@ -24,6 +24,7 @@ import {
 } from '../universal/protocol';
 
 import {
+  MIN_POWER,
   MAX_POWER,
   SWING_STEP,
   TIMER_MS,
@@ -88,14 +89,12 @@ function beginSwing(state: State) {
   return state
     .set('inSwing', true)
     .set('swingMeterDirection', SwingMeterDirection.ascending)
-    .set('swingPower', 0);
+    .set('swingPower', MIN_POWER);
 }
 
 function continueSwing(state: State, dt: number) {
   let step = dt * SWING_STEP;
 
-  // TODO: if swingPower > MAX_POWER, descend to 0
-  // const swingPower = state.swingPower + step;
   if (state.swingMeterDirection === SwingMeterDirection.descending) {
     step = -step;
   }
@@ -106,10 +105,10 @@ function continueSwing(state: State, dt: number) {
     return state
       .set('swingMeterDirection', SwingMeterDirection.descending)
       .set('swingPower', MAX_POWER);
-  } else if (nextPower < 0) {
+  } else if (nextPower < MIN_POWER) {
     return state
       .set('swingMeterDirection', SwingMeterDirection.ascending)
-      .set('swingPower', 0);
+      .set('swingPower', MIN_POWER);
   }
 
   return state.set('swingPower', nextPower);

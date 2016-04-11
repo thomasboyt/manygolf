@@ -1,6 +1,7 @@
 import {
   WIDTH,
   HEIGHT,
+  MIN_POWER,
   MAX_POWER,
   RoundState,
   ConnectionState,
@@ -102,7 +103,7 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
     ctx.fillStyle = meterBoxColor;
     ctx.fillRect(meterX, meterY, meterWidth, meterHeight);
 
-    const fillWidth = (state.swingPower / MAX_POWER) * meterWidth;
+    const fillWidth = ((state.swingPower - MIN_POWER) / (MAX_POWER - MIN_POWER)) * meterWidth;
 
     ctx.fillStyle = meterFillColor;
     ctx.fillRect(meterX, meterY, fillWidth, meterHeight);
