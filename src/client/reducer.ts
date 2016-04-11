@@ -247,6 +247,7 @@ export default createImmutableReducer<State>(new State(), {
         }));
       }, I.Map()))
       .set('name', data.self.name)
+      .set('id', data.self.id)
       .set('roundState', data.roundState);
   },
 
@@ -257,6 +258,7 @@ export default createImmutableReducer<State>(new State(), {
       .setIn(['ghostBalls', action.data.id], new DumbBall({
         color: data.color,
         name: data.name,
+        id: data.id,
       }));
   },
 

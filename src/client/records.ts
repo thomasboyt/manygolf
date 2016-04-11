@@ -24,6 +24,7 @@ const DumbBallRec = I.Record({
   y: null,
   color: null,
   name: null,
+  id: null,
 });
 
 export class DumbBall extends DumbBallRec {
@@ -31,6 +32,7 @@ export class DumbBall extends DumbBallRec {
   y: number;
   color: string;
   name: string;
+  id: number;
 }
 
 const LevelRec = I.Record({
@@ -52,6 +54,7 @@ const StateRec = I.Record({
   ghostBalls: I.Map(),
 
   name: null,
+  id: null,
 
   displayMessage: null,
   displayMessageTimeout: null,
@@ -84,6 +87,7 @@ export class State extends StateRec {
   ghostBalls: I.Map<number, DumbBall>;
 
   name: string;
+  id: number;
 
   displayMessage: string;
   displayMessageTimeout: number;

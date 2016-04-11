@@ -20,6 +20,8 @@ const ballColor = 'red';
 const meterBoxColor = 'skyblue';
 const meterFillColor = 'blue';
 
+const debugRender = document.location.search.indexOf('debugRender') !== -1;
+
 function renderConnecting(ctx: CanvasRenderingContext2D, state: State) {
   ctx.fillStyle = 'black';
   ctx.font = 'normal 16px "Press Start 2P"';
@@ -110,6 +112,11 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
   // Draw ghost balls
   //
   state.ghostBalls.forEach((ball) => {
+    // Don't render ghost for the current player
+    if (ball.id === state.id && !debugRender) {
+      return ball;
+    }
+
     ctx.beginPath();
     ctx.arc(ball.x, ball.y, 2.5, 0, 2 * Math.PI);
     ctx.strokeStyle = 'black';
