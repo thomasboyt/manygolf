@@ -26,6 +26,7 @@ import {
 import {
   MAX_POWER,
   SWING_STEP,
+  TIMER_MS,
   goalWords,
   RoundState,
   ConnectionState,
@@ -52,7 +53,14 @@ import {
 } from './records';
 
 const fixedStep = 1 / 60;
-const maxSubSteps = 10;
+
+// this is set to be super high so that the physics engine can instantly catch up if you tab out
+// and back in. with p2's default 10, it only does ten "catch-up" fixed steps per tick, which
+// causes everything to move in "fast motion" until it's caught up, which is of course really weird
+//
+// this is set to be the maximum number of steps in a round (since the world is reset between
+// rounds, you don't need to worry about anything higher)
+const maxSubSteps = (TIMER_MS / 1000) * (1 / fixedStep);
 
 const moveSpeed = 50;  // degrees per second
 
