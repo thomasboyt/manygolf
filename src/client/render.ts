@@ -22,14 +22,14 @@ const meterFillColor = 'blue';
 
 function renderConnecting(ctx: CanvasRenderingContext2D, state: State) {
   ctx.fillStyle = 'black';
-  ctx.font = '16px sans-serif';
+  ctx.font = 'normal 16px "Press Start 2P"';
   ctx.textAlign = 'center';
   ctx.fillText('Connecting...', WIDTH / 2, HEIGHT / 2);
 }
 
 function renderDisconnected(ctx: CanvasRenderingContext2D, state: State) {
   ctx.fillStyle = 'black';
-  ctx.font = '16px sans-serif';
+  ctx.font = 'normal 16px "Press Start 2P"';
   ctx.textAlign = 'center';
   ctx.fillText('Disconnected! Try reloading?', WIDTH / 2, HEIGHT / 2);
 }
