@@ -6,6 +6,11 @@ import {
   RoundState,
 } from '../universal/constants';
 
+export enum SwingMeterDirection {
+  ascending,
+  descending
+}
+
 const BallRec = I.Record({
   body: null,
 });
@@ -59,6 +64,7 @@ const StateRec = I.Record({
 
   aimDirection: -45,  // angle (in degrees) relative to pointing ->
   swingPower: 0,
+  swingMeterDirection: SwingMeterDirection.ascending,
   allowHit: false,
   inSwing: false,
 
@@ -90,6 +96,7 @@ export class State extends StateRec {
 
   aimDirection: number;
   swingPower: number;
+  swingMeterDirection: SwingMeterDirection;
   allowHit: boolean;
   inSwing: boolean;
 

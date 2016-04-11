@@ -6,6 +6,7 @@ export const HOLE_WIDTH = 10;
 export const BALL_RADIUS = 2.5;
 
 export const MAX_POWER = 100;
+export const SWING_STEP = 75;
 
 export const TIMER_MS = 45 * 1000;
 export const OVER_TIMER_MS = 5 * 1000;

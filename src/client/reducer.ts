@@ -25,6 +25,7 @@ import {
 
 import {
   MAX_POWER,
+  SWING_STEP,
   goalWords,
   RoundState,
   ConnectionState,
@@ -46,7 +47,8 @@ import {
   State,
   Level,
   Ball,
-  DumbBall
+  DumbBall,
+  SwingMeterDirection
 } from './records';
 
 const fixedStep = 1 / 60;
@@ -75,16 +77,34 @@ function setAim(state: State, direction: AimDirection, dt: number) {
 }
 
 function beginSwing(state: State) {
-  return state.set('inSwing', true);
+  return state
+    .set('inSwing', true)
+    .set('swingMeterDirection', SwingMeterDirection.ascending)
+    .set('swingPower', 0);
 }
 
 function continueSwing(state: State, dt: number) {
-  const step = dt * 50;
+  let step = dt * SWING_STEP;
 
   // TODO: if swingPower > MAX_POWER, descend to 0
   // const swingPower = state.swingPower + step;
+  if (state.swingMeterDirection === SwingMeterDirection.descending) {
+    step = -step;
+  }
 
-  return state.update('swingPower', (swingPower) => clamp(swingPower + step, MAX_POWER));
+  const nextPower = state.swingPower + step;
+
+  if (nextPower > MAX_POWER) {
+    return state
+      .set('swingMeterDirection', SwingMeterDirection.descending)
+      .set('swingPower', MAX_POWER);
+  } else if (nextPower < 0) {
+    return state
+      .set('swingMeterDirection', SwingMeterDirection.ascending)
+      .set('swingPower', 0);
+  }
+
+  return state.set('swingPower', nextPower);
 }
 
 function endSwing(state: State) {
@@ -100,7 +120,6 @@ function endSwing(state: State) {
 
   return state
     .set('inSwing', false)
-    .set('swingPower', 0)
     .update('strokes', (strokes) => strokes + 1);
 }
 
