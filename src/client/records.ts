@@ -44,8 +44,10 @@ const StateRec = I.Record({
   ghostBalls: I.Map(),
 
   name: null,
+
   displayMessage: null,
   displayMessageTimeout: null,
+  displayMessageColor: null,
 
   level: null,
   world: null,
@@ -70,8 +72,10 @@ export class State extends StateRec {
   ghostBalls: I.Map<number, DumbBall>;
 
   name: string;
+  
   displayMessage: string;
   displayMessageTimeout: number;
+  displayMessageColor: string;
 
   level: Level;
   world: p2.World;

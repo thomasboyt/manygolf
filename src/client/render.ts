@@ -156,7 +156,35 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
   if (state.displayMessage) {
     ctx.font = 'normal 8px "Press Start 2P"';
     ctx.textAlign = 'left';
-    ctx.fillText(state.displayMessage, 10, HEIGHT - 10)
+
+    const colorStart = state.displayMessage.indexOf('{{');
+    const colorEnd = state.displayMessage.indexOf('}}');
+
+    const x = 10;
+    const y = HEIGHT - 10;
+
+    if (colorStart !== -1) {
+      const before = state.displayMessage.slice(0, colorStart);
+      const colorized = state.displayMessage.slice(colorStart + 2, colorEnd);
+      const after = state.displayMessage.slice(colorEnd + 2);
+
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 2;
+
+      ctx.fillStyle = 'black';
+      ctx.fillText(before, x, y);
+
+      ctx.fillStyle = state.displayMessageColor;
+      ctx.strokeText(colorized, x + ctx.measureText(before).width, y);
+      ctx.fillText(colorized, x + ctx.measureText(before).width, y);
+
+      ctx.fillStyle = 'black';
+      ctx.fillText(after, x + ctx.measureText(before + colorized).width, y);
+
+    } else {
+      ctx.fillText(state.displayMessage, x, y)
+    }
+
   }
 }
 

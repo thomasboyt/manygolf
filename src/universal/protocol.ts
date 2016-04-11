@@ -49,6 +49,7 @@ export function messagePlayerConnected(params: MessagePlayerConnected) {
 
 export interface MessageDisplayMessage {
   messageText: string;
+  color: string;
 }
 
 export function messageDisplayMessage(params: MessageDisplayMessage) {

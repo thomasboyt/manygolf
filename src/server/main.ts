@@ -75,7 +75,8 @@ runLoop.subscribe((state: State, prevState: State) => {
     if (player.scored && !prevState.players.get(id).scored) {
       const elapsed = ((Date.now() - (state.expTime - TIMER_MS)) / 1000).toFixed(2);
       socks.sendAll(messageDisplayMessage({
-        messageText: `${player.name} scored! (${player.strokes} strokes in ${elapsed}s)`
+        messageText: `{{${player.name}}} scored! (${player.strokes} strokes in ${elapsed}s)`,
+        color: player.color,
       }));
     }
   })

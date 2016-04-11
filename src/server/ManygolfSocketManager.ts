@@ -67,14 +67,15 @@ export default class ManygolfSocketManager extends SocketManager {
     }));
 
     this.sendAll(messageDisplayMessage({
-      messageText: `${name} connected`,
+      messageText: `{{${name}}} connected`,
+      color,
     }));
   }
 
   onDisconnect(id) {
     const state: State = this.store.getState();
 
-    const name = state.players.get(id).name;
+    const player = state.players.get(id);
 
     this.store.dispatch({
       type: 'playerDisconnected',
@@ -89,7 +90,8 @@ export default class ManygolfSocketManager extends SocketManager {
     });
 
     this.sendAll(messageDisplayMessage({
-      messageText: `${name} left`,
+      messageText: `{{${player.name}}} left`,
+      color: player.color,
     }));
   }
 

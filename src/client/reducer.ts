@@ -258,6 +258,7 @@ export default createImmutableReducer<State>(new State(), {
 
     return state
       .set('displayMessage', data.messageText)
+      .set('displayMessageColor', data.color)
       .set('displayMessageTimeout', Date.now() + 5 * 1000);
   },
 
