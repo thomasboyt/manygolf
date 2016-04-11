@@ -1,3 +1,7 @@
+import {
+  RoundState
+} from '../universal/constants';
+
 // message types
 export const TYPE_SWING = 'swing';
 export const TYPE_LEVEL = 'level';
@@ -25,6 +29,7 @@ export interface MessageInitial {
   players: Array<Player>;
   level: Level;
   expTime: number;
+  roundState: RoundState;
 }
 
 export function messageInitial(params: MessageInitial) {
@@ -55,6 +60,17 @@ export interface MessageDisplayMessage {
 export function messageDisplayMessage(params: MessageDisplayMessage) {
   return {
     type: TYPE_DISPLAY_MESSAGE,
+    data: params,
+  }
+}
+
+export interface MessageLevelOver {
+  winnerId: number;
+}
+
+export function messageLevelOver(params: MessageLevelOver) {
+  return {
+    type: TYPE_LEVEL_OVER,
     data: params,
   }
 }

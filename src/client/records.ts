@@ -2,7 +2,8 @@ import I from 'immutable';
 import p2 from 'p2';
 
 import {
-  STATE_CONNECTING,
+  ConnectionState,
+  RoundState,
 } from '../universal/constants';
 
 const BallRec = I.Record({
@@ -40,7 +41,9 @@ export class Level extends LevelRec {
 }
 
 const StateRec = I.Record({
-  state: STATE_CONNECTING,
+  connectionState: ConnectionState.connecting,
+  roundState: null,
+
   ghostBalls: I.Map(),
 
   name: null,
@@ -64,15 +67,18 @@ const StateRec = I.Record({
 
   scored: false,
   goalText: null,
+
+  winnerId: null,
 });
 
 export class State extends StateRec {
-  state: string;  // TODO: use enum here
+  connectionState: ConnectionState;
+  roundState: RoundState;
 
   ghostBalls: I.Map<number, DumbBall>;
 
   name: string;
-  
+
   displayMessage: string;
   displayMessageTimeout: number;
   displayMessageColor: string;
@@ -92,4 +98,6 @@ export class State extends StateRec {
 
   scored: boolean;
   goalText: string;
+
+  winnerId: number;
 }

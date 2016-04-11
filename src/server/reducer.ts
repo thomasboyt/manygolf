@@ -19,6 +19,12 @@ import {
   Coordinates
 } from './records';
 
+import {
+  TIMER_MS,
+  OVER_TIMER_MS,
+  RoundState
+} from '../universal/constants';
+
 const fixedStep = 1 / 60;
 const maxSubSteps = 10;
 
@@ -27,6 +33,7 @@ function addPlayer(state: State, {id, name, color}: {id: number, name: string, c
 
   return state
     .setIn(['players', id], new Player({
+      id,
       body,
       color,
       name,
@@ -45,7 +52,7 @@ export default createImmutableReducer<State>(new State(), {
   'tick': (state: State, {dt}: {dt: number}) => {
     dt = dt / 1000;  // ms -> s
 
-    if (!state.world) {
+    if (!state.world || state.roundState === RoundState.over) {
       return state;
     }
 
@@ -71,10 +78,14 @@ export default createImmutableReducer<State>(new State(), {
         const scored = isOverlapping.get(id) && isSleeping;
 
         if (scored) {
-          console.log(`*** Player ${id} scored`);
+          const elapsed = Date.now() - (state.expTime - TIMER_MS);
+
+          return player
+            .set('scored', true)
+            .set('scoreTime', elapsed);
         }
 
-        return player.set('scored', scored);
+        return player;
       }
     }));
 
@@ -83,8 +94,8 @@ export default createImmutableReducer<State>(new State(), {
 
   'levelOver': (state: State) => {
     return state
-      .set('levelOver', true)
-      .set('expTime', Date.now() + 5 * 1000);
+      .set('roundState', RoundState.over)
+      .set('expTime', Date.now() + OVER_TIMER_MS);
   },
 
   'playerConnected': (state: State, action) => {
@@ -136,7 +147,8 @@ export default createImmutableReducer<State>(new State(), {
         return player
           .set('body', addBall({level, world}))
           .set('strokes', 0)
-          .set('scored', false);
+          .set('scored', false)
+          .set('scoreTime', null);
       })
     });
   }

@@ -7,12 +7,19 @@ export const BALL_RADIUS = 2.5;
 
 export const MAX_POWER = 100;
 
-export const TIMER_MS = 60 * 1000;
+export const TIMER_MS = 45 * 1000;
+export const OVER_TIMER_MS = 5 * 1000;
 
-export const STATE_CONNECTING = 'connecting';
-export const STATE_IN_GAME = 'ingame';
-export const STATE_DISCONNECTED = 'disconnected';
-export const STATE_LEVEL_OVER = 'levelover';
+export enum RoundState {
+  inProgress,
+  over
+};
+
+export enum ConnectionState {
+  connecting,
+  connected,
+  disconnected
+}
 
 // thx friends
 export const goalWords = [

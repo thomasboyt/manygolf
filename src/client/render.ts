@@ -2,9 +2,8 @@ import {
   WIDTH,
   HEIGHT,
   MAX_POWER,
-  STATE_CONNECTING,
-  STATE_IN_GAME,
-  STATE_DISCONNECTED,
+  RoundState,
+  ConnectionState,
   // HOLE_WIDTH,
   // HOLE_HEIGHT,
 } from '../universal/constants';
@@ -140,17 +139,44 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
   ctx.fillText(`Stroke ${state.strokes}`, 10, 20);
   ctx.fillText(`Players ${state.ghostBalls.size}`, 10, 40);
 
-  // Timer
-  const expTime = state.expTime;
-  const remainingMs = Math.ceil((expTime - Date.now()) / 1000);
+  if (state.roundState === RoundState.over) {
+    const x = WIDTH / 2;
+    const y = HEIGHT / 2;
 
-  if (state.scored) {
     ctx.textAlign = 'center';
-    ctx.fillText(`${state.goalText.toUpperCase()}!!`, WIDTH / 2, HEIGHT / 2);
-  }
 
-  ctx.textAlign = 'right';
-  ctx.fillText(remainingMs + '', WIDTH - 10, 20);
+    // Show winner text
+    if (state.winnerId !== null) {
+      const winner = state.ghostBalls.get(state.winnerId);
+
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 2;
+      ctx.fillStyle = winner.color;
+
+      ctx.strokeText(winner.name, x, y - 10);
+      ctx.fillText(winner.name, x, y - 10);
+
+      ctx.fillStyle = 'black';
+      ctx.fillText(' wins!', x, y + 10);
+
+    } else {
+      ctx.fillText('No one wins!', x, y);
+    }
+
+  } else {
+    // Timer
+    const expTime = state.expTime;
+    const remainingMs = Math.ceil((expTime - Date.now()) / 1000);
+
+    ctx.textAlign = 'right';
+    ctx.fillText(remainingMs + '', WIDTH - 10, 20);
+
+    // Show goalText when you score
+    if (state.scored) {
+      ctx.textAlign = 'center';
+      ctx.fillText(`${state.goalText.toUpperCase()}!!`, WIDTH / 2, HEIGHT / 2);
+    }
+  }
 
   // Messages
   if (state.displayMessage) {
@@ -184,7 +210,6 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
     } else {
       ctx.fillText(state.displayMessage, x, y)
     }
-
   }
 }
 
@@ -196,14 +221,12 @@ export default function render(ctx: CanvasRenderingContext2D, state: State) {
   ctx.fillStyle = skyColor;
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-  if (state.state === STATE_CONNECTING) {
+  if (state.connectionState === ConnectionState.connecting) {
     renderConnecting(ctx, state);
-  } else if (state.state === STATE_IN_GAME) {
+  } else if (state.connectionState === ConnectionState.connected) {
     renderInGame(ctx, state);
-  } else if (state.state === STATE_DISCONNECTED) {
+  } else if (state.connectionState === ConnectionState.disconnected) {
     renderDisconnected(ctx, state);
-  } else {
-    throw new Error(`Unrecognized state ${state.state}`);
   }
 
   ctx.restore();

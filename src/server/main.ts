@@ -10,17 +10,19 @@ import levelGen from './levelGen';
 
 import {
   TIMER_MS,
+  RoundState,
 } from '../universal/constants';
 
 import {
   TYPE_LEVEL,
   TYPE_POSITION,
   messageDisplayMessage,
-  // TYPE_LEVEL_OVER,
+  messageLevelOver,
 } from '../universal/protocol';
 
 import {
   State,
+  Player,
 } from './records';
 
 /*
@@ -42,6 +44,46 @@ const socks = new ManygolfSocketManager(wss, store);
 /*
  * Run loop
  */
+
+function levelOver() {
+  store.dispatch({
+    type: 'levelOver',
+  });
+
+  const state = <State>store.getState();
+
+  const winner = state.players.reduce((cur: Player, player: Player) => {
+    // If this player didn't score, it can't be the winner
+    if (!player.scored) {
+      return cur;
+    }
+
+    // If this is the first player to score, it's the current winner
+    if (!cur) {
+      return player;
+    }
+
+    if (player.strokes > cur.strokes) {
+      return cur;
+    } else if (player.strokes < cur.strokes) {
+      return player;
+    } else {
+      // === strokes
+      // this has ms precision so we can sorta assume you're not gonna tie...
+      if (player.scoreTime < cur.scoreTime) {
+        return player;
+      } else {
+        return cur;
+      }
+    }
+  }, null);
+
+  const winnerId = winner ? winner.id : null;
+
+  socks.sendAll(messageLevelOver({
+    winnerId,
+  }));
+}
 
 function cycleLevel() {
   console.log('Cycling level');
@@ -70,53 +112,54 @@ cycleLevel();
 
 runLoop.subscribe((state: State, prevState: State) => {
 
-  // Send scored messages if players scored
-  state.players.forEach((player, id) => {
-    if (player.scored && !prevState.players.get(id).scored) {
-      const elapsed = ((Date.now() - (state.expTime - TIMER_MS)) / 1000).toFixed(2);
-      socks.sendAll(messageDisplayMessage({
-        messageText: `{{${player.name}}} scored! (${player.strokes} strokes in ${elapsed}s)`,
-        color: player.color,
-      }));
+  if (state.roundState === RoundState.over) {
+    if (state.expTime !== null && state.expTime < Date.now()) {
+      cycleLevel();
+      return;
     }
-  })
 
-  // Move to 'levelOver' state when all players have finished the level, updating time
-  if (!state.levelOver && state.players.size > 0 &&
-      state.players.filter((player) => player.scored).size === state.players.size) {
-    console.log('All players have finished');
+  } else {
 
-    store.dispatch({
-      type: 'levelOver',
+    // Send scored messages if players scored
+    state.players.forEach((player, id) => {
+      if (player.scored && !prevState.players.get(id).scored) {
+        const elapsed = (player.scoreTime / 1000).toFixed(2);
+
+        socks.sendAll(messageDisplayMessage({
+          messageText: `{{${player.name}}} scored! (${player.strokes} strokes in ${elapsed}s)`,
+          color: player.color,
+        }));
+      }
+    })
+
+    // Move to 'levelOver' state when all players have finished the level, updating time
+    if (state.players.size > 0 &&
+        state.players.filter((player) => player.scored).size === state.players.size) {
+      console.log('All players have finished');
+      levelOver();
+      return;
+    }
+
+    if (state.expTime !== null && state.expTime < Date.now()) {
+      console.log('Timer expired');
+      levelOver();
+      return;
+    }
+
+    const positions = state.players.map((player, id) => {
+      return {
+        id,
+        x: player.body.interpolatedPosition[0],
+        y: player.body.interpolatedPosition[1],
+      };
+    }).toList().toJS();
+
+    socks.sendAll({
+      type: TYPE_POSITION,
+      data: {positions},
     });
-
-    // socks.sendAll({
-    //   type: TYPE_LEVEL_OVER,
-    //   data: {
-    //     scores: getScores(state)
-    //   },
-    // });
-
-    return;
   }
 
-  if (state.expTime !== null && state.expTime < Date.now()) {
-    cycleLevel();
-    return;
-  }
-
-  const positions = state.players.map((player, id) => {
-    return {
-      id,
-      x: player.body.interpolatedPosition[0],
-      y: player.body.interpolatedPosition[1],
-    };
-  }).toList().toJS();
-
-  socks.sendAll({
-    type: TYPE_POSITION,
-    data: {positions},
-  });
 });
 
 server.on('request', app);

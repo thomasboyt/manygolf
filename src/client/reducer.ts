@@ -16,17 +16,18 @@ import {
   TYPE_SWING,
   TYPE_POSITION,
   TYPE_DISPLAY_MESSAGE,
+  TYPE_LEVEL_OVER,
   MessageInitial,
   MessagePlayerConnected,
   MessageDisplayMessage,
+  MessageLevelOver,
 } from '../universal/protocol';
 
 import {
   MAX_POWER,
-  STATE_CONNECTING,
-  STATE_IN_GAME,
-  STATE_DISCONNECTED,
   goalWords,
+  RoundState,
+  ConnectionState,
 } from '../universal/constants';
 
 import {
@@ -132,7 +133,9 @@ function newLevel(state: State, data: MessageInitial) {
   world.addBody(holeSensor);
 
   return new State({
-    state: STATE_IN_GAME,
+    connectionState: ConnectionState.connected,
+    roundState: RoundState.inProgress,
+
     ghostBalls: state.ghostBalls,
 
     world,
@@ -173,7 +176,7 @@ export default createImmutableReducer<State>(new State(), {
   'tick': (state: State, {dt, keysDown}: {dt: number; keysDown: Set<number>}) => {
     dt = dt / 1000;  // ms -> s
 
-    if (!state.world) {
+    if (!state.world || state.roundState === RoundState.over) {
       return state;
     }
 
@@ -217,7 +220,6 @@ export default createImmutableReducer<State>(new State(), {
   [`ws:${TYPE_INITIAL}`]: (state: State, action) => {
     const data = <MessageInitial>action.data;
 
-    // TODO: use data.id, data.color for ?!?
     return state
       .update((s) => newLevel(s, data))
       .set('ghostBalls', data.players.reduce((balls, player) => {
@@ -226,7 +228,8 @@ export default createImmutableReducer<State>(new State(), {
           name: player.name,
         }));
       }, I.Map()))
-      .set('name', data.self.name);
+      .set('name', data.self.name)
+      .set('roundState', data.roundState);
   },
 
   [`ws:${TYPE_PLAYER_CONNECTED}`]: (state: State, action) => {
@@ -262,7 +265,15 @@ export default createImmutableReducer<State>(new State(), {
       .set('displayMessageTimeout', Date.now() + 5 * 1000);
   },
 
+  [`ws:${TYPE_LEVEL_OVER}`]: (state: State, action) => {
+    const data = <MessageLevelOver>action.data;
+
+    return state
+      .set('roundState', RoundState.over)
+      .set('winnerId', data.winnerId);
+  },
+
   'disconnect': (state: State) => {
-    return state.set('state', STATE_DISCONNECTED);
+    return state.set('connectionState', ConnectionState.disconnected);
   }
 });

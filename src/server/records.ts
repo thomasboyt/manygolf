@@ -1,25 +1,35 @@
 import I from 'immutable';
 import p2 from 'p2';
 
+import {
+  RoundState,
+} from '../universal/constants';
+
 export interface Coordinates {
   x: number;
   y: number;
 }
 
 const PlayerRec = I.Record({
+  id: null,
+
   body: null,
   color: null,
   name: null,
-  strokes: 0,
+
   scored: false,
+  strokes: 0,
+  scoreTime: null,
 });
 
 export class Player extends PlayerRec {
+  id: number;
   body: p2.Body;
   color: string;
   name: string;
   strokes: number;
   scored: boolean;
+  scoreTime: number;
 }
 
 const LevelRec = I.Record({
@@ -41,7 +51,7 @@ const StateRec = I.Record({
   players: I.Map(),
   expTime: null,
   holeSensor: null,
-  levelOver: false,
+  roundState: RoundState.inProgress,
 });
 
 export class State extends StateRec {
@@ -51,5 +61,5 @@ export class State extends StateRec {
   players: I.Map<number, Player>;
   expTime: number;
   holeSensor: p2.Body;
-  levelOver: boolean;
+  roundState: RoundState;
 }

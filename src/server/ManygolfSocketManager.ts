@@ -42,6 +42,8 @@ export default class ManygolfSocketManager extends SocketManager {
     const state: State = this.store.getState();
 
     this.sendTo(id, messageInitial({
+      roundState: state.roundState,
+      
       self: {
         id,
         color,
