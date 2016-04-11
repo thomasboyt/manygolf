@@ -139,12 +139,28 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
   // Draw UI
   //
   ctx.fillStyle = 'black';
+  ctx.strokeStyle = 'black';
+  ctx.lineWidth = 2;
+
   ctx.font = 'normal 16px "Press Start 2P"';
 
   // Stroke count
   ctx.textAlign = 'left';
-  ctx.fillText(`Stroke ${state.strokes}`, 10, 20);
-  ctx.fillText(`Players ${state.ghostBalls.size}`, 10, 40);
+  ctx.fillText(`Strokes ${state.strokes}`, 10, 20);
+
+  ctx.font = 'normal 8px "Press Start 2P"';
+  ctx.textAlign = 'right';
+
+  ctx.fillText(`${state.ghostBalls.size} players connected`, WIDTH - 10, 11);
+
+  ctx.fillStyle = state.color;
+  ctx.strokeText(state.name, WIDTH - 10, 20);
+  ctx.fillText(state.name, WIDTH - 10, 20);
+
+  ctx.fillStyle = 'black';
+  ctx.fillText('You are ', WIDTH - 10 - ctx.measureText(state.name).width, 20);
+
+  ctx.font = 'normal 16px "Press Start 2P"';
 
   if (state.roundState === RoundState.over) {
     const x = WIDTH / 2;
@@ -156,8 +172,6 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
     if (state.winnerId !== null) {
       const winner = state.ghostBalls.get(state.winnerId);
 
-      ctx.strokeStyle = 'black';
-      ctx.lineWidth = 2;
       ctx.fillStyle = winner.color;
 
       ctx.strokeText(winner.name, x, y - 10);
@@ -175,8 +189,8 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
     const expTime = state.expTime;
     const remainingMs = Math.ceil((expTime - Date.now()) / 1000);
 
-    ctx.textAlign = 'right';
-    ctx.fillText(remainingMs + '', WIDTH - 10, 20);
+    ctx.textAlign = 'center';
+    ctx.fillText(remainingMs + '', WIDTH / 2, 20);
 
     // Show goalText when you score
     if (state.scored) {
@@ -200,9 +214,6 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
       const before = state.displayMessage.slice(0, colorStart);
       const colorized = state.displayMessage.slice(colorStart + 2, colorEnd);
       const after = state.displayMessage.slice(colorEnd + 2);
-
-      ctx.strokeStyle = 'black';
-      ctx.lineWidth = 2;
 
       ctx.fillStyle = 'black';
       ctx.fillText(before, x, y);

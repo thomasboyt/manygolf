@@ -55,6 +55,7 @@ const StateRec = I.Record({
 
   name: null,
   id: null,
+  color: null,
 
   displayMessage: null,
   displayMessageTimeout: null,
@@ -88,6 +89,7 @@ export class State extends StateRec {
 
   name: string;
   id: number;
+  color: string;
 
   displayMessage: string;
   displayMessageTimeout: number;

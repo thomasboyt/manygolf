@@ -163,6 +163,9 @@ function newLevel(state: State, data: MessageInitial) {
     roundState: RoundState.inProgress,
 
     ghostBalls: state.ghostBalls,
+    id: state.id,
+    name: state.name,
+    color: state.color,
 
     world,
     level,
@@ -256,6 +259,7 @@ export default createImmutableReducer<State>(new State(), {
       }, I.Map()))
       .set('name', data.self.name)
       .set('id', data.self.id)
+      .set('color', data.self.color)
       .set('roundState', data.roundState);
   },
 
