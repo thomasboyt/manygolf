@@ -6,6 +6,3 @@
 
 import 'core-js/es6/array';
 import 'core-js/es6/object';
-import 'core-js/fn/object/values';
-
-import 'babel-regenerator-runtime';
