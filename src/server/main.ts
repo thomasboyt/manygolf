@@ -35,8 +35,6 @@ const app = express();
 const port = 4080;
 
 const store = createStore(reducer);
-const runLoop = new RunLoop(store);
-runLoop.start();
 
 const socks = new ManygolfSocketManager(wss, store);
 
@@ -107,7 +105,9 @@ function cycleLevel() {
 
 cycleLevel();
 
-runLoop.subscribe((state: State, prevState: State) => {
+const runLoop = new RunLoop(store);
+
+runLoop.afterTick((state: State, prevState: State) => {
 
   if (state.roundState === RoundState.over) {
     if (state.expTime !== null && state.expTime < Date.now()) {
@@ -157,6 +157,8 @@ runLoop.subscribe((state: State, prevState: State) => {
   }
 
 });
+
+runLoop.start();
 
 server.on('request', app);
 server.listen(port, () => { console.log('Listening on ' + server.address().port); });

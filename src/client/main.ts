@@ -2,19 +2,19 @@ require('../../styles/main.less');
 
 import './polyfill';
 
+import { State } from './records';
+
 // Set up store
-import { createStore } from 'redux';
+import { createStore, Dispatch } from 'redux';
 import reducer from './reducer';
 const store = createStore(reducer);
 
-// Set up runLoop
-import RunLoop from './RunLoop';
-const runLoop = new RunLoop(store);
-runLoop.start();
+import {
+  WIDTH,
+  HEIGHT,
+} from '../universal/constants';
 
 // set up canvas
-import {WIDTH, HEIGHT} from '../universal/constants';
-
 const canvas = <HTMLCanvasElement> document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
@@ -52,15 +52,20 @@ if (!offlineMode) {
 }
 
 // set up input
-import {registerListeners} from './inputter';
+import {registerListeners } from './util/inputter';
+import inputHandler from './inputHandler';
 registerListeners();
 
-// render on runLoop tick
+// Set up runLoop
+import RunLoop from '../universal/RunLoop';
+const runLoop = new RunLoop(store);
+
+runLoop.beforeTick(inputHandler);
+
 import render from './render';
 
-function update(state) {
+runLoop.afterTick((state: State, prevState: State, dispatch: Dispatch) => {
   render(ctx, state);
-}
+});
 
-runLoop.subscribe(update);
-update(store.getState());
+runLoop.start();

@@ -3,11 +3,6 @@ import p2 from 'p2';
 
 import createImmutableReducer from '../universal/createImmutableReducer';
 
-import keyCodes from './keyCodes';
-import {calcVectorDegrees} from './util/math';
-
-import ws from './ws';
-
 import {
   TYPE_INITIAL,
   TYPE_PLAYER_CONNECTED,
@@ -20,7 +15,6 @@ import {
   MessagePlayerConnected,
   MessageDisplayMessage,
   MessageLevelOver,
-  messageSwing,
 } from '../universal/protocol';
 
 import {
@@ -31,6 +25,7 @@ import {
   goalWords,
   RoundState,
   ConnectionState,
+  AimDirection,
 } from '../universal/constants';
 
 import {
@@ -64,70 +59,6 @@ const fixedStep = 1 / 60;
 const maxSubSteps = (TIMER_MS / 1000) * (1 / fixedStep);
 
 const moveSpeed = 50;  // degrees per second
-
-enum AimDirection {
-  left,
-  right,
-}
-
-function setAim(state: State, direction: AimDirection, dt: number) {
-  const dir = state.get('aimDirection');
-
-  let step;
-  if (direction === AimDirection.left) {
-    step = -moveSpeed * dt;
-  } else if (direction === AimDirection.right) {
-    step = moveSpeed * dt;
-  }
-
-  const newDir = clamp(dir + step, -180, 0);
-
-  return state.set('aimDirection', newDir);
-}
-
-function beginSwing(state: State) {
-  return state
-    .set('inSwing', true)
-    .set('swingMeterDirection', SwingMeterDirection.ascending)
-    .set('swingPower', MIN_POWER);
-}
-
-function continueSwing(state: State, dt: number) {
-  let step = dt * SWING_STEP;
-
-  if (state.swingMeterDirection === SwingMeterDirection.descending) {
-    step = -step;
-  }
-
-  const nextPower = state.swingPower + step;
-
-  if (nextPower > MAX_POWER) {
-    return state
-      .set('swingMeterDirection', SwingMeterDirection.descending)
-      .set('swingPower', MAX_POWER);
-  } else if (nextPower < MIN_POWER) {
-    return state
-      .set('swingMeterDirection', SwingMeterDirection.ascending)
-      .set('swingPower', MIN_POWER);
-  }
-
-  return state.set('swingPower', nextPower);
-}
-
-function endSwing(state: State) {
-  const vec = calcVectorDegrees(state.swingPower, state.aimDirection);
-  state.ball.body.velocity[0] = vec.x;
-  state.ball.body.velocity[1] = vec.y;
-
-  // TODO: do this somewhere else...
-  ws.send(messageSwing({
-    vec,
-  }));
-
-  return state
-    .set('inSwing', false)
-    .update('strokes', (strokes) => strokes + 1);
-}
 
 function enterScored(state: State) {
   const goalText = sample(goalWords);
@@ -177,29 +108,6 @@ function newLevel(state: State, data: MessageInitial) {
   });
 }
 
-function handleInput(state: State, {dt, keysDown}: {dt: number; keysDown: Set<number>}) {
-  if (state.allowHit && !state.scored) {
-    if (keysDown.has(keyCodes.A) || keysDown.has(keyCodes.LEFT_ARROW)) {
-      state = setAim(state, AimDirection.left, dt);
-    }
-    if (keysDown.has(keyCodes.D) || keysDown.has(keyCodes.RIGHT_ARROW)) {
-      state = setAim(state, AimDirection.right, dt);
-    }
-
-    if (state.inSwing) {
-      if (keysDown.has(keyCodes.SPACE)) {
-        state = continueSwing(state, dt);
-      } else {
-        state = endSwing(state);
-      }
-    } else if (keysDown.has(keyCodes.SPACE)) {
-      state = beginSwing(state);
-    }
-  }
-
-  return state;
-}
-
 export default createImmutableReducer<State>(new State(), {
   'tick': (state: State, {dt, keysDown}: {dt: number; keysDown: Set<number>}) => {
     dt = dt / 1000;  // ms -> s
@@ -207,8 +115,6 @@ export default createImmutableReducer<State>(new State(), {
     if (!state.world || state.roundState === RoundState.over) {
       return state;
     }
-
-    state = handleInput(state, {dt, keysDown});
 
     ensureBallInBounds(state.ball.body, state.level);
 
@@ -239,6 +145,64 @@ export default createImmutableReducer<State>(new State(), {
     }
 
     return state;
+  },
+
+  'beginSwing': (state: State, action) => {
+    return state
+      .set('inSwing', true)
+      .set('swingMeterDirection', SwingMeterDirection.ascending)
+      .set('swingPower', MIN_POWER);
+  },
+
+  'continueSwing': (state: State, action) => {
+    const dt = action.dt;
+
+    let step = dt * SWING_STEP;
+
+    if (state.swingMeterDirection === SwingMeterDirection.descending) {
+      step = -step;
+    }
+
+    const nextPower = state.swingPower + step;
+
+    if (nextPower > MAX_POWER) {
+      return state
+        .set('swingMeterDirection', SwingMeterDirection.descending)
+        .set('swingPower', MAX_POWER);
+    } else if (nextPower < MIN_POWER) {
+      return state
+        .set('swingMeterDirection', SwingMeterDirection.ascending)
+        .set('swingPower', MIN_POWER);
+    }
+
+    return state.set('swingPower', nextPower);
+  },
+
+  'endSwing': (state: State, action) => {
+    const {vec}: {vec: {x: number, y: number}} = action;
+
+    state.ball.body.velocity[0] = vec.x;
+    state.ball.body.velocity[1] = vec.y;
+
+    return state
+      .set('inSwing', false)
+      .update('strokes', (strokes) => strokes + 1);
+  },
+
+  'updateAim': (state: State, action) => {
+    const {direction, dt}: {direction: AimDirection, dt: number} = action;
+    const dir = state.get('aimDirection');
+
+    let step;
+    if (direction === AimDirection.left) {
+      step = -moveSpeed * dt;
+    } else if (direction === AimDirection.right) {
+      step = moveSpeed * dt;
+    }
+
+    const newDir = clamp(dir + step, -180, 0);
+
+    return state.set('aimDirection', newDir);
   },
 
   [`ws:${TYPE_LEVEL}`]: (state: State, action) => {

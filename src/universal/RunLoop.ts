@@ -1,19 +1,24 @@
 const raf = require('raf');
 raf.polyfill();
 
-import {Store} from 'redux';
+import {Store, Dispatch} from 'redux';
 
-type ListenerFn = (prevState: any, nextState: any) => void;
+type BeforeTickListener = (dt: number, state: any, dispatch: Dispatch) => void;
+type AfterTickListener = (nextState: any, prevState: any, dispatch: Dispatch) => void;
 
 class RunLoop {
   store: Store;
-  _listeners: Array<ListenerFn>;
   _lastTickMs: number;
   _nextTick: () => any;
 
+  private onBeforeTick: BeforeTickListener;
+  private onAfterTick: AfterTickListener;
+
   constructor(store: Store) {
     this.store = store;
-    this._listeners = [];
+
+    this.onBeforeTick = () => {};
+    this.onAfterTick = () => {};
   }
 
   start() {
@@ -40,6 +45,8 @@ class RunLoop {
 
     const tickPayload = this.getTickPayload();
 
+    this.onBeforeTick(dt, prevState, (action) => this.store.dispatch(action));
+
     this.store.dispatch(Object.assign({
       type: 'tick',
       dt,
@@ -47,7 +54,7 @@ class RunLoop {
 
     const nextState = this.store.getState();
 
-    this._listeners.forEach((listener) => listener(nextState, prevState));
+    this.onAfterTick(nextState, prevState, (action) => this.store.dispatch(action));
 
     requestAnimationFrame(this._nextTick);
   }
@@ -56,18 +63,12 @@ class RunLoop {
     this.store = store;
   }
 
-  subscribe(listener: ListenerFn) {
-    this._listeners.push(listener);
+  beforeTick(listener: BeforeTickListener) {
+    this.onBeforeTick = listener;
   }
 
-  unsubscribe(listener: ListenerFn) {
-    const idx = this._listeners.indexOf(listener);
-
-    if (idx === -1) {
-      throw new Error('tried to unsubscribe listener that wasn\'t subscribed');
-    }
-
-    this._listeners.splice(idx, 1);
+  afterTick(listener: AfterTickListener) {
+    this.onAfterTick = listener;
   }
 }
 
