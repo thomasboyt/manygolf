@@ -14,11 +14,15 @@ class RunLoop {
   private onBeforeTick: BeforeTickListener;
   private onAfterTick: AfterTickListener;
 
+  private prevState: any;
+
   constructor(store: Store) {
     this.store = store;
 
     this.onBeforeTick = () => {};
     this.onAfterTick = () => {};
+
+    this.prevState = this.store.getState();
   }
 
   start() {
@@ -41,7 +45,7 @@ class RunLoop {
     const dt = now - this._lastTickMs;
     this._lastTickMs = now;
 
-    const prevState = this.store.getState();
+    const prevState = this.prevState;
 
     const tickPayload = this.getTickPayload();
 
@@ -55,6 +59,8 @@ class RunLoop {
     const nextState = this.store.getState();
 
     this.onAfterTick(nextState, prevState, (action) => this.store.dispatch(action));
+
+    this.prevState = nextState;
 
     requestAnimationFrame(this._nextTick);
   }

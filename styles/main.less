@@ -72,8 +72,23 @@ p {
 
 .orientation-help-text {
   display: none;
-  
+
   @media only screen and (orientation: portrait) {
     display: block;
+  }
+}
+
+// multi-column mode
+@media only screen and (min-width: 700px) {
+  .container {
+    max-width: 800px;
+  }
+  .instructions .row {
+    display: flex;
+
+    .section {
+      flex: 1;
+      padding: 0px 15px;
+    }
   }
 }
