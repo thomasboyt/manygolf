@@ -1,4 +1,5 @@
 var createVendorChunk = require('webpack-create-vendor-chunk');
+var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 module.exports = {
   entry: {
@@ -11,7 +12,8 @@ module.exports = {
   },
 
   plugins: [
-    createVendorChunk()
+    createVendorChunk(),
+    new ExtractTextPlugin('style.bundle.css'),
   ],
 
   resolve: {
@@ -45,7 +47,7 @@ module.exports = {
 
       {
         test: /\.less$/,
-        loader: 'style-loader!css-loader!less-loader'
+        loader: ExtractTextPlugin.extract('style-loader', 'css-loader', 'less-loader'),
       },
       {
         test: /(?:\.woff$|\.woff2$|\.ttf$|\.svg$|\.eot$)/,
