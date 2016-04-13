@@ -20,7 +20,7 @@ import {calcVectorDegrees} from './util/math';
 const skyColor = 'rgb(0, 0, 40)';
 const groundColor = 'black';
 
-const ballColor = 'red';
+const ballColor = 'white';
 
 const textColor = 'white';
 
