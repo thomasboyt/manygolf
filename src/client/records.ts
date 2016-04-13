@@ -39,12 +39,14 @@ const LevelRec = I.Record({
   points: null,
   hole: null,
   spawn: null,
+  color: null,
 });
 
 export class Level extends LevelRec {
   points: I.List<I.List<number>>;
   hole: I.List<number>;
   spawn: I.List<number>;
+  color: string;
 }
 
 const StateRec = I.Record({

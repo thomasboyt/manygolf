@@ -1,20 +1,16 @@
 import {WIDTH, HEIGHT} from '../universal/constants';
 
-// const level = {
-//   points: [
-//     [0, 200],
-//     [100, 200],
-//     [200, 150],
-//     [300, 200],
-//     [500, 200]
-//   ],
-//   hole: [400, 200],
-//   spawn: [50, 200],
-// };
-//
-// export default function levelGen() {
-//   return level;
-// }
+import sample from 'lodash.sample';
+
+const colors = [
+  'yellow',
+  'pink',
+  'limegreen',
+  'skyblue',
+  'orange',
+  'red',
+  'white',
+];
 
 /* get an int between min and max inclusive */
 function randInt(min, max) {
@@ -101,10 +97,13 @@ export default function levelGen() {
     points.push([x, y]);
   }
 
+  const color = sample(colors);
+
   const level = {
     points,
     hole: [holeX, holeY],
     spawn: [spawnX, spawnY],
+    color,
   };
 
   return level;

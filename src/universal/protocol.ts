@@ -12,6 +12,7 @@ interface Level {
   points: Array<Array<number>>;
   hole: Array<number>;
   spawn: Array<number>
+  color: string;
 }
 
 interface Position {

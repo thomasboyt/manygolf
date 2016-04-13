@@ -19,7 +19,6 @@ import {calcVectorDegrees} from './util/math';
 
 const skyColor = 'rgb(0, 0, 40)';
 const groundColor = 'black';
-const groundStrokeColor = 'yellow';
 
 const ballColor = 'red';
 
@@ -72,10 +71,13 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
   ctx.lineTo(-lineWidth, points.get(0).get(1));
 
   ctx.lineWidth = 2;
-  ctx.strokeStyle = groundStrokeColor;
+  ctx.strokeStyle = state.level.color;
   ctx.stroke();
   ctx.fill();
   ctx.closePath();
+
+  // ball border width
+  ctx.lineWidth = 1;
 
   //
   // Draw ghost balls
@@ -103,7 +105,9 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
   ctx.beginPath();
   ctx.arc(ballPos[0], ballPos[1], 2.5, 0, 2 * Math.PI);
   ctx.fillStyle = ballColor;
+  ctx.strokeStyle = ballColor; // add stroke so it's the same size as the ghosts
   ctx.fill();
+  ctx.stroke();
   ctx.closePath();
 
   //
