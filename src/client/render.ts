@@ -15,10 +15,11 @@ import {
 
 import {calcVectorDegrees} from './util/math';
 
-const skyColor = 'beige';
-const groundColor = 'orange';
+const skyColor = 'skyblue';
+const groundColor = 'rgb(0, 170, 0)';
 const ballColor = 'red';
-const meterBoxColor = 'skyblue';
+const meterBoxBorderColor = 'black';
+const meterBoxColor = 'white';
 const meterFillColor = 'blue';
 
 const debugRender = document.location.search.indexOf('debugRender') !== -1;
@@ -100,7 +101,9 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
     const meterX = ballPos[0] - meterWidth / 2;
     const meterY = ballPos[1] + 10;
 
+    ctx.strokeStyle = meterBoxBorderColor;
     ctx.fillStyle = meterBoxColor;
+    ctx.strokeRect(meterX, meterY, meterWidth, meterHeight);
     ctx.fillRect(meterX, meterY, meterWidth, meterHeight);
 
     const fillWidth = ((state.swingPower - MIN_POWER) / (MAX_POWER - MIN_POWER)) * meterWidth;
