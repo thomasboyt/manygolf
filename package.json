@@ -54,6 +54,7 @@
     "p2": "https://github.com/thomasboyt/p2.js#fix-material-options",
     "raf": "^3.2.0",
     "randomcolor": "^0.4.3",
+    "raven-js": "^2.3.0",
     "redux": "^3.0.4",
     "redux-thunk": "^2.0.1",
     "source-map-support": "^0.4.0",

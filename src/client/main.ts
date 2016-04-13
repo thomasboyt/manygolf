@@ -1,6 +1,7 @@
 require('../../styles/main.less');
 
-import './polyfill';
+import './util/registerPolyfill';
+import './util/registerErrorHandler';
 
 import { State } from './records';
 
