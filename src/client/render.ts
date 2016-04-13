@@ -64,13 +64,13 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
 
   // draw a complete shape so fill works
   // add padding so the outline stroke doesn't show up
-  const lineWidth = 2;
-  ctx.lineTo(WIDTH + lineWidth, points.last().get(1));
-  ctx.lineTo(WIDTH + lineWidth, HEIGHT + lineWidth);
-  ctx.lineTo(-lineWidth, HEIGHT + lineWidth);
-  ctx.lineTo(-lineWidth, points.get(0).get(1));
+  const groundLineWidth = 3;
+  ctx.lineTo(WIDTH + groundLineWidth, points.last().get(1));
+  ctx.lineTo(WIDTH + groundLineWidth, HEIGHT + groundLineWidth);
+  ctx.lineTo(-groundLineWidth, HEIGHT + groundLineWidth);
+  ctx.lineTo(-groundLineWidth, points.get(0).get(1));
 
-  ctx.lineWidth = 2;
+  ctx.lineWidth = groundLineWidth;
   ctx.strokeStyle = state.level.color;
   ctx.stroke();
   ctx.fill();
