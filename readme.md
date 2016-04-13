@@ -46,3 +46,7 @@ it's up to you to expose the server (port `4080`) and the files in `build/` to t
 ### todos
 
 https://workflowy.com/s/LI0MSA3cG0
+
+### credits
+
+* virtual buttons for mobile by Kenney: http://kenney.nl/assets/onscreen-controls

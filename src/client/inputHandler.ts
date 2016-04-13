@@ -7,10 +7,16 @@ import ws from './ws';
 
 import { State } from './records';
 import {messageSwing} from '../universal/protocol';
+
 import {
   AimDirection,
   RoundState,
 } from '../universal/constants';
+
+import {
+  buttonsDown,
+  ControlButton
+} from './controlBar';
 
 export default function inputHandler(dt: number, state: State, dispatch: Dispatch) {
   dt = dt / 1000;
@@ -21,14 +27,16 @@ export default function inputHandler(dt: number, state: State, dispatch: Dispatc
   }
 
   if (state.allowHit && !state.scored) {
-    if (keysDown.has(keyCodes.A) || keysDown.has(keyCodes.LEFT_ARROW)) {
+    if (keysDown.has(keyCodes.A) || keysDown.has(keyCodes.LEFT_ARROW) ||
+        buttonsDown.has(ControlButton.LeftArrow)) {
       dispatch({
         type: 'updateAim',
         dt,
         direction: AimDirection.left,
       });
     }
-    if (keysDown.has(keyCodes.D) || keysDown.has(keyCodes.RIGHT_ARROW)) {
+    if (keysDown.has(keyCodes.D) || keysDown.has(keyCodes.RIGHT_ARROW) ||
+        buttonsDown.has(ControlButton.RightArrow)) {
       dispatch({
         type: 'updateAim',
         dt,
@@ -37,7 +45,7 @@ export default function inputHandler(dt: number, state: State, dispatch: Dispatc
     }
 
     if (state.inSwing) {
-      if (keysDown.has(keyCodes.SPACE)) {
+      if (keysDown.has(keyCodes.SPACE) || buttonsDown.has(ControlButton.Shoot)) {
         dispatch({
           type: 'continueSwing',
           dt,
@@ -54,7 +62,7 @@ export default function inputHandler(dt: number, state: State, dispatch: Dispatc
           vec,
         }));
       }
-    } else if (keysDown.has(keyCodes.SPACE)) {
+    } else if (keysDown.has(keyCodes.SPACE) || buttonsDown.has(ControlButton.Shoot)) {
       dispatch({
         type: 'beginSwing',
       });

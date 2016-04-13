@@ -5,6 +5,18 @@ body {
   color: #cacaca;
 }
 
+.game-container {
+  width: 500px;  // TODO: would be nice not to duplicate this value?
+
+  // Scale so width isn't greater than viewport width
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+canvas {
+  max-width: 100%;
+}
+
 .container {
   max-width: 700px;
   margin: 0 auto;
@@ -34,4 +46,34 @@ h2 {
 p {
   font-size: 12px;
   line-height: 20px;
+}
+
+.control-bar {
+  padding-top: 5px;
+
+  img {
+    display: block;
+  }
+
+  .left-arrow, .right-arrow {
+    float: left;
+    padding-right: 10px;
+  }
+
+  .shoot {
+    float: right;
+  }
+}
+
+.mobile-only {
+  // Gets updated by JavaScript!
+  display: none;
+}
+
+.orientation-help-text {
+  display: none;
+  
+  @media only screen and (orientation: portrait) {
+    display: block;
+  }
 }

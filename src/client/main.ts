@@ -22,6 +22,9 @@ const ctx = canvas.getContext('2d');
 canvas.width = WIDTH;
 canvas.height = HEIGHT;
 
+import { renderControlBar } from './controlBar';
+renderControlBar();
+
 // create WS
 import ws from './ws';
 
