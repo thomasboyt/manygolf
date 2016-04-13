@@ -5,4 +5,5 @@
 /// <reference path="browser/ambient/node/index.d.ts" />
 /// <reference path="browser/ambient/redux/index.d.ts" />
 /// <reference path="browser/ambient/serve-static/index.d.ts" />
+/// <reference path="browser/ambient/tinycolor/index.d.ts" />
 /// <reference path="browser/ambient/ws/index.d.ts" />

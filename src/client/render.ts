@@ -13,26 +13,33 @@ import {
   State,
 } from './records';
 
+import tinycolor from 'tinycolor2';
+
 import {calcVectorDegrees} from './util/math';
 
-const skyColor = 'skyblue';
-const groundColor = 'rgb(0, 170, 0)';
+const skyColor = 'rgb(0, 0, 40)';
+const groundColor = 'black';
+const groundStrokeColor = 'yellow';
+
 const ballColor = 'red';
-const meterBoxBorderColor = 'black';
-const meterBoxColor = 'white';
-const meterFillColor = 'blue';
+
+const textColor = 'white';
+
+const meterBoxBorderColor = 'yellow';
+const meterBoxColor = 'black';
+const meterFillColor = 'yellow';
 
 const debugRender = document.location.search.indexOf('debugRender') !== -1;
 
 function renderConnecting(ctx: CanvasRenderingContext2D, state: State) {
-  ctx.fillStyle = 'black';
+  ctx.fillStyle = textColor;
   ctx.font = 'normal 16px "Press Start 2P"';
   ctx.textAlign = 'center';
   ctx.fillText('Connecting...', WIDTH / 2, HEIGHT / 2);
 }
 
 function renderDisconnected(ctx: CanvasRenderingContext2D, state: State) {
-  ctx.fillStyle = 'black';
+  ctx.fillStyle = textColor;
   ctx.font = 'normal 16px "Press Start 2P"';
   ctx.textAlign = 'center';
   ctx.fillText('Disconnected! Try reloading?', WIDTH / 2, HEIGHT / 2);
@@ -56,9 +63,17 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
     ctx.lineTo(point.get(0), point.get(1));
   });
 
-  ctx.lineTo(WIDTH, HEIGHT);
-  ctx.lineTo(0, HEIGHT);
+  // draw a complete shape so fill works
+  // add padding so the outline stroke doesn't show up
+  const lineWidth = 2;
+  ctx.lineTo(WIDTH + lineWidth, points.last().get(1));
+  ctx.lineTo(WIDTH + lineWidth, HEIGHT + lineWidth);
+  ctx.lineTo(-lineWidth, HEIGHT + lineWidth);
+  ctx.lineTo(-lineWidth, points.get(0).get(1));
 
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = groundStrokeColor;
+  ctx.stroke();
   ctx.fill();
   ctx.closePath();
 
@@ -73,7 +88,7 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
 
     ctx.beginPath();
     ctx.arc(ball.x, ball.y, 2.5, 0, 2 * Math.PI);
-    ctx.strokeStyle = 'black';
+    ctx.strokeStyle = textColor;
     ctx.fillStyle = ball.color;
     ctx.fill();
     ctx.stroke();
@@ -103,7 +118,7 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
     const endOffset = calcVectorDegrees(offset + lineLength, aimDirection);
 
     ctx.beginPath();
-    ctx.strokeStyle = 'black';
+    ctx.strokeStyle = textColor;
     ctx.moveTo(ballPos[0] + startOffset.x, ballPos[1] + startOffset.y);
     ctx.lineTo(ballPos[0] + endOffset.x, ballPos[1] + endOffset.y);
     ctx.stroke();
@@ -142,8 +157,8 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
   //
   // Draw UI
   //
-  ctx.fillStyle = 'black';
-  ctx.strokeStyle = 'black';
+  ctx.fillStyle = textColor;
+  ctx.strokeStyle = textColor;
   ctx.lineWidth = 2;
 
   ctx.font = 'normal 16px "Press Start 2P"';
@@ -158,10 +173,14 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
   ctx.fillText(`${state.ghostBalls.size} players connected`, WIDTH - 10, 11);
 
   ctx.fillStyle = state.color;
-  ctx.strokeText(state.name, WIDTH - 10, 20);
+
+  if (tinycolor(state.color).isDark()) {
+    ctx.strokeText(state.name, WIDTH - 10, 20);
+  }
+
   ctx.fillText(state.name, WIDTH - 10, 20);
 
-  ctx.fillStyle = 'black';
+  ctx.fillStyle = textColor;
   ctx.fillText('You are ', WIDTH - 10 - ctx.measureText(state.name).width, 20);
 
   ctx.font = 'normal 16px "Press Start 2P"';
@@ -178,10 +197,13 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
 
       ctx.fillStyle = winner.color;
 
-      ctx.strokeText(winner.name, x, y - 10);
+      if (tinycolor(winner.color).isDark()) {
+        ctx.strokeText(winner.name, x, y - 10);
+      }
+
       ctx.fillText(winner.name, x, y - 10);
 
-      ctx.fillStyle = 'black';
+      ctx.fillStyle = textColor;
       ctx.fillText(' wins!', x, y + 10);
 
     } else {
@@ -219,14 +241,18 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
       const colorized = state.displayMessage.slice(colorStart + 2, colorEnd);
       const after = state.displayMessage.slice(colorEnd + 2);
 
-      ctx.fillStyle = 'black';
+      ctx.fillStyle = textColor;
       ctx.fillText(before, x, y);
 
       ctx.fillStyle = state.displayMessageColor;
-      ctx.strokeText(colorized, x + ctx.measureText(before).width, y);
+
+      if (tinycolor(state.displayMessageColor).isDark()) {
+        ctx.strokeText(colorized, x + ctx.measureText(before).width, y);
+      }
+
       ctx.fillText(colorized, x + ctx.measureText(before).width, y);
 
-      ctx.fillStyle = 'black';
+      ctx.fillStyle = textColor;
       ctx.fillText(after, x + ctx.measureText(before + colorized).width, y);
 
     } else {

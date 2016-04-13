@@ -4,4 +4,5 @@
 /// <reference path="main/ambient/node/index.d.ts" />
 /// <reference path="main/ambient/redux/index.d.ts" />
 /// <reference path="main/ambient/serve-static/index.d.ts" />
+/// <reference path="main/ambient/tinycolor/index.d.ts" />
 /// <reference path="main/ambient/ws/index.d.ts" />
