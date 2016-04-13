@@ -63,7 +63,25 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
   ctx.closePath();
 
   //
-  // Draw ball
+  // Draw ghost balls
+  //
+  state.ghostBalls.forEach((ball) => {
+    // Don't render ghost for the current player
+    if (ball.id === state.id && !debugRender) {
+      return ball;
+    }
+
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, 2.5, 0, 2 * Math.PI);
+    ctx.strokeStyle = 'black';
+    ctx.fillStyle = ball.color;
+    ctx.fill();
+    ctx.stroke();
+    ctx.closePath();
+  });
+
+  //
+  // Draw player ball
   //
   const ballPos = state.ball.body.interpolatedPosition;
 
@@ -111,24 +129,6 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
     ctx.fillStyle = meterFillColor;
     ctx.fillRect(meterX, meterY, fillWidth, meterHeight);
   }
-
-  //
-  // Draw ghost balls
-  //
-  state.ghostBalls.forEach((ball) => {
-    // Don't render ghost for the current player
-    if (ball.id === state.id && !debugRender) {
-      return ball;
-    }
-
-    ctx.beginPath();
-    ctx.arc(ball.x, ball.y, 2.5, 0, 2 * Math.PI);
-    ctx.strokeStyle = 'black';
-    ctx.fillStyle = ball.color;
-    ctx.fill();
-    ctx.stroke();
-    ctx.closePath();
-  });
 
   // Hole (debug)
   // ctx.fillStyle = 'red';
