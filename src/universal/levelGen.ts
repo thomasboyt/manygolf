@@ -22,8 +22,7 @@ function randInt(min, max) {
 }
 
 export default function levelGen() {
-  // const numSegments = randInt(10, 30);
-  let numSegments = 26;
+  let numSegments = randInt(10, 30);
 
   // ceil to prevent sum(segment widths) with being < WIDTH...
   const segmentWidth = Math.ceil(WIDTH / numSegments);
@@ -48,6 +47,9 @@ export default function levelGen() {
   const points = [];
   let spawnX, spawnY, holeX, holeY;
 
+  const maxY = HEIGHT - 20;
+  const minY = HEIGHT - 150;
+
   for (let idx = 0; idx <= numSegments; idx++) {
     let x, y;
 
@@ -61,8 +63,28 @@ export default function levelGen() {
       x = WIDTH;
     }
 
-    // TODO: lol
-    y = randInt(HEIGHT - 150, HEIGHT - 20);
+    if (idx === 0) {
+      y = randInt(HEIGHT - 150, HEIGHT - 20);
+    } else {
+      const prevY = points[idx - 1][1];
+
+      let boundLow = prevY - 40;
+      let boundHigh = prevY + 40;
+
+      // clamp high/low bounds so that if they go out of screen bounds, the bounds shift to contain
+      // the same range but clamped
+      if (boundLow < minY) {
+        boundHigh = boundHigh - (boundLow - minY);
+        boundLow = minY;
+      }
+
+      if (boundHigh > maxY) {
+        boundLow = boundLow - (boundHigh - maxY);
+        boundHigh = maxY;
+      }
+
+      y = randInt(boundLow, boundHigh);
+    }
 
     if (idx === spawnSegment) {
       spawnX = x - Math.round(segmentWidth / 2);

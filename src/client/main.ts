@@ -24,28 +24,19 @@ canvas.height = HEIGHT;
 // create WS
 import ws from './ws';
 
+import levelGen from '../universal/levelGen';
 const offlineMode = document.location.search.indexOf('offline') !== -1;
 
 if (!offlineMode) {
   ws.init(store);
 
 } else {
-  const fixtureLevel = {
-    points: [
-      [0, 200],
-      [100, 200],
-      [200, 150],
-      [300, 200],
-      [500, 200]
-    ],
-    hole: [400, 200],
-    spawn: [50, 200],
-  };
+  const level = levelGen();
 
   store.dispatch({
     type: 'ws:level',
     data: {
-      level: fixtureLevel,
+      level,
       expTime: Date.now() + 100000000,
     }
   });

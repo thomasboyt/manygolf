@@ -6,7 +6,7 @@ import { createStore } from 'redux';
 import RunLoop from '../universal/RunLoop';
 import ManygolfSocketManager from './ManygolfSocketManager';
 import reducer from './reducer';
-import levelGen from './levelGen';
+import levelGen from '../universal/levelGen';
 
 import {
   TIMER_MS,
