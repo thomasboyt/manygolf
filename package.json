@@ -5,14 +5,16 @@
   "description": "",
   "author": "",
   "scripts": {
-    "test": "karma start --single-run",
-    "karma": "karma start",
-    "lint": "eslint src/",
-    "ci": "karma start --single-run --browsers Firefox",
-    "server": "webpack --config webpack/server.js && node bin/server",
+    "test": "webpack --config webpack/test.js && mocha --no-colors build/test.bundle.js",
+    "test-watch": "scripts/testWatch",
+
     "dev": "webpack-dev-server --config webpack/dev.js",
     "prod": "webpack-dev-server --config webpack/production.js",
     "build": "webpack --config webpack/production.js && webpack --config webpack/server.js",
+
+    "server": "webpack --config webpack/server.js && node build/server.bundle.js",
+    "server-watch": "scripts/serverWatch",
+
     "deploy": "fly production"
   },
   "devDependencies": {
@@ -28,16 +30,10 @@
     "flightplan": "^0.6.13",
     "glob": "^7.0.3",
     "json-loader": "^0.5.1",
-    "karma": "^0.13.15",
-    "karma-chrome-launcher": "^0.2.2",
-    "karma-firefox-launcher": "^0.1.7",
-    "karma-mocha": "^0.2.1",
-    "karma-mocha-reporter": "^1.1.3",
-    "karma-sourcemap-loader": "^0.3.6",
-    "karma-webpack": "^1.7.0",
     "less": "^2.5.1",
     "less-loader": "^2.2.0",
     "mocha": "^2.3.4",
+    "nodemon": "^1.9.1",
     "style-loader": "^0.12.2",
     "ts-loader": "^0.8.1",
     "typescript": "^1.8.9",

@@ -1,0 +1,33 @@
+#!/usr/bin/env node
+
+"use strict";
+
+const path = require('path');
+const nodemon = require('nodemon');
+const webpack = require('webpack');
+const config = require('../webpack/server');
+
+function onBuild(err, stats) {
+  if (err) {
+    console.log('*** Webpack error:', err);
+  } else {
+    console.log(stats.toString());
+  }
+}
+
+nodemon({
+  script: path.join(__dirname, '../bin/server'),
+
+  // we're just using nodemon to restart the process
+  ignore: ['*'],
+  watch: ['fake-folder/'],
+  ext: 'noop'
+});
+
+webpack(config).watch(100, (err, stats) => {
+  onBuild(err, stats);
+
+  if (!err) {
+    nodemon.restart();
+  }
+});

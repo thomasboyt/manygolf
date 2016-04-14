@@ -1,0 +1,55 @@
+#!/usr/bin/env node
+
+"use strict";
+
+const path = require('path');
+const spawn = require('child_process').spawn;
+
+const webpack = require('webpack');
+const config = require('../webpack/test');
+
+const binPath = path.join(__dirname, '../node_modules/.bin/mocha')
+const testsPath = path.join(__dirname, '../build/test.bundle.js');
+
+let runningMochaProc = null;
+
+function spawnTests() {
+  const proc = spawn(binPath, [testsPath, '--no-color'], {
+    stdio: ['pipe', process.stdout, process.stderr]
+  });
+
+  runningMochaProc = proc;
+
+  proc.on('exit', (code) => {
+    if (code !== 0) {
+      // tests failed
+    } else {
+      // tests passed
+    }
+
+    runningMochaProc = null;
+  });
+}
+
+webpack(config).watch({aggregateTimeout: 300}, (err, stats) => {
+  if (runningMochaProc) {
+    runningMochaProc.kill('SIGINT');
+    console.log('*** Change detected, aborted running tests');
+  }
+
+  console.log('*** Built!');
+  console.log('');
+
+  if (err) {
+    console.log('*** Webpack error:', err);
+  } else {
+    console.log(stats.toString());
+  }
+
+  console.log('');
+
+  if (!err) {
+    console.log('*** Running tests...');
+    spawnTests();
+  }
+});

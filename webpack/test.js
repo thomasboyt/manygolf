@@ -1,11 +1,13 @@
-var webpack = require('webpack');
+const webpack = require('webpack');
 
-var baseConfig = require('./base');
+const baseConfig = require('./server');
 
-module.exports = {
+const config = Object.assign(baseConfig, {
+  entry: {
+    test: './src/testEntry.js',
+  },
+
   devtool: 'inline-source-map',
-
-  module: baseConfig.module,
 
   plugins: [
     new webpack.DefinePlugin({
@@ -13,5 +15,9 @@ module.exports = {
         NODE_ENV: '"test"'
       }
     }),
+    new webpack.BannerPlugin('require("source-map-support").install();',
+                             { raw: true, entryOnly: false })
   ],
-};
+});
+
+module.exports = config;
