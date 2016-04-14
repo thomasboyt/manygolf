@@ -31,3 +31,8 @@ webpack(config).watch(100, (err, stats) => {
     nodemon.restart();
   }
 });
+
+// Without this, an error is raised when you ctrl-c after a watch-reload
+process.once('SIGINT', function(){
+  process.exit(0);
+});
