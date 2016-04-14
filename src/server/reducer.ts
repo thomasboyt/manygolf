@@ -48,6 +48,30 @@ function addBall({level, world}: {level: Level, world: p2.World}) {
   return ballBody;
 }
 
+export function rankPlayers(players: I.Map<number, Player>): I.List<Player> {
+  const playersList = players.toList();
+
+  return playersList
+    .filter((player) => player.scored)
+    // TODO: There HAS to be a better way to do this, right?
+    .sort((a, b) => {
+      if (a.strokes > b.strokes) {
+        return 1;
+      } else if (a.strokes > b.strokes) {
+        return -1;
+      } else {
+        if (a.scoreTime > b.scoreTime) {
+          return 1;
+        } else if (a.scoreTime < b.scoreTime) {
+          return -1;
+        } else {
+          return 0;
+        }
+      }
+    })
+    .toList();  // This isn't supposed to be necessary but makes TypeScript happy?
+}
+
 export default createImmutableReducer<State>(new State(), {
   'tick': (state: State, {dt}: {dt: number}) => {
     dt = dt / 1000;  // ms -> s
@@ -95,7 +119,8 @@ export default createImmutableReducer<State>(new State(), {
   'levelOver': (state: State) => {
     return state
       .set('roundState', RoundState.over)
-      .set('expTime', Date.now() + OVER_TIMER_MS);
+      .set('expTime', Date.now() + OVER_TIMER_MS)
+      .set('roundRankedPlayers', rankPlayers(state.players));
   },
 
   'playerConnected': (state: State, action) => {

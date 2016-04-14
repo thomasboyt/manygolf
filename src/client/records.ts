@@ -49,6 +49,22 @@ export class Level extends LevelRec {
   color: string;
 }
 
+const LeaderboardPlayerRec = I.Record({
+  color: null,
+  name: null,
+  id: null,
+  strokes: null,
+  scoreTime: null,
+})
+
+export class LeaderboardPlayer extends LeaderboardPlayerRec {
+  color: string;
+  name: string;
+  id: number;
+  strokes: number;
+  scoreTime: number;
+}
+
 const StateRec = I.Record({
   connectionState: ConnectionState.connecting,
   roundState: null,
@@ -80,7 +96,7 @@ const StateRec = I.Record({
   scored: false,
   goalText: null,
 
-  winnerId: null,
+  roundRankedPlayers: null,
 });
 
 export class State extends StateRec {
@@ -114,5 +130,5 @@ export class State extends StateRec {
   scored: boolean;
   goalText: string;
 
-  winnerId: number;
+  roundRankedPlayers: I.List<LeaderboardPlayer>;
 }

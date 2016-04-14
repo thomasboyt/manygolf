@@ -45,7 +45,8 @@ import {
   Level,
   Ball,
   DumbBall,
-  SwingMeterDirection
+  SwingMeterDirection,
+  LeaderboardPlayer,
 } from './records';
 
 const fixedStep = 1 / 60;
@@ -265,7 +266,9 @@ export default createImmutableReducer<State>(new State(), {
 
     return state
       .set('roundState', RoundState.over)
-      .set('winnerId', data.winnerId);
+      .set('roundRankedPlayers', I.fromJS(data.roundRankedPlayers).map((player) => {
+        return new LeaderboardPlayer(player);
+      }));
   },
 
   'disconnect': (state: State) => {

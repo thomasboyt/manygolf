@@ -38,7 +38,6 @@ const store = createStore(reducer);
 
 const socks = new ManygolfSocketManager(wss, store);
 
-
 /*
  * Run loop
  */
@@ -50,36 +49,16 @@ function levelOver() {
 
   const state = <State>store.getState();
 
-  const winner = state.players.reduce((cur: Player, player: Player) => {
-    // If this player didn't score, it can't be the winner
-    if (!player.scored) {
-      return cur;
-    }
-
-    // If this is the first player to score, it's the current winner
-    if (!cur) {
-      return player;
-    }
-
-    if (player.strokes > cur.strokes) {
-      return cur;
-    } else if (player.strokes < cur.strokes) {
-      return player;
-    } else {
-      // === strokes
-      // this has ms precision so we can sorta assume you're not gonna tie...
-      if (player.scoreTime < cur.scoreTime) {
-        return player;
-      } else {
-        return cur;
-      }
-    }
-  }, null);
-
-  const winnerId = winner ? winner.id : null;
-
   socks.sendAll(messageLevelOver({
-    winnerId,
+    roundRankedPlayers: state.roundRankedPlayers.toArray().map((player) => {
+      return {
+        id: player.id,
+        color: player.color,
+        name: player.name,
+        strokes: player.strokes,
+        scoreTime: player.scoreTime,
+      };
+    }),
   }));
 }
 
@@ -122,8 +101,10 @@ runLoop.afterTick((state: State, prevState: State) => {
       if (player.scored && !prevState.players.get(id).scored) {
         const elapsed = (player.scoreTime / 1000).toFixed(2);
 
+        const strokeLabel = player.strokes === 1 ? 'stroke' : 'strokes';
+
         socks.sendAll(messageDisplayMessage({
-          messageText: `{{${player.name}}} scored! (${player.strokes} strokes in ${elapsed}s)`,
+          messageText: `{{${player.name}}} scored! (${player.strokes} ${strokeLabel} in ${elapsed}s)`,
           color: player.color,
         }));
       }

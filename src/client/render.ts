@@ -5,8 +5,6 @@ import {
   MAX_POWER,
   RoundState,
   ConnectionState,
-  // HOLE_WIDTH,
-  // HOLE_HEIGHT,
 } from '../universal/constants';
 
 import {
@@ -16,6 +14,7 @@ import {
 import tinycolor from 'tinycolor2';
 
 import {calcVectorDegrees} from './util/math';
+import toOrdinal from './util/toOrdinal';
 
 const skyColor = 'rgb(0, 0, 40)';
 const groundColor = 'black';
@@ -44,10 +43,7 @@ function renderDisconnected(ctx: CanvasRenderingContext2D, state: State) {
   ctx.fillText('Disconnected! Try reloading?', WIDTH / 2, HEIGHT / 2);
 }
 
-function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
-  //
-  // Draw ground
-  //
+function renderGround(ctx: CanvasRenderingContext2D, state: State) {
   const level = state.level;
 
   const points = level.points;
@@ -75,7 +71,9 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
   ctx.stroke();
   ctx.fill();
   ctx.closePath();
+}
 
+function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
   // ball border width
   ctx.lineWidth = 1;
 
@@ -148,15 +146,11 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
     ctx.fillStyle = meterFillColor;
     ctx.fillRect(meterX, meterY, fillWidth, meterHeight);
   }
+}
 
-  // Hole (debug)
-  // ctx.fillStyle = 'red';
-  // ctx.fillRect(
-  //   state.holeSensor.interpolatedPosition[0] - (HOLE_WIDTH / 2),
-  //   state.holeSensor.interpolatedPosition[1] - (HOLE_HEIGHT / 2),
-  //   10,
-  //   10
-  // );
+function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
+  renderGround(ctx, state);
+  renderBalls(ctx, state);
 
   //
   // Draw UI
@@ -195,9 +189,18 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
 
     ctx.textAlign = 'center';
 
-    // Show winner text
-    if (state.winnerId !== null) {
-      const winner = state.ghostBalls.get(state.winnerId);
+    // Show leaderboard
+
+    if (state.roundRankedPlayers === null) {
+      // player connected late and missed the roundOver message, display placeholder
+      ctx.fillText('Waiting for next round....', x, y);
+
+    } else if (state.roundRankedPlayers.size === 0 ) {
+      // no one finished
+      ctx.fillText('No one wins!', x, y);
+
+    } else {
+      const winner = state.roundRankedPlayers.get(0);
 
       ctx.fillStyle = winner.color;
 
@@ -210,8 +213,15 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
       ctx.fillStyle = textColor;
       ctx.fillText(' wins!', x, y + 10);
 
-    } else {
-      ctx.fillText('No one wins!', x, y);
+      ctx.font = 'normal 8px "Press Start 2P"';
+      const elapsed = (winner.scoreTime / 1000).toFixed(2);
+      const strokeLabel = winner.strokes === 1 ? 'stroke' : 'strokes';
+      ctx.fillText(`(${winner.strokes} ${strokeLabel} in ${elapsed}s)`, x, y + 22);
+
+      if (winner.id !== state.id && state.scored) {
+        const position = state.roundRankedPlayers.findIndex((player) => player.id === state.id) + 1;
+        ctx.fillText(`You placed ${toOrdinal(position)}`, x, y + 36);
+      }
     }
 
   } else {

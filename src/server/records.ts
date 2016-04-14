@@ -54,6 +54,7 @@ const StateRec = I.Record({
   expTime: null,
   holeSensor: null,
   roundState: RoundState.inProgress,
+  roundRankedPlayers: null,
 });
 
 export class State extends StateRec {
@@ -64,4 +65,5 @@ export class State extends StateRec {
   expTime: number;
   holeSensor: p2.Body;
   roundState: RoundState;
+  roundRankedPlayers: I.List<Player>;
 }
