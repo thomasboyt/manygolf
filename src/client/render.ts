@@ -3,6 +3,7 @@ import {
   HEIGHT,
   MIN_POWER,
   MAX_POWER,
+  HURRY_UP_MS,
   RoundState,
   ConnectionState,
 } from '../universal/constants';
@@ -22,6 +23,7 @@ const groundColor = 'black';
 const ballColor = 'white';
 
 const textColor = 'white';
+const hurryUpTimerColor = 'red';
 
 const meterBoxBorderColor = 'yellow';
 const meterBoxColor = 'black';
@@ -227,10 +229,15 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
   } else {
     // Timer
     const expTime = state.expTime;
-    const remainingMs = Math.ceil((expTime - Date.now()) / 1000);
+    const remainingMs = expTime - Date.now();
+    const remainingSec = Math.ceil(remainingMs / 1000);
+
+    if (remainingMs < HURRY_UP_MS) {
+      ctx.fillStyle = hurryUpTimerColor;
+    }
 
     ctx.textAlign = 'center';
-    ctx.fillText(remainingMs + '', WIDTH / 2, 20);
+    ctx.fillText(remainingSec + '', WIDTH / 2, 20);
 
     // Show goalText when you score
     if (state.scored) {
@@ -241,6 +248,7 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
 
   // Messages
   if (state.displayMessage) {
+    ctx.fillStyle = textColor;
     ctx.font = 'normal 8px "Press Start 2P"';
     ctx.textAlign = 'left';
 

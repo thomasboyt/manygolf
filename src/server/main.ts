@@ -10,6 +10,7 @@ import levelGen from '../universal/levelGen';
 
 import {
   TIMER_MS,
+  HURRY_UP_MS,
   RoundState,
 } from '../universal/constants';
 
@@ -18,6 +19,7 @@ import {
   messageDisplayMessage,
   messageLevelOver,
   messagePositions,
+  messageHurryUp,
 } from '../universal/protocol';
 
 import {
@@ -86,7 +88,7 @@ cycleLevel();
 
 const runLoop = new RunLoop(store);
 
-runLoop.afterTick((state: State, prevState: State) => {
+runLoop.afterTick((state: State, prevState: State, dispatch) => {
 
   if (state.roundState === RoundState.over) {
     if (state.expTime !== null && state.expTime < Date.now()) {
@@ -97,8 +99,12 @@ runLoop.afterTick((state: State, prevState: State) => {
   } else {
 
     // Send scored messages if players scored
+    let numScoredChanged = false;
+
     state.players.forEach((player, id) => {
       if (player.scored && !prevState.players.get(id).scored) {
+        numScoredChanged = true;
+
         const elapsed = (player.scoreTime / 1000).toFixed(2);
 
         const strokeLabel = player.strokes === 1 ? 'stroke' : 'strokes';
@@ -108,7 +114,7 @@ runLoop.afterTick((state: State, prevState: State) => {
           color: player.color,
         }));
       }
-    })
+    });
 
     // Move to 'levelOver' state when all players have finished the level, updating time
     if (state.players.size > 0 &&
@@ -122,6 +128,29 @@ runLoop.afterTick((state: State, prevState: State) => {
       console.log('Timer expired');
       levelOver();
       return;
+    }
+
+    if (numScoredChanged && !state.didHurryUp) {
+      // Go into hurry-up mode if the number of players who have yet to score is === 1 or less than
+      // 25% of the remaining players and time is over hurry-up threshold
+      const numRemaining = state.players.filter((player) => !player.scored).size;
+
+      if (numRemaining === 1 || (numRemaining / state.players.size) < 0.25) {
+        const newTime = Date.now() + HURRY_UP_MS;
+
+        if (state.expTime > newTime) {
+          console.log('Hurry up mode entered');
+
+          dispatch({
+            type: 'hurryUp',
+            expTime: newTime,
+          })
+
+          socks.sendAll(messageHurryUp({
+            expTime: newTime,
+          }));
+        }
+      }
     }
 
     const positions = state.players.map((player, id) => {

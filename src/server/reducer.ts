@@ -116,6 +116,14 @@ export default createImmutableReducer<State>(new State(), {
     return state;
   },
 
+  'hurryUp': (state: State, action) => {
+    const expTime = action.expTime;
+
+    return state
+      .set('expTime', expTime)
+      .set('didHurryUp', true);
+  },
+
   'levelOver': (state: State) => {
     return state
       .set('roundState', RoundState.over)

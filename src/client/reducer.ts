@@ -15,6 +15,8 @@ import {
   MessagePlayerConnected,
   MessageDisplayMessage,
   MessageLevelOver,
+  TYPE_HURRY_UP,
+  MessageHurryUp,
 } from '../universal/protocol';
 
 import {
@@ -269,6 +271,15 @@ export default createImmutableReducer<State>(new State(), {
       .set('roundRankedPlayers', I.fromJS(data.roundRankedPlayers).map((player) => {
         return new LeaderboardPlayer(player);
       }));
+  },
+
+  [`ws:${TYPE_HURRY_UP}`]: (state: State, action) => {
+    const data = <MessageHurryUp>action.data;
+
+    return state
+      .set('expTime', data.expTime)
+      .set('displayMessage', 'Hurry up!')
+      .set('displayMessageTimeout', Date.now() + 5 * 1000);
   },
 
   'disconnect': (state: State) => {

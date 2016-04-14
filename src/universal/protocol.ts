@@ -78,7 +78,7 @@ export const TYPE_DISPLAY_MESSAGE = 'displayMessage';
 
 export interface MessageDisplayMessage {
   messageText: string;
-  color: string;
+  color?: string;
 }
 
 export function messageDisplayMessage(params: MessageDisplayMessage) {
@@ -144,6 +144,20 @@ export interface MessageSwing {
 export function messageSwing(params: MessageSwing) {
   return {
     type: TYPE_SWING,
+    data: params,
+  }
+}
+
+
+export const TYPE_HURRY_UP = 'hurry-up';
+
+export interface MessageHurryUp {
+  expTime: number;
+}
+
+export function messageHurryUp(params: MessageHurryUp) {
+  return {
+    type: TYPE_HURRY_UP,
     data: params,
   }
 }
