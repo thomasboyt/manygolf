@@ -57,7 +57,7 @@ export function rankPlayers(players: I.Map<number, Player>): I.List<Player> {
     .sort((a, b) => {
       if (a.strokes > b.strokes) {
         return 1;
-      } else if (a.strokes > b.strokes) {
+      } else if (a.strokes < b.strokes) {
         return -1;
       } else {
         if (a.scoreTime > b.scoreTime) {

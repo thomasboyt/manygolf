@@ -40,7 +40,13 @@ describe('rankPlayers', () => {
         scored: true,
         strokes: 2,
         scoreTime: 1000,
-      }));
+      }))
+      .set(3, new Player({
+        id: 3,
+        scored: true,
+        strokes: 3,
+        scoreTime: 500,
+      }))
 
     const ranked = rankPlayers(players);
 
