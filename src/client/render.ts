@@ -239,6 +239,8 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
     ctx.textAlign = 'center';
     ctx.fillText(remainingSec + '', WIDTH / 2, 20);
 
+    ctx.fillStyle = textColor;
+
     // Show goalText when you score
     if (state.scored) {
       ctx.textAlign = 'center';
