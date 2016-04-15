@@ -3,11 +3,28 @@ language: node_js
 node_js:
   - "5.1"
 
-notifications:
-  email: false
+# ensure we're using the container-based infrastructure
+# see https://docs.travis-ci.com/user/workers/container-based-infrastructure/#Routing-your-build-to-container-based-infrastructure
+sudo: false
 
 script:
   # --silent surpresses that big ol' NPM script error
   - npm run-script test --silent
   - npm run-script lint --silent
-  
+
+cache:
+  directories:
+  - node_modules
+
+env:
+  - CXX=g++-4.8
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-4.8
+
+notifications:
+  email: false
