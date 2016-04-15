@@ -79,7 +79,7 @@ function cycleLevel() {
 
   socks.sendAll(messageLevel({
     level: nextLevel,
-    expTime,
+    expiresIn: TIMER_MS,
   }));
 }
 
@@ -147,7 +147,7 @@ runLoop.afterTick((state: State, prevState: State, dispatch) => {
           });
 
           socks.sendAll(messageHurryUp({
-            expTime: newTime,
+            expiresIn: HURRY_UP_MS,
           }));
         }
       }

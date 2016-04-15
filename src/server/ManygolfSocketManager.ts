@@ -61,7 +61,7 @@ export default class ManygolfSocketManager extends SocketManager {
       }).toList().toJS(),
 
       level: state.levelData,
-      expTime: state.expTime,
+      expiresIn: state.expTime - Date.now(),
     }));
 
     this.sendAll(messagePlayerConnected({

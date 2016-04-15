@@ -41,7 +41,7 @@ if (!offlineMode) {
     type: 'ws:level',
     data: {
       level,
-      expTime: Date.now() + 100000000,
+      expiresIn: 1000 * 1000,
     },
   });
 }

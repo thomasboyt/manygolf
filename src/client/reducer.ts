@@ -73,7 +73,7 @@ function enterScored(state: State) {
 
 function newLevel(state: State, data: MessageInitial) {
   const levelData = data.level;
-  const expTime = data.expTime;
+  const expTime = data.expiresIn + Date.now();
 
   const level = new Level(I.fromJS(levelData))
     .update(addHolePoints);
@@ -276,8 +276,10 @@ export default createImmutableReducer<State>(new State(), {
   [`ws:${TYPE_HURRY_UP}`]: (state: State, action) => {
     const data = <MessageHurryUp>action.data;
 
+    const expTime = Date.now() + data.expiresIn;
+
     return state
-      .set('expTime', data.expTime)
+      .set('expTime', expTime)
       .set('displayMessage', 'Hurry up!')
       .set('displayMessageTimeout', Date.now() + 5 * 1000);
   },

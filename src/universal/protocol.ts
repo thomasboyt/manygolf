@@ -32,7 +32,7 @@ export interface MessageInitial {
   self: Player;
   players: Array<Player>;
   level: Level;
-  expTime: number;
+  expiresIn: number;
   roundState: RoundState;
 }
 
@@ -107,7 +107,7 @@ export const TYPE_LEVEL = 'level';
 
 export interface MessageLevel {
   level: Level;
-  expTime: number;
+  expiresIn: number;
 }
 
 export function messageLevel(params: MessageLevel) {
@@ -152,7 +152,7 @@ export function messageSwing(params: MessageSwing) {
 export const TYPE_HURRY_UP = 'hurry-up';
 
 export interface MessageHurryUp {
-  expTime: number;
+  expiresIn: number;
 }
 
 export function messageHurryUp(params: MessageHurryUp) {
