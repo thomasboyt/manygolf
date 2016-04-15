@@ -5,16 +5,13 @@
   "description": "",
   "author": "",
   "scripts": {
-    "test": "webpack --config webpack/test.js && mocha --no-colors build/test.bundle.js",
     "test-watch": "scripts/test-watch",
-
-    "dev": "webpack-dev-server --config webpack/dev.js",
-    "prod": "webpack-dev-server --config webpack/production.js",
-    "build": "webpack --config webpack/production.js && webpack --config webpack/server.js",
-
-    "server": "webpack --config webpack/server.js && node build/server.bundle.js",
+    "client-watch": "webpack-dev-server --config webpack/dev.js",
     "server-watch": "scripts/server-watch",
 
+    "test": "webpack --config webpack/test.js && mocha --no-colors build/test.bundle.js",
+    "server": "webpack --config webpack/server.js && node build/server.bundle.js",
+    "build": "webpack --config webpack/production.js && webpack --config webpack/server.js",
     "deploy": "fly production"
   },
   "devDependencies": {

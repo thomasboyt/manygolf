@@ -1,31 +1,40 @@
-massively multiplayer proceedurally-generated 2d golf. think desert golf + trackmania
+# manygolf
 
-play: http://manygolf.disco.zone/
+massively multiplayer procedurally-generated 2d golf. think desert golf + trackmania
 
-### develop
+## play
+
+http://manygolf.disco.zone/
+
+## dev guide
+
+### running
 
 in two different sessions:
 
 ```
-npm run server
-npm run dev
+npm run server-watch
+npm run client-watch
 ```
 
 and navigate to localhost:8080
 
 ### test
 
-this space intentionally left blank
+```
+npm run test-watch
+```
 
 ### production
 
-create a secret.json with ssh deets
+create a secret.json with ssh & sentry deets
 
 ```
 {
   "host": "zombo.com",
   "username": "bigjeffrey",
-  "path": "/home/bigjeffrey/manygolf"
+  "path": "/home/bigjeffrey/manygolf",
+  "ravenDSN": "https://foobarbaz@app.getsentry.com/1234"
 }
 ```
 
@@ -43,10 +52,10 @@ the server runs using the [forever](https://github.com/foreverjs/forever) tool. 
 
 it's up to you to expose the server (port `4080`) and the files in `build/` to the world. nginx can do it!
 
-### todos
+## todos
 
 https://workflowy.com/s/LI0MSA3cG0
 
-### credits
+## credits
 
 * virtual buttons for mobile by Kenney: http://kenney.nl/assets/onscreen-controls
