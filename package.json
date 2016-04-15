@@ -11,7 +11,8 @@
     "test": "webpack --config webpack/test.js && mocha --no-colors build/test.bundle.js",
     "server": "webpack --config webpack/server.js && node build/server.bundle.js",
     "build": "webpack --config webpack/production.js && webpack --config webpack/server.js",
-    "deploy": "fly production"
+    "deploy": "fly production",
+    "lint": "tslint src/**/*.ts"
   },
   "devDependencies": {
     "babel-core": "^6.3.17",
