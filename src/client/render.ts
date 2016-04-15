@@ -230,10 +230,16 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
     // Timer
     const expTime = state.expTime;
     const remainingMs = expTime - Date.now();
-    const remainingSec = Math.ceil(remainingMs / 1000);
 
     if (remainingMs < HURRY_UP_MS) {
       ctx.fillStyle = hurryUpTimerColor;
+    }
+
+    let remainingSec = Math.ceil(remainingMs / 1000);
+
+    // prevent seconds from going into negatives (possible due to server lag on roundOver message)
+    if (remainingSec < 0) {
+      remainingSec = 0;
     }
 
     ctx.textAlign = 'center';
