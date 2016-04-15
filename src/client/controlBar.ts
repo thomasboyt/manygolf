@@ -36,9 +36,16 @@ export function renderControlBar() {
   createControl(controlBar, ControlButton.Shoot, 'shoot', shootUrl);
 
   // I know :(
-  const mobileOnly = <HTMLElement>document.getElementsByClassName('mobile-only')[0];
-
   if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-    mobileOnly.style.display = 'block';
+    const mobileOnly = Array.from(document.getElementsByClassName('mobile-only'));
+    const hideMobile = Array.from(document.getElementsByClassName('hide-mobile'));
+
+    for (let el of mobileOnly) {
+      (<HTMLElement>el).style.display = 'block';
+    };
+
+    for (let el of hideMobile) {
+      (<HTMLElement>el).style.display = 'none';
+    }
   }
 }
