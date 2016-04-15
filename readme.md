@@ -1,5 +1,7 @@
 # manygolf
 
+[![Build Status](https://travis-ci.org/thomasboyt/manygolf.svg?branch=master)](https://travis-ci.org/thomasboyt/manygolf)
+
 massively multiplayer procedurally-generated 2d golf. think desert golf + trackmania
 
 ## play
