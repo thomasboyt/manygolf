@@ -8,7 +8,6 @@
     "test-watch": "scripts/test-watch",
     "client-watch": "webpack-dev-server --config webpack/dev.js",
     "server-watch": "scripts/server-watch",
-
     "test": "webpack --config webpack/test.js && mocha --no-colors build/test.bundle.js",
     "server": "webpack --config webpack/server.js && node build/server.bundle.js",
     "build": "webpack --config webpack/production.js && webpack --config webpack/server.js",
@@ -33,6 +32,7 @@
     "nodemon": "^1.9.1",
     "style-loader": "^0.12.2",
     "ts-loader": "^0.8.1",
+    "tslint": "^3.7.4",
     "typescript": "^1.8.9",
     "webpack": "^1.12.9",
     "webpack-create-vendor-chunk": "^0.1.1",
