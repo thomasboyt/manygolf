@@ -10,7 +10,8 @@ export enum ControlButton {
 
 export const buttonsDown = new Set<ControlButton>();
 
-function createControl(controlBar: HTMLElement, button: ControlButton, className: string, path: string) {
+function createControl(controlBar: HTMLElement, button: ControlButton,
+                       className: string, path: string) {
   const control = document.createElement('img');
   control.src = path;
   control.className = className;
@@ -42,7 +43,7 @@ export function renderControlBar() {
 
     for (let el of mobileOnly) {
       (<HTMLElement>el).style.display = 'block';
-    };
+    }
 
     for (let el of hideMobile) {
       (<HTMLElement>el).style.display = 'none';

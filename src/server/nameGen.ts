@@ -19,7 +19,7 @@ const adjectives = [
   'explosive',
   'incredible',
   'extreme',
-  'dull'
+  'dull',
 ];
 
 const nouns = [
@@ -47,7 +47,7 @@ const nouns = [
   'spin',
   'hazard',
   'draw',
-  'fade'
+  'fade',
 ];
 
 function capitalize(str: string): string {

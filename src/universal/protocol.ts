@@ -1,5 +1,5 @@
 import {
-  RoundState
+  RoundState,
 } from '../universal/constants';
 
 interface Player {
@@ -11,7 +11,7 @@ interface Player {
 interface Level {
   points: Array<Array<number>>;
   hole: Array<number>;
-  spawn: Array<number>
+  spawn: Array<number>;
   color: string;
 }
 
@@ -40,7 +40,7 @@ export function messageInitial(params: MessageInitial) {
   return {
     type: TYPE_INITIAL,
     data: params,
-  }
+  };
 }
 
 
@@ -56,7 +56,7 @@ export function messagePlayerConnected(params: MessagePlayerConnected) {
   return {
     type: TYPE_PLAYER_CONNECTED,
     data: params,
-  }
+  };
 }
 
 
@@ -70,7 +70,7 @@ export function messagePlayerDisconnected(params: MessagePlayerDisconnected) {
   return {
     type: TYPE_PLAYER_DISCONNECTED,
     data: params,
-  }
+  };
 }
 
 
@@ -85,7 +85,7 @@ export function messageDisplayMessage(params: MessageDisplayMessage) {
   return {
     type: TYPE_DISPLAY_MESSAGE,
     data: params,
-  }
+  };
 }
 
 
@@ -99,7 +99,7 @@ export function messageLevelOver(params: MessageLevelOver) {
   return {
     type: TYPE_LEVEL_OVER,
     data: params,
-  }
+  };
 }
 
 
@@ -114,7 +114,7 @@ export function messageLevel(params: MessageLevel) {
   return {
     type: TYPE_LEVEL,
     data: params,
-  }
+  };
 }
 
 
@@ -128,7 +128,7 @@ export function messagePositions(params: MessagePositions) {
   return {
     type: TYPE_POSITION,
     data: params,
-  }
+  };
 }
 
 
@@ -145,7 +145,7 @@ export function messageSwing(params: MessageSwing) {
   return {
     type: TYPE_SWING,
     data: params,
-  }
+  };
 }
 
 
@@ -159,5 +159,5 @@ export function messageHurryUp(params: MessageHurryUp) {
   return {
     type: TYPE_HURRY_UP,
     data: params,
-  }
+  };
 }

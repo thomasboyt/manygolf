@@ -4,6 +4,8 @@ import randomColor from 'randomcolor';
 import SocketManager from './util/SocketManager';
 import nameGen from './nameGen';
 
+import WebSocket from 'ws';
+
 import {
   messageInitial,
   messagePlayerConnected,
@@ -23,7 +25,7 @@ import {
 export default class ManygolfSocketManager extends SocketManager {
   store: Store;
 
-  constructor(wss, store: Store) {
+  constructor(wss: WebSocket.Server, store: Store) {
     super(wss);
     this.store = store;
   }
@@ -74,7 +76,7 @@ export default class ManygolfSocketManager extends SocketManager {
     }));
   }
 
-  onDisconnect(id) {
+  onDisconnect(id: number) {
     const state: State = this.store.getState();
 
     const player = state.players.get(id);
@@ -94,7 +96,7 @@ export default class ManygolfSocketManager extends SocketManager {
     }));
   }
 
-  onMessage(id, msg) {
+  onMessage(id: number, msg: any) {
     if (msg.type === TYPE_SWING) {
       this.store.dispatch(Object.assign({
         type: 'swing',

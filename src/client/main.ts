@@ -42,7 +42,7 @@ if (!offlineMode) {
     data: {
       level,
       expTime: Date.now() + 100000000,
-    }
+    },
   });
 }
 
@@ -75,7 +75,8 @@ function updateTwitterLink(name: string) {
   const text = `Come play #Manygolf with me! I'm playing as ${name}`;
   const encoded = encodeURIComponent(text);
 
-  const linkUrl = `https://twitter.com/intent/tweet?text=${encoded}&url=http%3A%2F%2Fmanygolf.disco.zone`;
+  const linkUrl = `https://twitter.com/intent/tweet?text=${encoded}` +
+                  '&url=http%3A%2F%2Fmanygolf.disco.zone';
 
   link.href = linkUrl;
 }

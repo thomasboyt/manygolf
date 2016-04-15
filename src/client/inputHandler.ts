@@ -15,7 +15,7 @@ import {
 
 import {
   buttonsDown,
-  ControlButton
+  ControlButton,
 } from './controlBar';
 
 export default function inputHandler(dt: number, state: State, dispatch: Dispatch) {

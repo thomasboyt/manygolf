@@ -112,7 +112,7 @@ function newLevel(state: State, data: MessageInitial) {
 }
 
 export default createImmutableReducer<State>(new State(), {
-  'tick': (state: State, {dt, keysDown}: {dt: number; keysDown: Set<number>}) => {
+  'tick': (state: State, {dt}: {dt: number}) => {
     dt = dt / 1000;  // ms -> s
 
     if (!state.world || state.roundState === RoundState.over) {
@@ -284,5 +284,5 @@ export default createImmutableReducer<State>(new State(), {
 
   'disconnect': (state: State) => {
     return state.set('connectionState', ConnectionState.disconnected);
-  }
+  },
 });

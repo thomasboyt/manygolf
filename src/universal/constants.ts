@@ -20,13 +20,13 @@ export enum AimDirection {
 
 export enum RoundState {
   inProgress,
-  over
+  over,
 };
 
 export enum ConnectionState {
   connecting,
   connected,
-  disconnected
+  disconnected,
 }
 
 // thx friends
@@ -51,5 +51,5 @@ export const goalWords = [
   'nice one, senpai',  // cat doter
   'a winner is you',   // AlucardRD
   'come putt, milord', // cat doter
-  '30 - love'          // oatgan
+  '30 - love',         // oatgan
 ];

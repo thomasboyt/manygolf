@@ -55,7 +55,7 @@ const LeaderboardPlayerRec = I.Record({
   id: null,
   strokes: null,
   scoreTime: null,
-})
+});
 
 export class LeaderboardPlayer extends LeaderboardPlayerRec {
   color: string;

@@ -3,12 +3,12 @@ export function degreesToRadians(degrees: number) {
 }
 
 export function calcVectorDegrees(magnitude: number, angle: number) {
-  var rad = degreesToRadians(angle);
+  const rad = degreesToRadians(angle);
   return calcVectorRadians(magnitude, rad);
 }
 
 export function calcVectorRadians(magnitude: number, rad: number) {
-  var x = magnitude * Math.cos(rad);
-  var y = magnitude * Math.sin(rad);
+  const x = magnitude * Math.cos(rad);
+  const y = magnitude * Math.sin(rad);
   return { x: x, y: y };
 }

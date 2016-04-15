@@ -55,7 +55,7 @@ export function createBall(spawn: I.List<number>) {
     mass: 1,
     position: [
       spawn.get(0),
-      spawn.get(1) - BALL_RADIUS
+      spawn.get(1) - BALL_RADIUS,
     ],
   });
   ballBody.addShape(ballShape);
@@ -96,7 +96,7 @@ export function addHolePoints(level: any) {
     [level.hole.get(0) - HOLE_WIDTH / 2, level.hole.get(1)],
     [level.hole.get(0) - HOLE_WIDTH / 2, level.hole.get(1) + HOLE_HEIGHT],
     [level.hole.get(0) + HOLE_WIDTH / 2, level.hole.get(1) + HOLE_HEIGHT],
-    [level.hole.get(0) + HOLE_WIDTH / 2, level.hole.get(1)]
+    [level.hole.get(0) + HOLE_WIDTH / 2, level.hole.get(1)],
   ]);
 
   const pointsWithHole = level.points
@@ -114,18 +114,24 @@ export function createGround(level: any): p2.Body[] {
   const beforeHole = level.points.filter((point) => point.get(0) < level.hole.get(0));
   const afterHole = level.points.filter((point) => point.get(0) > level.hole.get(0));
 
-  const vertsBeforeHole = beforeHole.toJS().concat([[beforeHole.last().get(0), HEIGHT], [0, HEIGHT]]);
+  const vertsBeforeHole = beforeHole.toJS().concat([
+    [beforeHole.last().get(0), HEIGHT],
+    [0, HEIGHT],
+  ]);
   const vertsHole = [
     [level.hole.get(0) - HOLE_WIDTH / 2, level.hole.get(1) + HOLE_HEIGHT],
     [level.hole.get(0) + HOLE_WIDTH / 2, level.hole.get(1) + HOLE_HEIGHT],
     [level.hole.get(0) + HOLE_WIDTH / 2, HEIGHT],
     [level.hole.get(0) - HOLE_WIDTH / 2, HEIGHT],
-  ]
-  const vertsAfterHole = afterHole.toJS().concat([[WIDTH, HEIGHT], [afterHole.get(0).get(0), HEIGHT]]);
+  ];
+  const vertsAfterHole = afterHole.toJS().concat([
+    [WIDTH, HEIGHT],
+    [afterHole.get(0).get(0), HEIGHT],
+  ]);
 
   const grounds = [vertsBeforeHole, vertsHole, vertsAfterHole].map((verts) => {
     const body = new p2.Body({
-      mass: 0
+      mass: 0,
     });
 
     body.fromPolygon(verts);
@@ -137,7 +143,7 @@ export function createGround(level: any): p2.Body[] {
     }
 
     return body;
-  })
+  });
 
   return grounds;
 }
@@ -154,7 +160,10 @@ export function createHoleSensor(pos: I.List<number>) {
 
   // Sensor is purposely built halfway into the ground so top edge collisions are avoided
   const sensorBody = new p2.Body({
-    position: [pos.get(0), pos.get(1) + HOLE_HEIGHT],
+    position: [
+      pos.get(0),
+      pos.get(1) + HOLE_HEIGHT,
+    ],
   });
   sensorBody.damping = 0;
   sensorBody.addShape(sensorShape);

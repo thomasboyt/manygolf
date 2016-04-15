@@ -46,7 +46,7 @@ describe('rankPlayers', () => {
         scored: true,
         strokes: 3,
         scoreTime: 500,
-      }))
+      }));
 
     const ranked = rankPlayers(players);
 
@@ -71,5 +71,5 @@ describe('rankPlayers', () => {
     const ranked = rankPlayers(players);
 
     expect(ranked.get(0).id).toEqual(2);
-  })
+  });
 });

@@ -286,7 +286,7 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
       ctx.fillText(after, x + ctx.measureText(before + colorized).width, y);
 
     } else {
-      ctx.fillText(state.displayMessage, x, y)
+      ctx.fillText(state.displayMessage, x, y);
     }
   }
 }

@@ -24,7 +24,6 @@ import {
 
 import {
   State,
-  Player,
 } from './records';
 
 /*
@@ -108,9 +107,10 @@ runLoop.afterTick((state: State, prevState: State, dispatch) => {
         const elapsed = (player.scoreTime / 1000).toFixed(2);
 
         const strokeLabel = player.strokes === 1 ? 'stroke' : 'strokes';
+        const msg = `{{${player.name}}} scored! (${player.strokes} ${strokeLabel} in ${elapsed}s)`;
 
         socks.sendAll(messageDisplayMessage({
-          messageText: `{{${player.name}}} scored! (${player.strokes} ${strokeLabel} in ${elapsed}s)`,
+          messageText: msg,
           color: player.color,
         }));
       }
@@ -144,7 +144,7 @@ runLoop.afterTick((state: State, prevState: State, dispatch) => {
           dispatch({
             type: 'hurryUp',
             expTime: newTime,
-          })
+          });
 
           socks.sendAll(messageHurryUp({
             expTime: newTime,

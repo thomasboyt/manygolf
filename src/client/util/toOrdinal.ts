@@ -1,5 +1,6 @@
 // found here http://forums.shopify.com/categories/2/posts/29259
 
+/* tslint:disable */
 export default function getOrdinal(n: number) {
    var s=["th","st","nd","rd"],
        v=n%100;

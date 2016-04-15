@@ -16,13 +16,13 @@ import {
   State,
   Level,
   Player,
-  Coordinates
+  Coordinates,
 } from './records';
 
 import {
   TIMER_MS,
   OVER_TIMER_MS,
-  RoundState
+  RoundState,
 } from '../universal/constants';
 
 const fixedStep = 1 / 60;
@@ -182,7 +182,7 @@ export default createImmutableReducer<State>(new State(), {
           .set('strokes', 0)
           .set('scored', false)
           .set('scoreTime', null);
-      })
+      }),
     });
-  }
+  },
 });
