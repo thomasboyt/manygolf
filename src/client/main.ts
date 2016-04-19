@@ -3,10 +3,8 @@ require('../../styles/main.less');
 import './util/registerPolyfill';
 import './util/registerErrorHandler';
 
-import { State } from './records';
-
 // Set up store
-import { createStore, Dispatch } from 'redux';
+import { createStore } from 'redux';
 import reducer from './reducer';
 const store = createStore(reducer);
 
@@ -48,22 +46,34 @@ if (!offlineMode) {
 
 // set up input
 import {registerListeners } from './util/inputter';
-import inputHandler from './inputHandler';
 registerListeners();
 
 // Set up runLoop
 import RunLoop from '../universal/RunLoop';
-const runLoop = new RunLoop(store);
+const runLoop = new RunLoop();
 
-runLoop.beforeTick(inputHandler);
-
+import inputHandler from './inputHandler';
 import render from './render';
 
-runLoop.afterTick((state: State, prevState: State, dispatch: Dispatch) => {
-  render(ctx, state);
+runLoop.onTick((dt: number) => {
+  dt = dt / 1000;  // ms -> s
+  const dispatch = store.dispatch.bind(store);
 
-  if (state.name !== prevState.name) {
-    updateTwitterLink(state.name);
+  const prevState = store.getState();
+
+  inputHandler(dt, prevState, dispatch);
+
+  dispatch({
+    type: 'tick',
+    dt,
+  });
+
+  const newState = store.getState();
+
+  render(ctx, newState);
+
+  if (newState.name !== prevState.name) {
+    updateTwitterLink(newState.name);
   }
 });
 

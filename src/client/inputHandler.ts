@@ -11,7 +11,6 @@ import {messageSwing, messageEnterGame} from '../universal/protocol';
 import {
   AimDirection,
   RoundState,
-  ConnectionState,
 } from '../universal/constants';
 
 import {
@@ -20,8 +19,6 @@ import {
 } from './controlBar';
 
 export default function inputHandler(dt: number, state: State, dispatch: Dispatch) {
-  dt = dt / 1000;
-
   if (!state.round || state.round.roundState === RoundState.over) {
     // ignore input
     return;

@@ -4,7 +4,7 @@ import expect from 'expect';
 import I from 'immutable';
 
 import {Player} from '../records';
-import {rankPlayers} from '../reducer';
+import {rankPlayers} from '../actions';
 
 describe('rankPlayers', () => {
   it('ranks players by strokes', () => {

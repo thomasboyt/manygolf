@@ -235,7 +235,8 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
       ctx.fillText(`(${winner.strokes} ${strokeLabel} in ${elapsed}s)`, x, y + 22);
 
       if (winner.id !== state.id && state.round.scored) {
-        const position = state.round.roundRankedPlayers.findIndex((player) => player.id === state.id) + 1;
+        const players = state.round.roundRankedPlayers;
+        const position = players.findIndex((player) => player.id === state.id) + 1;
         ctx.fillText(`You placed ${toOrdinal(position)}`, x, y + 36);
       }
     }

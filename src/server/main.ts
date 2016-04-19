@@ -2,33 +2,28 @@ import http from 'http';
 import ws from 'ws';
 import express from 'express';
 import { createStore } from 'redux';
-import I from 'immutable';
 
 import RunLoop from '../universal/RunLoop';
 import ManygolfSocketManager from './ManygolfSocketManager';
 import reducer from './reducer';
-import levelGen from '../universal/levelGen';
+
+import {
+  sweepInactivePlayers,
+  ensurePlayersInBounds,
+  checkScored,
+  cycleLevel,
+  sendPositions,
+  levelOver,
+  checkHurryUp,
+} from './actions';
 
 import {
   TIMER_MS,
-  HURRY_UP_MS,
-  IDLE_KICK_MS,
   RoundState,
 } from '../universal/constants';
 
 import {
-  messageLevel,
-  messageDisplayMessage,
-  messageLevelOver,
-  messagePositions,
-  messageHurryUp,
-  messagePlayerDisconnected,
-  messageIdleKicked,
-} from '../universal/protocol';
-
-import {
   State,
-  Player,
 } from './records';
 
 /*
@@ -48,162 +43,81 @@ const socks = new ManygolfSocketManager(wss, store);
  * Run loop
  */
 
-function levelOver() {
-  store.dispatch({
-    type: 'levelOver',
-  });
+cycleLevel(store.dispatch.bind(store), socks);
 
-  const state = <State>store.getState();
+const runLoop = new RunLoop();
 
-  socks.sendAll(messageLevelOver({
-    roundRankedPlayers: state.roundRankedPlayers.toArray().map((player) => {
-      return {
-        id: player.id,
-        color: player.color,
-        name: player.name,
-        strokes: player.strokes,
-        scoreTime: player.scoreTime,
-      };
-    }),
-  }));
+function getState(): State {
+  return store.getState();
 }
 
-function cycleLevel() {
-  console.log('Cycling level');
+const fixedStep = 1 / 60;
+const maxSubSteps = 10;
 
-  const expTime = Date.now() + TIMER_MS;
+runLoop.onTick((dt: number) => {
+  dt = dt / 1000;  // ms -> s
 
-  const nextLevel = levelGen();
-  console.log(JSON.stringify(nextLevel));
+  const dispatch = store.dispatch.bind(store);
 
-  store.dispatch({
-    type: 'level',
-    levelData: nextLevel,
-    expTime,
+  const prevState = <State>store.getState();
+
+  // overlaps() can't be used on a sleeping object, so we check overlapping before tick
+  const overlappingMap = prevState.players.map((player) => {
+    return player.body.overlaps(prevState.holeSensor);
   });
 
-  socks.sendAll(messageLevel({
-    level: nextLevel,
-    expiresIn: TIMER_MS,
-  }));
-}
+  // XXX: MMMMMonster hack
+  // dt is set to dt * 3 because that's the speed I actually want
+  getState().world.step(fixedStep, dt * 3, maxSubSteps);
 
-cycleLevel();
-
-const runLoop = new RunLoop(store);
-
-function sweepInactivePlayers(players: I.Map<number, Player>, dispatch) {
-  players.forEach((player, id) => {
-    if (Date.now() > player.lastSwingTime  + IDLE_KICK_MS) {
-      console.log(`Idle kicking ${player.name}`);
-
-      dispatch({
-        type: 'leaveGame',
-        id,
-      });
-
-      socks.sendAll(messagePlayerDisconnected({
-        id,
-      }));
-
-      socks.sendTo(id, messageIdleKicked());
-
-      const msg = `{{${player.name}}} is now spectating`;
-
-      socks.sendAll(messageDisplayMessage({
-        messageText: msg,
-        color: player.color,
-      }))
-    }
-  });
-}
-
-runLoop.afterTick((state: State, prevState: State, dispatch) => {
-
-  // VERY IMPORTANT TODO:
-  // Find a way to restructure this run loop to be more intuitive. Probably remove the
-  // beforeTick/afterTick and just have tick as another thing dispatched in this loop.
-  // Treat the run loop as an *action creator*, not a *reducer*.
-
-  sweepInactivePlayers(state.players, dispatch);
-
-  // UGH
-  state = <State>store.getState();
-
-  if (state.roundState === RoundState.over) {
-    if (state.expTime !== null && state.expTime < Date.now()) {
-      cycleLevel();
+  if (getState().roundState === RoundState.over) {
+    if (getState().expTime !== null && getState().expTime < Date.now()) {
+      cycleLevel(dispatch, socks);
       return;
     }
 
   } else {
-    // Send scored messages if players scored
-    let numScoredChanged = false;
-
-    state.players.forEach((player, id) => {
-      if (player.scored && !prevState.players.get(id).scored) {
-        numScoredChanged = true;
-
-        const elapsed = (player.scoreTime / 1000).toFixed(2);
-
-        const strokeLabel = player.strokes === 1 ? 'stroke' : 'strokes';
-        const msg = `{{${player.name}}} scored! (${player.strokes} ${strokeLabel} in ${elapsed}s)`;
-
-        socks.sendAll(messageDisplayMessage({
-          messageText: msg,
-          color: player.color,
-        }));
-      }
+    ensurePlayersInBounds(dispatch, {
+      level: getState().level,
+      players: getState().players,
     });
 
-    // Move to 'levelOver' state when all players have finished the level, updating time
-    if (state.players.size > 0 &&
-        state.players.filter((player) => player.scored).size === state.players.size) {
+    checkScored(dispatch, socks, {
+      overlappingMap,
+      players: getState().players,
+      elapsed: Date.now() - (getState().expTime - TIMER_MS),
+    });
+
+    sweepInactivePlayers(dispatch, socks, {
+      now: Date.now(),
+      players: getState().players,
+    });
+
+    const players = getState().players;
+
+    if (players.size > 0 &&
+        players.filter((player) => player.scored).size === players.size) {
       console.log('All players have finished');
-      levelOver();
+      levelOver(dispatch, socks, {players});
       return;
     }
 
-    if (state.expTime !== null && state.expTime < Date.now()) {
+    if (getState().expTime !== null && getState().expTime < Date.now()) {
       console.log('Timer expired');
-      levelOver();
+      levelOver(dispatch, socks, {players});
       return;
     }
 
-    if (numScoredChanged && !state.didHurryUp) {
-      // Go into hurry-up mode if the number of players who have yet to score is === 1 or less than
-      // 25% of the remaining players and time is over hurry-up threshold
-      const numRemaining = state.players.filter((player) => !player.scored).size;
-
-      if (numRemaining === 1 || (numRemaining / state.players.size) < 0.25) {
-        const newTime = Date.now() + HURRY_UP_MS;
-
-        if (state.expTime > newTime) {
-          console.log('Hurry up mode entered');
-
-          dispatch({
-            type: 'hurryUp',
-            expTime: newTime,
-          });
-
-          socks.sendAll(messageHurryUp({
-            expiresIn: HURRY_UP_MS,
-          }));
-        }
-      }
+    if (!getState().didHurryUp) {
+      checkHurryUp(dispatch, socks, {
+        players,
+        expTime: getState().expTime,
+      });
     }
 
-    const positions = state.players.map((player, id) => {
-      return {
-        id,
-        x: player.body.interpolatedPosition[0],
-        y: player.body.interpolatedPosition[1],
-      };
-    }).toList().toJS();
-
-    socks.sendAll(messagePositions({
-      positions,
-    }));
+    sendPositions(socks, {
+      players: getState().players,
+    });
   }
 
 });

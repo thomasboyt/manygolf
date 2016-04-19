@@ -24,6 +24,8 @@ const PlayerRec = I.Record({
   lastSwingTime: null,
 });
 
+export type PlayersMap = I.Map<number, Player>;
+
 export class Player extends PlayerRec {
   id: number;
   body: p2.Body;
@@ -66,8 +68,8 @@ export class State extends StateRec {
   levelData: any;  // TODO
   world: p2.World;
   level: Level;
-  players: I.Map<number, Player>;
-  observers: I.Map<number, Player>;
+  players: PlayersMap;
+  observers: PlayersMap;
   expTime: number;
   holeSensor: p2.Body;
   roundState: RoundState;

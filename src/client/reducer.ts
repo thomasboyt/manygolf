@@ -92,8 +92,8 @@ function newLevel(state: State, data: MessageInitial) {
     const ballBody = createBall(level.spawn);
     world.addBody(ballBody);
     ball = new Ball({
-      body: ballBody
-    })
+      body: ballBody,
+    });
   }
 
   const holeSensor = createHoleSensor(level.hole);
@@ -111,11 +111,11 @@ function newLevel(state: State, data: MessageInitial) {
   }));
 }
 
-function enterGame(state) {
+function enterGame(state: State) {
   const ballBody = createBall(state.round.level.spawn);
   state.round.world.addBody(ballBody);
   const ball = new Ball({
-    body: ballBody
+    body: ballBody,
   });
 
   return state
@@ -123,7 +123,7 @@ function enterGame(state) {
     .setIn(['round', 'ball'], ball);
 }
 
-function leaveGame(state) {
+function leaveGame(state: State) {
   return state
     .set('isObserver', true)
     .setIn(['round', 'ball'], null);
@@ -131,8 +131,6 @@ function leaveGame(state) {
 
 export default createImmutableReducer<State>(new State(), {
   'tick': (state: State, {dt}: {dt: number}) => {
-    dt = dt / 1000;  // ms -> s
-
     if (!state.round || state.round.roundState === RoundState.over) {
       return state;
     }
@@ -320,5 +318,5 @@ export default createImmutableReducer<State>(new State(), {
 
   'leaveObserver': (state: State) => {
     return enterGame(state);
-  }
+  },
 });
