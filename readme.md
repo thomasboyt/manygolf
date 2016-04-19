@@ -36,7 +36,8 @@ create a secret.json with ssh & sentry deets
   "host": "zombo.com",
   "username": "bigjeffrey",
   "path": "/home/bigjeffrey/manygolf",
-  "ravenDSN": "https://foobarbaz@app.getsentry.com/1234"
+  "ravenDSNPublic": "https://foo@app.getsentry.com/1234"
+  "ravenDSNPrivate": "https://foo:bar@app.getsentry.com/1234"
 }
 ```
 
