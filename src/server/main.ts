@@ -89,7 +89,6 @@ cycleLevel();
 const runLoop = new RunLoop(store);
 
 runLoop.afterTick((state: State, prevState: State, dispatch) => {
-
   if (state.roundState === RoundState.over) {
     if (state.expTime !== null && state.expTime < Date.now()) {
       cycleLevel();
@@ -97,11 +96,12 @@ runLoop.afterTick((state: State, prevState: State, dispatch) => {
     }
 
   } else {
+    const activePlayers = state.players.filter((player) => !player.isObserver);
 
     // Send scored messages if players scored
     let numScoredChanged = false;
 
-    state.players.forEach((player, id) => {
+    activePlayers.forEach((player, id) => {
       if (player.scored && !prevState.players.get(id).scored) {
         numScoredChanged = true;
 
@@ -118,8 +118,8 @@ runLoop.afterTick((state: State, prevState: State, dispatch) => {
     });
 
     // Move to 'levelOver' state when all players have finished the level, updating time
-    if (state.players.size > 0 &&
-        state.players.filter((player) => player.scored).size === state.players.size) {
+    if (activePlayers.size > 0 &&
+        activePlayers.filter((player) => player.scored).size === activePlayers.size) {
       console.log('All players have finished');
       levelOver();
       return;
@@ -134,9 +134,9 @@ runLoop.afterTick((state: State, prevState: State, dispatch) => {
     if (numScoredChanged && !state.didHurryUp) {
       // Go into hurry-up mode if the number of players who have yet to score is === 1 or less than
       // 25% of the remaining players and time is over hurry-up threshold
-      const numRemaining = state.players.filter((player) => !player.scored).size;
+      const numRemaining = activePlayers.filter((player) => !player.scored).size;
 
-      if (numRemaining === 1 || (numRemaining / state.players.size) < 0.25) {
+      if (numRemaining === 1 || (numRemaining / activePlayers.size) < 0.25) {
         const newTime = Date.now() + HURRY_UP_MS;
 
         if (state.expTime > newTime) {
@@ -154,7 +154,7 @@ runLoop.afterTick((state: State, prevState: State, dispatch) => {
       }
     }
 
-    const positions = state.players.map((player, id) => {
+    const positions = activePlayers.map((player, id) => {
       return {
         id,
         x: player.body.interpolatedPosition[0],
