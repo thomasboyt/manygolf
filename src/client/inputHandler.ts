@@ -19,11 +19,6 @@ import {
 } from './controlBar';
 
 export default function inputHandler(dt: number, state: State, dispatch: Dispatch) {
-  if (!state.round || state.round.roundState === RoundState.over) {
-    // ignore input
-    return;
-  }
-
   if (state.isObserver) {
     if (keysDown.has(keyCodes.SPACE) || buttonsDown.has(ControlButton.Shoot)) {
       dispatch({
@@ -36,6 +31,13 @@ export default function inputHandler(dt: number, state: State, dispatch: Dispatc
       keysDown.delete(keyCodes.SPACE);
       buttonsDown.delete(ControlButton.Shoot);
     }
+
+    return;
+  }
+
+  if (!state.round || state.round.roundState === RoundState.over) {
+    // ignore input
+    return;
   }
 
   if (state.round.allowHit && !state.round.scored) {
