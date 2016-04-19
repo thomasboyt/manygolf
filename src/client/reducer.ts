@@ -110,6 +110,18 @@ function newLevel(state: State, data: MessageInitial) {
   }));
 }
 
+function enterGame(state) {
+  const ballBody = createBall(state.round.level.spawn);
+  state.round.world.addBody(ballBody);
+  const ball = new Ball({
+    body: ballBody
+  });
+
+  return state
+    .set('isObserver', false)
+    .setIn(['round', 'ball'], ball);
+}
+
 export default createImmutableReducer<State>(new State(), {
   'tick': (state: State, {dt}: {dt: number}) => {
     dt = dt / 1000;  // ms -> s
@@ -229,7 +241,6 @@ export default createImmutableReducer<State>(new State(), {
         return balls.set(player.id, new Player({
           color: player.color,
           name: player.name,
-          isObserver: player.isObserver,
           id: player.id,
         }));
       }, I.Map()))
@@ -245,7 +256,6 @@ export default createImmutableReducer<State>(new State(), {
         color: data.color,
         name: data.name,
         id: data.id,
-        isObserver: data.isObserver,
       }));
   },
 
@@ -296,4 +306,8 @@ export default createImmutableReducer<State>(new State(), {
   'disconnect': (state: State) => {
     return state.set('connectionState', ConnectionState.disconnected);
   },
+
+  'leaveObserver': (state: State) => {
+    return enterGame(state);
+  }
 });

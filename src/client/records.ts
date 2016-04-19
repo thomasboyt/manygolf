@@ -25,7 +25,6 @@ const PlayerRec = I.Record({
   color: null,
   name: null,
   id: null,
-  isObserver: false,
 });
 
 export class Player extends PlayerRec {
@@ -34,7 +33,6 @@ export class Player extends PlayerRec {
   color: string;
   name: string;
   id: number;
-  isObserver: boolean;
 }
 
 const LevelRec = I.Record({

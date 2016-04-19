@@ -51,7 +51,6 @@ export interface MessagePlayerConnected {
   id: number;
   color: string;
   name: string;
-  isObserver: boolean;
 }
 
 export function messagePlayerConnected(params: MessagePlayerConnected) {
@@ -161,5 +160,14 @@ export function messageHurryUp(params: MessageHurryUp) {
   return {
     type: TYPE_HURRY_UP,
     data: params,
+  };
+}
+
+
+export const TYPE_ENTER_GAME = 'enterGame';
+
+export function messageEnterGame() {
+  return {
+    type: TYPE_ENTER_GAME,
   };
 }

@@ -12,10 +12,12 @@ import {
   messagePlayerDisconnected,
   messageDisplayMessage,
   TYPE_SWING,
+  TYPE_ENTER_GAME,
 } from '../universal/protocol';
 
 import {
   State,
+  Player,
 } from './records';
 
 /*
@@ -62,12 +64,11 @@ export default class ManygolfSocketManager extends SocketManager {
         isObserver,
       },
 
-      players: state.players.map((player, id) => {
+      players: state.players.filter((player) => !player.isObserver).map((player, id) => {
         return {
           id,
           color: player.color,
           name: player.name,
-          isObserver: player.isObserver,
         };
       }).toList().toJS(),
 
@@ -75,18 +76,10 @@ export default class ManygolfSocketManager extends SocketManager {
       expiresIn: state.expTime - Date.now(),
     }));
 
-    this.sendAll(messagePlayerConnected({
-      id,
-      color,
-      name,
-      isObserver,
-    }));
+    const player = state.players.get(id);
 
     if (!isObserver) {
-      this.sendAll(messageDisplayMessage({
-        messageText: `{{${name}}} connected`,
-        color,
-      }));
+      this.playerJoined(player);
     }
   }
 
@@ -113,14 +106,46 @@ export default class ManygolfSocketManager extends SocketManager {
   }
 
   onMessage(id: number, msg: any) {
+    const prevState = <State>this.store.getState();
+
     if (msg.type === TYPE_SWING) {
       this.store.dispatch(Object.assign({
         type: 'swing',
         id,
       }, msg.data));
 
+    } else if (msg.type === TYPE_ENTER_GAME) {
+      if (!prevState.players.get(id).isObserver) {
+        return;
+      }
+
+      this.store.dispatch({
+        type: 'enterGame',
+        id,
+      });
+
+      const state = <State>this.store.getState();
+      const player = state.players.get(id);
+
+      this.playerJoined(player);
+
     } else {
       console.error(`unrecognized message type ${msg.type}`);
     }
+  }
+
+  playerJoined(player: Player) {
+    const {id, color, name} = player;
+
+    this.sendAll(messagePlayerConnected({
+      id,
+      color,
+      name,
+    }));
+
+    this.sendAll(messageDisplayMessage({
+      messageText: `{{${name}}} joined`,
+      color,
+    }));
   }
 }

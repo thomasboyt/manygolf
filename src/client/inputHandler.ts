@@ -6,7 +6,7 @@ import {calcVectorDegrees} from './util/math';
 import ws from './ws';
 
 import { State } from './records';
-import {messageSwing} from '../universal/protocol';
+import {messageSwing, messageEnterGame} from '../universal/protocol';
 
 import {
   AimDirection,
@@ -28,8 +28,13 @@ export default function inputHandler(dt: number, state: State, dispatch: Dispatc
   }
 
   if (state.isObserver) {
-    // TODO: Rejoin game here by pressing any key
-    return;
+    if (keysDown.has(keyCodes.SPACE) || buttonsDown.has(ControlButton.Shoot)) {
+      dispatch({
+        type: 'leaveObserver',
+      });
+
+      ws.send(messageEnterGame());
+    }
   }
 
   if (state.round.allowHit && !state.round.scored) {

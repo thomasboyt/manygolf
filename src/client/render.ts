@@ -82,7 +82,7 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
   //
   // Draw ghost balls
   //
-  state.players.filter((player) => !player.isObserver).forEach((ball) => {
+  state.players.forEach((ball) => {
     // Don't render ghost for the current player
     if (ball.id === state.id && !debugRender) {
       return ball;
@@ -172,12 +172,16 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
   if (!state.isObserver) {
     ctx.textAlign = 'left';
     ctx.fillText(`Strokes ${state.round.strokes}`, 10, 20);
+  } else {
+    ctx.fillText('Spectating', 10, 20);
+    ctx.font = 'normal 8px "Press Start 2P"';
+    ctx.fillText('Press [shoot] to join', 10, 33);
   }
 
   ctx.font = 'normal 8px "Press Start 2P"';
   ctx.textAlign = 'right';
 
-  const playerCount = state.players.filter((player) => !player.isObserver).size;
+  const playerCount = state.players.size;
   ctx.fillText(`${playerCount} players connected`, WIDTH - 10, 11);
 
   if (!state.isObserver) {
@@ -191,9 +195,6 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
 
     ctx.fillStyle = textColor;
     ctx.fillText('You are ', WIDTH - 10 - ctx.measureText(state.name).width, 20);
-
-  } else {
-    ctx.fillText('Spectator mode', WIDTH - 10, 20);
   }
 
   ctx.font = 'normal 16px "Press Start 2P"';

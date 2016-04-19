@@ -149,6 +149,12 @@ export default createImmutableReducer<State>(new State(), {
   },
 
   'swing': (state: State, {id, vec}: {id: number; vec: Coordinates}) => {
+    const player = state.players.get(id);
+
+    if (player.isObserver) {
+      return state;
+    }
+
     const body = state.players.get(id).body;
 
     if (body.sleepState !== p2.Body.SLEEPING) {
@@ -193,4 +199,15 @@ export default createImmutableReducer<State>(new State(), {
       }),
     });
   },
+
+  enterGame: (state: State, {id}: {id: number}) => {
+    const player = state.players.get(id);
+
+    if (!player.isObserver) {
+      return state;
+    }
+
+    return state
+      .setIn(['players', id, 'isObserver'], false);
+  }
 });
