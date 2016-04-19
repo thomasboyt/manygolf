@@ -46,9 +46,10 @@ import {
   State,
   Level,
   Ball,
-  DumbBall,
+  Player,
   SwingMeterDirection,
   LeaderboardPlayer,
+  Round,
 } from './records';
 
 const fixedStep = 1 / 60;
@@ -67,8 +68,8 @@ function enterScored(state: State) {
   const goalText = sample(goalWords);
 
   return state
-    .set('scored', true)
-    .set('goalText', goalText);
+    .setIn(['round', 'scored'], true)
+    .setIn(['round', 'goalText'], goalText);
 }
 
 function newLevel(state: State, data: MessageInitial) {
@@ -85,59 +86,62 @@ function newLevel(state: State, data: MessageInitial) {
     world.addBody(body);
   }
 
-  const ballBody = createBall(level.spawn);
-  world.addBody(ballBody);
+  let ball = null;
+  if (!state.isObserver) {
+    const ballBody = createBall(level.spawn);
+    world.addBody(ballBody);
+    ball = new Ball({
+      body: ballBody
+    })
+  }
 
   const holeSensor = createHoleSensor(level.hole);
   world.addBody(holeSensor);
 
-  return new State({
-    connectionState: ConnectionState.connected,
+  return state.set('round', new Round({
     roundState: RoundState.inProgress,
-
-    ghostBalls: state.ghostBalls,
-    id: state.id,
-    name: state.name,
-    color: state.color,
 
     world,
     level,
     expTime,
     holeSensor,
 
-    ball: new Ball({
-      body: ballBody,
-    }),
-  });
+    ball,
+  }));
 }
 
 export default createImmutableReducer<State>(new State(), {
   'tick': (state: State, {dt}: {dt: number}) => {
     dt = dt / 1000;  // ms -> s
 
-    if (!state.world || state.roundState === RoundState.over) {
+    if (!state.round || state.round.roundState === RoundState.over) {
       return state;
     }
 
-    ensureBallInBounds(state.ball.body, state.level);
+    let overlapping;
+    if (state.round.ball) {
+      ensureBallInBounds(state.round.ball.body, state.round.level);
 
-    // overlaps() can't be used on a sleeping object, so we check overlapping before tick
-    const overlapping = state.ball.body.overlaps(state.holeSensor);
+      // overlaps() can't be used on a sleeping object, so we check overlapping before tick
+      overlapping = state.round.ball.body.overlaps(state.round.holeSensor);
+    }
 
     // XXX: MMMMMonster hack
     // dt is set to dt * 3 because that's the speed I actually want
-    state.world.step(fixedStep, dt * 3, maxSubSteps);
+    state.round.world.step(fixedStep, dt * 3, maxSubSteps);
 
-    if (!state.scored) {
-      const isSleeping = state.ball.body.sleepState === p2.Body.SLEEPING;
-      const scored = overlapping && isSleeping;
+    if (state.round.ball) {
+      if (!state.round.scored) {
+        const isSleeping = state.round.ball.body.sleepState === p2.Body.SLEEPING;
+        const scored = overlapping && isSleeping;
 
-      if (scored) {
-        state = enterScored(state);
+        if (scored) {
+          state = enterScored(state);
 
-      } else {
-        state = state
-          .set('allowHit', isSleeping);
+        } else {
+          state = state
+            .setIn(['round', 'allowHit'], isSleeping);
+        }
       }
     }
 
@@ -152,9 +156,9 @@ export default createImmutableReducer<State>(new State(), {
 
   'beginSwing': (state: State, action) => {
     return state
-      .set('inSwing', true)
-      .set('swingMeterDirection', SwingMeterDirection.ascending)
-      .set('swingPower', MIN_POWER);
+      .setIn(['round', 'inSwing'], true)
+      .setIn(['round', 'swingMeterDirection'], SwingMeterDirection.ascending)
+      .setIn(['round', 'swingPower'], MIN_POWER);
   },
 
   'continueSwing': (state: State, action) => {
@@ -162,39 +166,39 @@ export default createImmutableReducer<State>(new State(), {
 
     let step = dt * SWING_STEP;
 
-    if (state.swingMeterDirection === SwingMeterDirection.descending) {
+    if (state.round.swingMeterDirection === SwingMeterDirection.descending) {
       step = -step;
     }
 
-    const nextPower = state.swingPower + step;
+    const nextPower = state.round.swingPower + step;
 
     if (nextPower > MAX_POWER) {
       return state
-        .set('swingMeterDirection', SwingMeterDirection.descending)
-        .set('swingPower', MAX_POWER);
+        .setIn(['round', 'swingMeterDirection'], SwingMeterDirection.descending)
+        .setIn(['round', 'swingPower'], MAX_POWER);
     } else if (nextPower < MIN_POWER) {
       return state
-        .set('swingMeterDirection', SwingMeterDirection.ascending)
-        .set('swingPower', MIN_POWER);
+        .setIn(['round', 'swingMeterDirection'], SwingMeterDirection.ascending)
+        .setIn(['round', 'swingPower'], MIN_POWER);
     }
 
-    return state.set('swingPower', nextPower);
+    return state.setIn(['round', 'swingPower'], nextPower);
   },
 
   'endSwing': (state: State, action) => {
     const {vec}: {vec: {x: number, y: number}} = action;
 
-    state.ball.body.velocity[0] = vec.x;
-    state.ball.body.velocity[1] = vec.y;
+    state.round.ball.body.velocity[0] = vec.x;
+    state.round.ball.body.velocity[1] = vec.y;
 
     return state
-      .set('inSwing', false)
-      .update('strokes', (strokes) => strokes + 1);
+      .setIn(['round', 'inSwing'], false)
+      .updateIn(['round', 'strokes'], (strokes) => strokes + 1);
   },
 
   'updateAim': (state: State, action) => {
     const {direction, dt}: {direction: AimDirection, dt: number} = action;
-    const dir = state.get('aimDirection');
+    const dir = state.getIn(['round', 'aimDirection']);
 
     let step;
     if (direction === AimDirection.left) {
@@ -205,7 +209,7 @@ export default createImmutableReducer<State>(new State(), {
 
     const newDir = clamp(dir + step, -180, 0);
 
-    return state.set('aimDirection', newDir);
+    return state.setIn(['round', 'aimDirection'], newDir);
   },
 
   [`ws:${TYPE_LEVEL}`]: (state: State, action) => {
@@ -216,32 +220,37 @@ export default createImmutableReducer<State>(new State(), {
     const data = <MessageInitial>action.data;
 
     return state
-      .update((s) => newLevel(s, data))
-      .set('ghostBalls', data.players.reduce((balls, player) => {
-        return balls.set(player.id, new DumbBall({
-          color: player.color,
-          name: player.name,
-        }));
-      }, I.Map()))
+      .set('connectionState', ConnectionState.connected)
       .set('name', data.self.name)
       .set('id', data.self.id)
       .set('color', data.self.color)
-      .set('roundState', data.roundState);
+      .set('isObserver', data.self.isObserver)
+      .set('players', data.players.reduce((balls, player) => {
+        return balls.set(player.id, new Player({
+          color: player.color,
+          name: player.name,
+          isObserver: player.isObserver,
+          id: player.id,
+        }));
+      }, I.Map()))
+      .update((s) => newLevel(s, data))
+      .setIn(['round', 'roundState'], data.roundState);
   },
 
   [`ws:${TYPE_PLAYER_CONNECTED}`]: (state: State, action) => {
     const data = <MessagePlayerConnected>action.data;
 
     return state
-      .setIn(['ghostBalls', action.data.id], new DumbBall({
+      .setIn(['players', action.data.id], new Player({
         color: data.color,
         name: data.name,
         id: data.id,
+        isObserver: data.isObserver,
       }));
   },
 
   [`ws:${TYPE_PLAYER_DISCONNECTED}`]: (state: State, action) => {
-    return state.deleteIn(['ghostBalls', action.data.id]);
+    return state.deleteIn(['players', action.data.id]);
   },
 
   [`ws:${TYPE_POSITION}`]: (state: State, {data}) => {
@@ -250,7 +259,7 @@ export default createImmutableReducer<State>(new State(), {
 
     // manually specify <State> due to https://github.com/Microsoft/TypeScript/issues/7014
     return positions.reduce<State>((state: State, {x, y, id}) => {
-      return state.updateIn(['ghostBalls', id], (ball) => ball.merge({x, y}));
+      return state.updateIn(['players', id], (ball) => ball.merge({x, y}));
     }, state);
   },
 
@@ -267,8 +276,8 @@ export default createImmutableReducer<State>(new State(), {
     const data = <MessageLevelOver>action.data;
 
     return state
-      .set('roundState', RoundState.over)
-      .set('roundRankedPlayers', I.fromJS(data.roundRankedPlayers).map((player) => {
+      .setIn(['round', 'roundState'], RoundState.over)
+      .setIn(['round', 'roundRankedPlayers'], I.fromJS(data.roundRankedPlayers).map((player) => {
         return new LeaderboardPlayer(player);
       }));
   },
@@ -279,7 +288,7 @@ export default createImmutableReducer<State>(new State(), {
     const expTime = Date.now() + data.expiresIn;
 
     return state
-      .set('expTime', expTime)
+      .setIn(['round', 'expTime'], expTime)
       .set('displayMessage', 'Hurry up!')
       .set('displayMessageTimeout', Date.now() + 5 * 1000);
   },

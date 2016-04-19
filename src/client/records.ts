@@ -19,20 +19,22 @@ export class Ball extends BallRec {
   body: p2.Body;
 }
 
-const DumbBallRec = I.Record({
+const PlayerRec = I.Record({
   x: null,
   y: null,
   color: null,
   name: null,
   id: null,
+  isObserver: false,
 });
 
-export class DumbBall extends DumbBallRec {
+export class Player extends PlayerRec {
   x: number;
   y: number;
   color: string;
   name: string;
   id: number;
+  isObserver: boolean;
 }
 
 const LevelRec = I.Record({
@@ -65,19 +67,8 @@ export class LeaderboardPlayer extends LeaderboardPlayerRec {
   scoreTime: number;
 }
 
-const StateRec = I.Record({
-  connectionState: ConnectionState.connecting,
+const RoundRec = I.Record({
   roundState: null,
-
-  ghostBalls: I.Map(),
-
-  name: null,
-  id: null,
-  color: null,
-
-  displayMessage: null,
-  displayMessageTimeout: null,
-  displayMessageColor: null,
 
   level: null,
   world: null,
@@ -99,19 +90,8 @@ const StateRec = I.Record({
   roundRankedPlayers: null,
 });
 
-export class State extends StateRec {
-  connectionState: ConnectionState;
+export class Round extends RoundRec {
   roundState: RoundState;
-
-  ghostBalls: I.Map<number, DumbBall>;
-
-  name: string;
-  id: number;
-  color: string;
-
-  displayMessage: string;
-  displayMessageTimeout: number;
-  displayMessageColor: string;
 
   level: Level;
   world: p2.World;
@@ -131,4 +111,38 @@ export class State extends StateRec {
   goalText: string;
 
   roundRankedPlayers: I.List<LeaderboardPlayer>;
+}
+
+const StateRec = I.Record({
+  connectionState: ConnectionState.connecting,
+
+  players: I.Map(),
+
+  name: null,
+  id: null,
+  color: null,
+  isObserver: false,
+
+  displayMessage: null,
+  displayMessageTimeout: null,
+  displayMessageColor: null,
+
+  round: null,
+});
+
+export class State extends StateRec {
+  connectionState: ConnectionState;
+
+  players: I.Map<number, Player>;
+
+  name: string;
+  id: number;
+  color: string;
+  isObserver: boolean;
+
+  displayMessage: string;
+  displayMessageTimeout: number;
+  displayMessageColor: string;
+
+  round: Round;
 }

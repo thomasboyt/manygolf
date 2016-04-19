@@ -6,6 +6,7 @@ interface Player {
   id: number;
   color: string;
   name: string;
+  isObserver: boolean;
 }
 
 interface Level {
@@ -50,6 +51,7 @@ export interface MessagePlayerConnected {
   id: number;
   color: string;
   name: string;
+  isObserver: boolean;
 }
 
 export function messagePlayerConnected(params: MessagePlayerConnected) {

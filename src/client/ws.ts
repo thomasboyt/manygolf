@@ -7,7 +7,12 @@ class WSConnection {
   init(store: Store) {
     this._store = store;
 
-    this._ws = new WebSocket(`ws://${document.location.host}/server`);
+    let url = `ws://${document.location.host}/server`;
+    if (document.location.search.indexOf('observe') !== -1) {
+      url += '?observe';
+    }
+
+    this._ws = new WebSocket(url);
 
     this._ws.onmessage = this.handleMessage.bind(this);
 

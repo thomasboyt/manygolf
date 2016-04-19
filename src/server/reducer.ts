@@ -28,7 +28,14 @@ import {
 const fixedStep = 1 / 60;
 const maxSubSteps = 10;
 
-function addPlayer(state: State, {id, name, color}: {id: number, name: string, color: string}) {
+interface AddPlayerOpts {
+  id: number;
+  name: string;
+  color: string;
+  isObserver: boolean;
+}
+
+function addPlayer(state: State, {id, name, color, isObserver}: AddPlayerOpts) {
   const body = addBall(state);
 
   return state
@@ -37,6 +44,7 @@ function addPlayer(state: State, {id, name, color}: {id: number, name: string, c
       body,
       color,
       name,
+      isObserver,
     }));
 }
 

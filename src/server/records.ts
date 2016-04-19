@@ -20,6 +20,8 @@ const PlayerRec = I.Record({
   scored: false,
   strokes: 0,
   scoreTime: null,
+
+  isObserver: false,
 });
 
 export class Player extends PlayerRec {
@@ -30,6 +32,7 @@ export class Player extends PlayerRec {
   strokes: number;
   scored: boolean;
   scoreTime: number;
+  isObserver: boolean;
 }
 
 const LevelRec = I.Record({

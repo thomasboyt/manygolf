@@ -4,7 +4,7 @@ abstract class SocketManager {
   idCounter: number;
   _sockets: Map<number, WebSocket>;
 
-  abstract onConnect(id: number);
+  abstract onConnect(id: number, ws?: WebSocket);
   abstract onMessage(id: number, msg: Object);
   abstract onDisconnect(id: number);
 
@@ -25,7 +25,7 @@ abstract class SocketManager {
     ws.on('close', () => this.handleCloseSocket(id, false));
     ws.on('error', () => this.handleCloseSocket(id, true));
 
-    this.onConnect(id);
+    this.onConnect(id, ws);
   }
 
   handleMessage(id: number, strMsg: string) {

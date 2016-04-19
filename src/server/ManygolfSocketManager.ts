@@ -30,7 +30,15 @@ export default class ManygolfSocketManager extends SocketManager {
     this.store = store;
   }
 
-  onConnect(id: number) {
+  onConnect(id: number, ws: WebSocket) {
+    const url = ws.upgradeReq.url;
+
+    // XXX: lol
+    let isObserver = false;
+    if (url.indexOf('observe') !== -1) {
+      isObserver = true;
+    }
+
     const color = randomColor();
     const name = nameGen();
 
@@ -39,6 +47,7 @@ export default class ManygolfSocketManager extends SocketManager {
       id,
       color,
       name,
+      isObserver,
     });
 
     const state: State = this.store.getState();
@@ -50,6 +59,7 @@ export default class ManygolfSocketManager extends SocketManager {
         id,
         color,
         name,
+        isObserver,
       },
 
       players: state.players.map((player, id) => {
@@ -57,6 +67,7 @@ export default class ManygolfSocketManager extends SocketManager {
           id,
           color: player.color,
           name: player.name,
+          isObserver: player.isObserver,
         };
       }).toList().toJS(),
 
@@ -68,12 +79,15 @@ export default class ManygolfSocketManager extends SocketManager {
       id,
       color,
       name,
+      isObserver,
     }));
 
-    this.sendAll(messageDisplayMessage({
-      messageText: `{{${name}}} connected`,
-      color,
-    }));
+    if (!isObserver) {
+      this.sendAll(messageDisplayMessage({
+        messageText: `{{${name}}} connected`,
+        color,
+      }));
+    }
   }
 
   onDisconnect(id: number) {

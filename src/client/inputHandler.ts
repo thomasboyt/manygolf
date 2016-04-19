@@ -11,6 +11,7 @@ import {messageSwing} from '../universal/protocol';
 import {
   AimDirection,
   RoundState,
+  ConnectionState,
 } from '../universal/constants';
 
 import {
@@ -21,12 +22,17 @@ import {
 export default function inputHandler(dt: number, state: State, dispatch: Dispatch) {
   dt = dt / 1000;
 
-  if (!state.world || state.roundState === RoundState.over) {
+  if (!state.round || state.round.roundState === RoundState.over) {
     // ignore input
     return;
   }
 
-  if (state.allowHit && !state.scored) {
+  if (state.isObserver) {
+    // TODO: Rejoin game here by pressing any key
+    return;
+  }
+
+  if (state.round.allowHit && !state.round.scored) {
     if (keysDown.has(keyCodes.A) || keysDown.has(keyCodes.LEFT_ARROW) ||
         buttonsDown.has(ControlButton.LeftArrow)) {
       dispatch({
@@ -44,14 +50,14 @@ export default function inputHandler(dt: number, state: State, dispatch: Dispatc
       });
     }
 
-    if (state.inSwing) {
+    if (state.round.inSwing) {
       if (keysDown.has(keyCodes.SPACE) || buttonsDown.has(ControlButton.Shoot)) {
         dispatch({
           type: 'continueSwing',
           dt,
         });
       } else {
-        const vec = calcVectorDegrees(state.swingPower, state.aimDirection);
+        const vec = calcVectorDegrees(state.round.swingPower, state.round.aimDirection);
 
         dispatch({
           type: 'endSwing',

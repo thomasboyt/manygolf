@@ -58,6 +58,7 @@ function levelOver() {
         name: player.name,
         strokes: player.strokes,
         scoreTime: player.scoreTime,
+        isObserver: player.isObserver,
       };
     }),
   }));

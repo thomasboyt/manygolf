@@ -46,7 +46,7 @@ function renderDisconnected(ctx: CanvasRenderingContext2D, state: State) {
 }
 
 function renderGround(ctx: CanvasRenderingContext2D, state: State) {
-  const level = state.level;
+  const level = state.round.level;
 
   const points = level.points;
 
@@ -69,7 +69,7 @@ function renderGround(ctx: CanvasRenderingContext2D, state: State) {
   ctx.lineTo(-groundLineWidth, points.get(0).get(1));
 
   ctx.lineWidth = groundLineWidth;
-  ctx.strokeStyle = state.level.color;
+  ctx.strokeStyle = state.round.level.color;
   ctx.stroke();
   ctx.fill();
   ctx.closePath();
@@ -82,7 +82,7 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
   //
   // Draw ghost balls
   //
-  state.ghostBalls.forEach((ball) => {
+  state.players.filter((player) => !player.isObserver).forEach((ball) => {
     // Don't render ghost for the current player
     if (ball.id === state.id && !debugRender) {
       return ball;
@@ -97,10 +97,14 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
     ctx.closePath();
   });
 
+  if (state.isObserver) {
+    return;
+  }
+
   //
   // Draw player ball
   //
-  const ballPos = state.ball.body.interpolatedPosition;
+  const ballPos = state.round.ball.body.interpolatedPosition;
 
   ctx.beginPath();
   ctx.arc(ballPos[0], ballPos[1], 2.5, 0, 2 * Math.PI);
@@ -113,8 +117,8 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
   //
   // Draw aim arrow
   //
-  if (state.allowHit && !state.scored) {
-    const aimDirection = state.aimDirection;
+  if (state.round.allowHit && !state.round.scored) {
+    const aimDirection = state.round.aimDirection;
 
     const offset = 10;
     const lineLength = 20;
@@ -132,7 +136,7 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
   //
   // Draw swing meter
   //
-  if (state.inSwing) {
+  if (state.round.inSwing) {
     const meterWidth = 50;
     const meterHeight = 10;
     const meterX = ballPos[0] - meterWidth / 2;
@@ -143,7 +147,7 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
     ctx.strokeRect(meterX, meterY, meterWidth, meterHeight);
     ctx.fillRect(meterX, meterY, meterWidth, meterHeight);
 
-    const fillWidth = ((state.swingPower - MIN_POWER) / (MAX_POWER - MIN_POWER)) * meterWidth;
+    const fillWidth = ((state.round.swingPower - MIN_POWER) / (MAX_POWER - MIN_POWER)) * meterWidth;
 
     ctx.fillStyle = meterFillColor;
     ctx.fillRect(meterX, meterY, fillWidth, meterHeight);
@@ -164,28 +168,37 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
   ctx.font = 'normal 16px "Press Start 2P"';
 
   // Stroke count
-  ctx.textAlign = 'left';
-  ctx.fillText(`Strokes ${state.strokes}`, 10, 20);
+
+  if (!state.isObserver) {
+    ctx.textAlign = 'left';
+    ctx.fillText(`Strokes ${state.round.strokes}`, 10, 20);
+  }
 
   ctx.font = 'normal 8px "Press Start 2P"';
   ctx.textAlign = 'right';
 
-  ctx.fillText(`${state.ghostBalls.size} players connected`, WIDTH - 10, 11);
+  const playerCount = state.players.filter((player) => !player.isObserver).size;
+  ctx.fillText(`${playerCount} players connected`, WIDTH - 10, 11);
 
-  ctx.fillStyle = state.color;
+  if (!state.isObserver) {
+    ctx.fillStyle = state.color;
 
-  if (tinycolor(state.color).isDark()) {
-    ctx.strokeText(state.name, WIDTH - 10, 20);
+    if (tinycolor(state.color).isDark()) {
+      ctx.strokeText(state.name, WIDTH - 10, 20);
+    }
+
+    ctx.fillText(state.name, WIDTH - 10, 20);
+
+    ctx.fillStyle = textColor;
+    ctx.fillText('You are ', WIDTH - 10 - ctx.measureText(state.name).width, 20);
+
+  } else {
+    ctx.fillText('Spectator mode', WIDTH - 10, 20);
   }
-
-  ctx.fillText(state.name, WIDTH - 10, 20);
-
-  ctx.fillStyle = textColor;
-  ctx.fillText('You are ', WIDTH - 10 - ctx.measureText(state.name).width, 20);
 
   ctx.font = 'normal 16px "Press Start 2P"';
 
-  if (state.roundState === RoundState.over) {
+  if (state.round.roundState === RoundState.over) {
     const x = WIDTH / 2;
     const y = HEIGHT / 2;
 
@@ -193,16 +206,16 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
 
     // Show leaderboard
 
-    if (state.roundRankedPlayers === null) {
+    if (state.round.roundRankedPlayers === null) {
       // player connected late and missed the roundOver message, display placeholder
       ctx.fillText('Waiting for next round....', x, y);
 
-    } else if (state.roundRankedPlayers.size === 0 ) {
+    } else if (state.round.roundRankedPlayers.size === 0 ) {
       // no one finished
       ctx.fillText('No one wins!', x, y);
 
     } else {
-      const winner = state.roundRankedPlayers.get(0);
+      const winner = state.round.roundRankedPlayers.get(0);
 
       ctx.fillStyle = winner.color;
 
@@ -220,15 +233,15 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
       const strokeLabel = winner.strokes === 1 ? 'stroke' : 'strokes';
       ctx.fillText(`(${winner.strokes} ${strokeLabel} in ${elapsed}s)`, x, y + 22);
 
-      if (winner.id !== state.id && state.scored) {
-        const position = state.roundRankedPlayers.findIndex((player) => player.id === state.id) + 1;
+      if (winner.id !== state.id && state.round.scored) {
+        const position = state.round.roundRankedPlayers.findIndex((player) => player.id === state.id) + 1;
         ctx.fillText(`You placed ${toOrdinal(position)}`, x, y + 36);
       }
     }
 
   } else {
     // Timer
-    const expTime = state.expTime;
+    const expTime = state.round.expTime;
     const remainingMs = expTime - Date.now();
 
     if (remainingMs < HURRY_UP_MS) {
@@ -248,9 +261,9 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
     ctx.fillStyle = textColor;
 
     // Show goalText when you score
-    if (state.scored) {
+    if (state.round.scored) {
       ctx.textAlign = 'center';
-      ctx.fillText(`${state.goalText.toUpperCase()}!!`, WIDTH / 2, HEIGHT / 2);
+      ctx.fillText(`${state.round.goalText.toUpperCase()}!!`, WIDTH / 2, HEIGHT / 2);
     }
   }
 
