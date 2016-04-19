@@ -55,7 +55,7 @@ plan.remote((remote) => {
 
     remote.log('Restarting app...');
 
-    remote.exec('forever stop bin/server', {failsafe: true});
-    remote.exec('forever start bin/server');
+    remote.exec('forever stop scripts/server-prod', {failsafe: true});
+    remote.exec('forever start -c /bin/bash scripts/server-prod');
   });
 });

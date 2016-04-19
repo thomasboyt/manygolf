@@ -45,3 +45,7 @@ declare module "lodash.sample" {
 
   export = sample;
 }
+
+declare module "raven" {
+  function patchGlobal(client, cb): void;
+}

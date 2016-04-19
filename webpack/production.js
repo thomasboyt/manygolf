@@ -9,7 +9,7 @@ module.exports = webpackMerge(config, {
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: '"production"',
-        RAVEN_DSN: `"${secret.ravenDSN}"`
+        RAVEN_DSN: `"${secret.ravenDSNPublic}"`
       }
     }),
 

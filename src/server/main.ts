@@ -2,6 +2,7 @@ import http from 'http';
 import ws from 'ws';
 import express from 'express';
 import { createStore } from 'redux';
+import raven from 'raven';
 
 import RunLoop from '../universal/RunLoop';
 import ManygolfSocketManager from './ManygolfSocketManager';
@@ -127,7 +128,19 @@ runLoop.start();
 server.on('request', app);
 server.listen(port, () => { console.log('Listening on ' + server.address().port); });
 
-process.on('unhandledRejection', (err) => {
-  console.error(err.stack);
-  process.exit(1);
-});
+if (process.env.NODE_ENV === 'production') {
+  console.log('*** Installing Raven')
+
+  const dsn = require('../../secret.json').ravenDSNPrivate;
+
+  raven.patchGlobal(dsn, (sentryError, err) => {
+    console.error(err.stack);
+    process.exit(1);
+  })
+
+} else {
+  process.on('unhandledRejection', (err) => {
+    console.error(err.stack);
+    process.exit(1);
+  });
+}

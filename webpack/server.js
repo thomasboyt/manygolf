@@ -59,7 +59,12 @@ module.exports = {
         test: /\.js$/,
         exclude: /(node_modules\/)/,
         loader: 'babel-loader',
-      }
+      },
+      // needed for raven
+      {
+        test: /\.json$/,
+        loader: "json-loader"
+      },
     ]
   }
 };
