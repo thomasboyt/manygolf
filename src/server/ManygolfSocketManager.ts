@@ -104,10 +104,12 @@ export default class ManygolfSocketManager extends SocketManager {
       id,
     }));
 
-    this.sendAll(messageDisplayMessage({
-      messageText: `{{${player.name}}} left`,
-      color: player.color,
-    }));
+    if (!player.isObserver) {
+      this.sendAll(messageDisplayMessage({
+        messageText: `{{${player.name}}} left`,
+        color: player.color,
+      }));
+    }
   }
 
   onMessage(id: number, msg: any) {
