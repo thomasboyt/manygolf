@@ -2,6 +2,7 @@ import http from 'http';
 import ws from 'ws';
 import express from 'express';
 import { createStore } from 'redux';
+import I from 'immutable';
 
 import RunLoop from '../universal/RunLoop';
 import ManygolfSocketManager from './ManygolfSocketManager';
@@ -11,6 +12,7 @@ import levelGen from '../universal/levelGen';
 import {
   TIMER_MS,
   HURRY_UP_MS,
+  IDLE_KICK_MS,
   RoundState,
 } from '../universal/constants';
 
@@ -20,10 +22,13 @@ import {
   messageLevelOver,
   messagePositions,
   messageHurryUp,
+  messagePlayerDisconnected,
+  messageIdleKicked,
 } from '../universal/protocol';
 
 import {
   State,
+  Player,
 } from './records';
 
 /*
@@ -58,7 +63,6 @@ function levelOver() {
         name: player.name,
         strokes: player.strokes,
         scoreTime: player.scoreTime,
-        isObserver: player.isObserver,
       };
     }),
   }));
@@ -88,7 +92,44 @@ cycleLevel();
 
 const runLoop = new RunLoop(store);
 
+function sweepInactivePlayers(players: I.Map<number, Player>, dispatch) {
+  players.forEach((player, id) => {
+    if (Date.now() > player.lastSwingTime  + IDLE_KICK_MS) {
+      console.log(`Idle kicking ${player.name}`);
+
+      dispatch({
+        type: 'leaveGame',
+        id,
+      });
+
+      socks.sendAll(messagePlayerDisconnected({
+        id,
+      }));
+
+      socks.sendTo(id, messageIdleKicked());
+
+      const msg = `{{${player.name}}} is now spectating`;
+
+      socks.sendAll(messageDisplayMessage({
+        messageText: msg,
+        color: player.color,
+      }))
+    }
+  });
+}
+
 runLoop.afterTick((state: State, prevState: State, dispatch) => {
+
+  // VERY IMPORTANT TODO:
+  // Find a way to restructure this run loop to be more intuitive. Probably remove the
+  // beforeTick/afterTick and just have tick as another thing dispatched in this loop.
+  // Treat the run loop as an *action creator*, not a *reducer*.
+
+  sweepInactivePlayers(state.players, dispatch);
+
+  // UGH
+  state = <State>store.getState();
+
   if (state.roundState === RoundState.over) {
     if (state.expTime !== null && state.expTime < Date.now()) {
       cycleLevel();
@@ -96,12 +137,10 @@ runLoop.afterTick((state: State, prevState: State, dispatch) => {
     }
 
   } else {
-    const activePlayers = state.players.filter((player) => !player.isObserver);
-
     // Send scored messages if players scored
     let numScoredChanged = false;
 
-    activePlayers.forEach((player, id) => {
+    state.players.forEach((player, id) => {
       if (player.scored && !prevState.players.get(id).scored) {
         numScoredChanged = true;
 
@@ -118,8 +157,8 @@ runLoop.afterTick((state: State, prevState: State, dispatch) => {
     });
 
     // Move to 'levelOver' state when all players have finished the level, updating time
-    if (activePlayers.size > 0 &&
-        activePlayers.filter((player) => player.scored).size === activePlayers.size) {
+    if (state.players.size > 0 &&
+        state.players.filter((player) => player.scored).size === state.players.size) {
       console.log('All players have finished');
       levelOver();
       return;
@@ -134,9 +173,9 @@ runLoop.afterTick((state: State, prevState: State, dispatch) => {
     if (numScoredChanged && !state.didHurryUp) {
       // Go into hurry-up mode if the number of players who have yet to score is === 1 or less than
       // 25% of the remaining players and time is over hurry-up threshold
-      const numRemaining = activePlayers.filter((player) => !player.scored).size;
+      const numRemaining = state.players.filter((player) => !player.scored).size;
 
-      if (numRemaining === 1 || (numRemaining / activePlayers.size) < 0.25) {
+      if (numRemaining === 1 || (numRemaining / state.players.size) < 0.25) {
         const newTime = Date.now() + HURRY_UP_MS;
 
         if (state.expTime > newTime) {
@@ -154,7 +193,7 @@ runLoop.afterTick((state: State, prevState: State, dispatch) => {
       }
     }
 
-    const positions = activePlayers.map((player, id) => {
+    const positions = state.players.map((player, id) => {
       return {
         id,
         x: player.body.interpolatedPosition[0],

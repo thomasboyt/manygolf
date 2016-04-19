@@ -35,25 +35,22 @@ interface AddPlayerOpts {
   isObserver: boolean;
 }
 
-function addPlayer(state: State, {id, name, color, isObserver}: AddPlayerOpts) {
-  const body = addBall(state);
+function enterGame(player: Player, state: State) {
+  const ballBody = createBall(state.level.spawn);
 
-  return state
-    .setIn(['players', id], new Player({
-      id,
-      body,
-      color,
-      name,
-      isObserver,
-    }));
+  state.world.addBody(ballBody);
+
+  return player
+    .set('body', ballBody)
+    .set('strokes', 0)
+    .set('scored', false)
+    .set('scoreTime', null);
 }
 
-function addBall({level, world}: {level: Level, world: p2.World}) {
-  const ballBody = createBall(level.spawn);
-
-  world.addBody(ballBody);
-
-  return ballBody;
+function leaveGame(player: Player, state: State) {
+  const ball = player.body;
+  state.world.removeBody(ball);
+  return player.set('body', null);
 }
 
 export function rankPlayers(players: I.Map<number, Player>): I.List<Player> {
@@ -139,19 +136,41 @@ export default createImmutableReducer<State>(new State(), {
       .set('roundRankedPlayers', rankPlayers(state.players));
   },
 
-  'playerConnected': (state: State, action) => {
-    return addPlayer(state, action);
+  'playerConnected': (state: State, {id, name, color, isObserver}: AddPlayerOpts) => {
+    const player = new Player({
+      id,
+      color,
+      name,
+      lastSwingTime: Date.now(),
+    });
+
+    if (isObserver) {
+      return state.setIn(['observers', id], player);
+
+    } else {
+      return state.setIn(['players', id], enterGame(player, state));
+    };
   },
 
   'playerDisconnected': (state: State, {id}: {id: number}) => {
-    return state
-      .deleteIn(['players', id]);
+    const player = state.players.get(id);
+
+    if (player) {
+      return state
+        .setIn(['players', id], leaveGame(player, state))
+        .deleteIn(['players', id]);
+    }
+
+    const observer = state.observers.get(id);
+    return state.deleteIn(['observers', id]);
   },
 
   'swing': (state: State, {id, vec}: {id: number; vec: Coordinates}) => {
     const player = state.players.get(id);
 
-    if (player.isObserver) {
+    // Player could be an observer
+    // XXX: Handle this in SocketManager?
+    if (!player) {
       return state;
     }
 
@@ -165,7 +184,9 @@ export default createImmutableReducer<State>(new State(), {
       body.velocity[0] = vec.x;
       body.velocity[1] = vec.y;
 
-      return state.updateIn(['players', id, 'strokes'], (strokes) => strokes + 1);
+      return state
+        .updateIn(['players', id, 'strokes'], (strokes) => strokes + 1)
+        .setIn(['players', id, 'lastSwingTime'], Date.now());
     }
   },
 
@@ -183,31 +204,40 @@ export default createImmutableReducer<State>(new State(), {
     const holeSensor = createHoleSensor(level.hole);
     world.addBody(holeSensor);
 
-    return new State({
+    let nextState = new State({
       levelData,
       world,
       level,
       expTime,
       holeSensor,
-
-      players: state.players.map((player) => {
-        return player
-          .set('body', addBall({level, world}))
-          .set('strokes', 0)
-          .set('scored', false)
-          .set('scoreTime', null);
-      }),
+      observers: state.observers,
     });
+
+    // XXX: This is done separately because it depends on the updated `state`
+    nextState = nextState.set('players', state.players.map((player) => {
+      return enterGame(player, nextState);
+    }));
+
+    return nextState;
   },
 
-  enterGame: (state: State, {id}: {id: number}) => {
-    const player = state.players.get(id);
-
-    if (!player.isObserver) {
-      return state;
-    }
+  /*
+   * Observer leave/enter
+   */
+  'enterGame': (state: State, {id}: {id: number}) => {
+    const player = state.observers.get(id);
 
     return state
-      .setIn(['players', id, 'isObserver'], false);
+      .setIn(['players', id], enterGame(player, state))
+      .setIn(['players', id, 'lastSwingTime'], Date.now())
+      .deleteIn(['observers', id]);
+  },
+
+  'leaveGame': (state: State, {id}: {id: number}) => {
+    const player = state.players.get(id);
+
+    return state
+      .setIn(['observers', id], leaveGame(player, state))
+      .deleteIn(['players', id]);
   }
 });

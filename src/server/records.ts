@@ -21,7 +21,7 @@ const PlayerRec = I.Record({
   strokes: 0,
   scoreTime: null,
 
-  isObserver: false,
+  lastSwingTime: null,
 });
 
 export class Player extends PlayerRec {
@@ -32,7 +32,7 @@ export class Player extends PlayerRec {
   strokes: number;
   scored: boolean;
   scoreTime: number;
-  isObserver: boolean;
+  lastSwingTime: number;
 }
 
 const LevelRec = I.Record({
@@ -54,6 +54,7 @@ const StateRec = I.Record({
   world: null,
   level: null,
   players: I.Map(),
+  observers: I.Map(),
   expTime: null,
   holeSensor: null,
   roundState: RoundState.inProgress,
@@ -66,6 +67,7 @@ export class State extends StateRec {
   world: p2.World;
   level: Level;
   players: I.Map<number, Player>;
+  observers: I.Map<number, Player>;
   expTime: number;
   holeSensor: p2.Body;
   roundState: RoundState;

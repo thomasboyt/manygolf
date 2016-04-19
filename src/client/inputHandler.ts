@@ -34,6 +34,10 @@ export default function inputHandler(dt: number, state: State, dispatch: Dispatc
       });
 
       ws.send(messageEnterGame());
+
+      // HACK: To prevent shoot action from being taken next turn, we remove the key here
+      keysDown.delete(keyCodes.SPACE);
+      buttonsDown.delete(ControlButton.Shoot);
     }
   }
 

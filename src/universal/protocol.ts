@@ -6,7 +6,6 @@ interface Player {
   id: number;
   color: string;
   name: string;
-  isObserver: boolean;
 }
 
 interface Level {
@@ -35,6 +34,7 @@ export interface MessageInitial {
   level: Level;
   expiresIn: number;
   roundState: RoundState;
+  isObserver: boolean;
 }
 
 export function messageInitial(params: MessageInitial) {
@@ -169,5 +169,14 @@ export const TYPE_ENTER_GAME = 'enterGame';
 export function messageEnterGame() {
   return {
     type: TYPE_ENTER_GAME,
+  };
+}
+
+
+export const TYPE_IDLE_KICKED = 'idleKicked';
+
+export function messageIdleKicked() {
+  return {
+    type: TYPE_IDLE_KICKED,
   };
 }

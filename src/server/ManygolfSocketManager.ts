@@ -61,10 +61,11 @@ export default class ManygolfSocketManager extends SocketManager {
         id,
         color,
         name,
-        isObserver,
       },
 
-      players: state.players.filter((player) => !player.isObserver).map((player, id) => {
+      isObserver,
+
+      players: state.players.map((player, id) => {
         return {
           id,
           color: player.color,
@@ -76,9 +77,8 @@ export default class ManygolfSocketManager extends SocketManager {
       expiresIn: state.expTime - Date.now(),
     }));
 
-    const player = state.players.get(id);
-
     if (!isObserver) {
+      const player = state.players.get(id);
       this.playerJoined(player);
     }
   }
@@ -93,11 +93,11 @@ export default class ManygolfSocketManager extends SocketManager {
       id,
     });
 
-    this.sendAll(messagePlayerDisconnected({
-      id,
-    }));
+    if (player) {
+      this.sendAll(messagePlayerDisconnected({
+        id,
+      }));
 
-    if (!player.isObserver) {
       this.sendAll(messageDisplayMessage({
         messageText: `{{${player.name}}} left`,
         color: player.color,
@@ -115,7 +115,7 @@ export default class ManygolfSocketManager extends SocketManager {
       }, msg.data));
 
     } else if (msg.type === TYPE_ENTER_GAME) {
-      if (!prevState.players.get(id).isObserver) {
+      if (!prevState.observers.get(id)) {
         return;
       }
 

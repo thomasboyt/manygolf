@@ -17,6 +17,7 @@ import {
   MessageLevelOver,
   TYPE_HURRY_UP,
   MessageHurryUp,
+  TYPE_IDLE_KICKED,
 } from '../universal/protocol';
 
 import {
@@ -120,6 +121,12 @@ function enterGame(state) {
   return state
     .set('isObserver', false)
     .setIn(['round', 'ball'], ball);
+}
+
+function leaveGame(state) {
+  return state
+    .set('isObserver', true)
+    .setIn(['round', 'ball'], null);
 }
 
 export default createImmutableReducer<State>(new State(), {
@@ -236,7 +243,7 @@ export default createImmutableReducer<State>(new State(), {
       .set('name', data.self.name)
       .set('id', data.self.id)
       .set('color', data.self.color)
-      .set('isObserver', data.self.isObserver)
+      .set('isObserver', data.isObserver)
       .set('players', data.players.reduce((balls, player) => {
         return balls.set(player.id, new Player({
           color: player.color,
@@ -301,6 +308,10 @@ export default createImmutableReducer<State>(new State(), {
       .setIn(['round', 'expTime'], expTime)
       .set('displayMessage', 'Hurry up!')
       .set('displayMessageTimeout', Date.now() + 5 * 1000);
+  },
+
+  [`ws:${TYPE_IDLE_KICKED}`]: (state: State) => {
+    return leaveGame(state);
   },
 
   'disconnect': (state: State) => {
