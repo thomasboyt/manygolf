@@ -115,10 +115,6 @@ runLoop.onTick((dt: number) => {
         expTime: getState().expTime,
       });
     }
-
-    sendPositions(socks, {
-      players: getState().players,
-    });
   }
 
 });

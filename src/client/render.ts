@@ -80,18 +80,19 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
   ctx.lineWidth = 1;
 
   //
-  // Draw ghost balls
+  // Draw other players
   //
-  state.players.forEach((ball) => {
+  state.players.forEach((player) => {
     // Don't render ghost for the current player
-    if (ball.id === state.id && !debugRender) {
-      return ball;
+    if (player.id === state.id && !debugRender) {
+      return;
     }
 
+    const pos = player.body.interpolatedPosition;
     ctx.beginPath();
-    ctx.arc(ball.x, ball.y, 2.5, 0, 2 * Math.PI);
+    ctx.arc(pos[0], pos[1], 2.5, 0, 2 * Math.PI);
     ctx.strokeStyle = textColor;
-    ctx.fillStyle = ball.color;
+    ctx.fillStyle = player.color;
     ctx.fill();
     ctx.stroke();
     ctx.closePath();

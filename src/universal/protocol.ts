@@ -180,3 +180,18 @@ export function messageIdleKicked() {
     type: TYPE_IDLE_KICKED,
   };
 }
+
+
+export const TYPE_PLAYER_SWING = 'playerSwing';
+
+export interface MessagePlayerSwing {
+  id: number;
+  velocity: number[];
+}
+
+export function messagePlayerSwing(params: MessagePlayerSwing) {
+  return {
+    type: TYPE_PLAYER_SWING,
+    data: params,
+  }
+}
