@@ -19,6 +19,8 @@ import {
   TYPE_IDLE_KICKED,
   MessagePlayerSwing,
   TYPE_PLAYER_SWING,
+  TYPE_SYNC,
+  MessageSync,
 } from '../universal/protocol';
 
 import {
@@ -341,6 +343,18 @@ export default createImmutableReducer<State>(new State(), {
 
   [`ws:${TYPE_IDLE_KICKED}`]: (state: State) => {
     return leaveGame(state);
+  },
+
+  [`ws:${TYPE_SYNC}`]: (state: State, {data}: {data: MessageSync}) => {
+    data.players.forEach((player) => {
+      const body = state.players.get(player.id).body;
+      body.position[0] = player.position[0];
+      body.position[1] = player.position[1];
+      body.velocity[0] = player.velocity[0];
+      body.velocity[1] = player.velocity[1];
+    });
+
+    return state;
   },
 
   'disconnect': (state: State) => {
