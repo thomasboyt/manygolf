@@ -57,6 +57,8 @@ import {
   Round,
 } from './records';
 
+const SYNC_THRESHOLD = 0;
+
 const fixedStep = 1 / 60;
 
 // this is set to be super high so that the physics engine can instantly catch up if you tab out
@@ -68,6 +70,28 @@ const fixedStep = 1 / 60;
 const maxSubSteps = (TIMER_MS / 1000) * (1 / fixedStep);
 
 const moveSpeed = 50;  // degrees per second
+
+function resyncWorld(state: State, data: MessageSync): State {
+  console.log('syncing');
+
+  data.players.forEach((playerPosition) => {
+    const body = state.players.get(playerPosition.id).body;
+    body.position[0] = playerPosition.position[0];
+    body.position[1] = playerPosition.position[1];
+    body.velocity[0] = playerPosition.velocity[0];
+    body.velocity[1] = playerPosition.velocity[1];
+  });
+
+  // Step to catch up!
+  // TODO: make sure this is in seconds, not ms!
+  const deltaClock = state.clock - data.clock;
+
+  const step = deltaClock * fixedStep;
+
+  state.round.world.step(step);
+
+  return state;
+}
 
 function enterScored(state: State) {
   const goalText = sample(goalWords);
@@ -191,6 +215,17 @@ export default createImmutableReducer<State>(new State(), {
       }
     }
 
+    // update stored clock
+    state = state.update('clock', (clock) => clock + 1);
+
+    // update saved positions
+    state = state.set('players', state.players.map((player) => {
+      return player.setIn(['pastPositions', state.clock], [
+        player.body.position[0],
+        player.body.position[1],
+      ]);
+    }));
+
     if (state.displayMessageTimeout && Date.now() > state.displayMessageTimeout) {
       state = state
         .set('displayMessage', null)
@@ -279,7 +314,8 @@ export default createImmutableReducer<State>(new State(), {
         }));
       }, I.Map()))
       .update((s) => newLevel(s, data))
-      .setIn(['round', 'roundState'], data.roundState);
+      .setIn(['round', 'roundState'], data.roundState)
+      .set('clock', data.clock);
   },
 
   [`ws:${TYPE_PLAYER_CONNECTED}`]: (state: State, action) => {
@@ -346,15 +382,22 @@ export default createImmutableReducer<State>(new State(), {
   },
 
   [`ws:${TYPE_SYNC}`]: (state: State, {data}: {data: MessageSync}) => {
-    data.players.forEach((player) => {
-      const body = state.players.get(player.id).body;
-      body.position[0] = player.position[0];
-      body.position[1] = player.position[1];
-      body.velocity[0] = player.velocity[0];
-      body.velocity[1] = player.velocity[1];
+    const clock = data.clock;
+
+    // Update player states if they are over some threshold at time
+    let shouldReset = false;
+    data.players.forEach((playerPosition) => {
+      const player = state.players.get(playerPosition.id)
+      // console.log(clock, player.pastPositions.reduce((maxKey, pos, key) => key > maxKey ? key : maxKey, 0))
+      const posAtClock = player.pastPositions.get(clock);
+
+      if (Math.abs(posAtClock[0] - playerPosition[0]) > SYNC_THRESHOLD ||
+          Math.abs(posAtClock[1] - playerPosition[1]) > SYNC_THRESHOLD) {
+        shouldReset = true;
+      }
     });
 
-    return state;
+    return resyncWorld(state, data);
   },
 
   'disconnect': (state: State) => {

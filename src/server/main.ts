@@ -73,6 +73,10 @@ runLoop.onTick((dt: number) => {
   // dt is set to dt * 3 because that's the speed I actually want
   getState().world.step(fixedStep, dt * 3, maxSubSteps);
 
+  dispatch({
+    type: 'tick',
+  });
+
   if (getState().roundState === RoundState.over) {
     if (getState().expTime !== null && getState().expTime < Date.now()) {
       cycleLevel(dispatch, socks);
@@ -124,6 +128,7 @@ runLoop.onTick((dt: number) => {
 
       sendSyncMessage(socks, {
         players,
+        clock: getState().clock,
       });
     }
   }

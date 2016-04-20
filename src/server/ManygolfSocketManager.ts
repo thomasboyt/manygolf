@@ -85,6 +85,8 @@ export default class ManygolfSocketManager extends SocketManager {
 
       level: state.levelData,
       expiresIn: state.expTime - Date.now(),
+
+      clock: state.clock,
     }));
 
     if (!isObserver) {

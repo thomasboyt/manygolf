@@ -128,7 +128,7 @@ export function cycleLevel(dispatch: Dispatch, socks: ManygolfSocketManager) {
 
 export function sendSyncMessage(
   socks: ManygolfSocketManager,
-  {players}: {players: PlayersMap}
+  {players, clock}: {players: PlayersMap, clock: number}
 ) {
   const syncPlayers = players.map((player, id) => {
     return {
@@ -146,6 +146,7 @@ export function sendSyncMessage(
 
   socks.sendAll(messageSync({
     players: syncPlayers,
+    clock,
   }));
 }
 

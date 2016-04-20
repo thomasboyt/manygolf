@@ -49,6 +49,10 @@ function leaveGame(player: Player, state: State) {
 }
 
 export default createImmutableReducer<State>(new State(), {
+  'tick': (state: State, action) => {
+    return state.update('clock', (clock) => clock + 1);
+  },
+
   'scored': (state: State, action) => {
     const id = action.id;
     const elapsed = action.elapsed;

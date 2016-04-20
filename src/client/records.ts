@@ -24,6 +24,7 @@ const PlayerRec = I.Record({
   color: null,
   name: null,
   id: null,
+  pastPositions: I.Map(),
 });
 
 export class Player extends PlayerRec {
@@ -31,6 +32,7 @@ export class Player extends PlayerRec {
   color: string;
   name: string;
   id: number;
+  pastPositions: I.Map<number, number[]>;
 }
 
 const LevelRec = I.Record({
@@ -124,6 +126,8 @@ const StateRec = I.Record({
   displayMessageColor: null,
 
   round: null,
+
+  clock: null,
 });
 
 export class State extends StateRec {
@@ -141,4 +145,6 @@ export class State extends StateRec {
   displayMessageColor: string;
 
   round: Round;
+
+  clock: number;
 }
