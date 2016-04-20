@@ -8,7 +8,6 @@ import {
   TYPE_PLAYER_CONNECTED,
   TYPE_PLAYER_DISCONNECTED,
   TYPE_LEVEL,
-  TYPE_POSITION,
   TYPE_DISPLAY_MESSAGE,
   TYPE_LEVEL_OVER,
   MessageInitial,
@@ -18,6 +17,10 @@ import {
   TYPE_HURRY_UP,
   MessageHurryUp,
   TYPE_IDLE_KICKED,
+  MessagePlayerSwing,
+  TYPE_PLAYER_SWING,
+  TYPE_SYNC,
+  MessageSync,
 } from '../universal/protocol';
 
 import {
@@ -34,6 +37,7 @@ import {
 import {
   createWorld,
   createBall,
+  createBallFromInitial,
   createGround,
   createHoleSensor,
   addHolePoints,
@@ -87,6 +91,7 @@ function newLevel(state: State, data: MessageInitial) {
     world.addBody(body);
   }
 
+  // Create player ball
   let ball = null;
   if (!state.isObserver) {
     const ballBody = createBall(level.spawn);
@@ -94,6 +99,30 @@ function newLevel(state: State, data: MessageInitial) {
     ball = new Ball({
       body: ballBody,
     });
+  }
+
+  // Create other balls
+  if (data.players) {
+    // TODO: use typeof data == MessageInitial instead or something here
+    state = <State>data.players.reduce((state: State, player) => {
+      const ballBody = createBallFromInitial(player.position, player.velocity);
+
+      world.addBody(ballBody);
+
+      return state
+        .setIn(['players', player.id, 'body'], ballBody);
+    }, state);
+
+  } else {
+    const players = state.players.map((player) => {
+      const ballBody = createBall(level.spawn);
+
+      world.addBody(ballBody);
+
+      return player.set('body', ballBody);
+    });
+
+    state = state.set('players', players);
   }
 
   const holeSensor = createHoleSensor(level.hole);
@@ -256,11 +285,15 @@ export default createImmutableReducer<State>(new State(), {
   [`ws:${TYPE_PLAYER_CONNECTED}`]: (state: State, action) => {
     const data = <MessagePlayerConnected>action.data;
 
+    const ball = createBall(state.round.level.spawn);
+    state.round.world.addBody(ball);
+
     return state
       .setIn(['players', action.data.id], new Player({
         color: data.color,
         name: data.name,
         id: data.id,
+        body: ball,
       }));
   },
 
@@ -268,14 +301,14 @@ export default createImmutableReducer<State>(new State(), {
     return state.deleteIn(['players', action.data.id]);
   },
 
-  [`ws:${TYPE_POSITION}`]: (state: State, {data}) => {
-    // this is defined so we're able to define positions.reduce below
-    const positions: Array<any> = data.positions;
+  [`ws:${TYPE_PLAYER_SWING}`]: (state: State, {data}: {data: MessagePlayerSwing}) => {
+    const id = data.id;
 
-    // manually specify <State> due to https://github.com/Microsoft/TypeScript/issues/7014
-    return positions.reduce<State>((state: State, {x, y, id}) => {
-      return state.updateIn(['players', id], (ball) => ball.merge({x, y}));
-    }, state);
+    const body = state.players.get(id).body;
+    body.velocity[0] = data.velocity[0];
+    body.velocity[1] = data.velocity[1];
+
+    return state;
   },
 
   [`ws:${TYPE_DISPLAY_MESSAGE}`]: (state: State, action) => {
@@ -310,6 +343,18 @@ export default createImmutableReducer<State>(new State(), {
 
   [`ws:${TYPE_IDLE_KICKED}`]: (state: State) => {
     return leaveGame(state);
+  },
+
+  [`ws:${TYPE_SYNC}`]: (state: State, {data}: {data: MessageSync}) => {
+    data.players.forEach((player) => {
+      const body = state.players.get(player.id).body;
+      body.position[0] = player.position[0];
+      body.position[1] = player.position[1];
+      body.velocity[0] = player.velocity[0];
+      body.velocity[1] = player.velocity[1];
+    });
+
+    return state;
   },
 
   'disconnect': (state: State) => {

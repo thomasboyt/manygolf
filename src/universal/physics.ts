@@ -43,7 +43,7 @@ export function ensureBallInBounds(body: p2.Body, level: any) {
   }
 }
 
-export function createBall(spawn: I.List<number>) {
+function newBall(position: number[]) {
   const ballShape = new p2.Circle({
     radius: BALL_RADIUS,
     collisionGroup: BALL_GROUP,
@@ -53,10 +53,7 @@ export function createBall(spawn: I.List<number>) {
 
   const ballBody = new p2.Body({
     mass: 1,
-    position: [
-      spawn.get(0),
-      spawn.get(1) - BALL_RADIUS,
-    ],
+    position,
   });
   ballBody.addShape(ballShape);
 
@@ -65,6 +62,19 @@ export function createBall(spawn: I.List<number>) {
   ballBody.sleepSpeedLimit = 2;
 
   return ballBody;
+}
+
+export function createBall(spawn: I.List<number>) {
+  return newBall([
+    spawn.get(0),
+    spawn.get(1) - BALL_RADIUS,
+  ]);
+}
+
+export function createBallFromInitial(position: number[], velocity: number[]) {
+  const ball = newBall(position);
+  ball.velocity = velocity.slice(); // clone
+  return ball;
 }
 
 export function addHolePoints(level: any) {

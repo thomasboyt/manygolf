@@ -119,15 +119,21 @@ export function messageLevel(params: MessageLevel) {
 }
 
 
-export const TYPE_POSITION = 'position';
-
-export interface MessagePositions {
-  positions: Array<Position>;
+interface SyncPlayer {
+  id: number;
+  position: number[];
+  velocity: number[];
 }
 
-export function messagePositions(params: MessagePositions) {
+export const TYPE_SYNC = 'sync';
+
+export interface MessageSync {
+  players: Array<SyncPlayer>;
+}
+
+export function messageSync(params: MessageSync) {
   return {
-    type: TYPE_POSITION,
+    type: TYPE_SYNC,
     data: params,
   };
 }
@@ -179,4 +185,19 @@ export function messageIdleKicked() {
   return {
     type: TYPE_IDLE_KICKED,
   };
+}
+
+
+export const TYPE_PLAYER_SWING = 'playerSwing';
+
+export interface MessagePlayerSwing {
+  id: number;
+  velocity: number[];
+}
+
+export function messagePlayerSwing(params: MessagePlayerSwing) {
+  return {
+    type: TYPE_PLAYER_SWING,
+    data: params,
+  }
 }

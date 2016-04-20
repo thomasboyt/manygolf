@@ -10,7 +10,7 @@ import {
   messagePlayerDisconnected,
   messageIdleKicked,
   messageLevel,
-  messagePositions,
+  messageSync,
   messageLevelOver,
   messageHurryUp,
 } from '../universal/protocol';
@@ -126,20 +126,26 @@ export function cycleLevel(dispatch: Dispatch, socks: ManygolfSocketManager) {
   }));
 }
 
-export function sendPositions(
+export function sendSyncMessage(
   socks: ManygolfSocketManager,
   {players}: {players: PlayersMap}
 ) {
-  const positions = players.map((player, id) => {
+  const syncPlayers = players.map((player, id) => {
     return {
       id,
-      x: player.body.interpolatedPosition[0],
-      y: player.body.interpolatedPosition[1],
+      position: [
+        player.body.position[0],
+        player.body.position[1],
+      ],
+      velocity: [
+        player.body.velocity[0],
+        player.body.velocity[1],
+      ],
     };
-  }).toList().toJS();
+  }).toArray();
 
-  socks.sendAll(messagePositions({
-    positions,
+  socks.sendAll(messageSync({
+    players: syncPlayers,
   }));
 }
 

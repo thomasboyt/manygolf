@@ -20,16 +20,14 @@ export class Ball extends BallRec {
 }
 
 const PlayerRec = I.Record({
-  x: null,
-  y: null,
+  body: null,
   color: null,
   name: null,
   id: null,
 });
 
 export class Player extends PlayerRec {
-  x: number;
-  y: number;
+  body: p2.Body;
   color: string;
   name: string;
   id: number;

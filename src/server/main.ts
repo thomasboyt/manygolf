@@ -13,7 +13,7 @@ import {
   ensurePlayersInBounds,
   checkScored,
   cycleLevel,
-  sendPositions,
+  sendSyncMessage,
   levelOver,
   checkHurryUp,
 } from './actions';
@@ -54,6 +54,8 @@ function getState(): State {
 
 const fixedStep = 1 / 60;
 const maxSubSteps = 10;
+
+let lastSyncSent = 0;
 
 runLoop.onTick((dt: number) => {
   dt = dt / 1000;  // ms -> s
@@ -116,9 +118,14 @@ runLoop.onTick((dt: number) => {
       });
     }
 
-    sendPositions(socks, {
-      players: getState().players,
-    });
+    // send sync message once per second
+    if (Date.now() - lastSyncSent > 1000) {
+      lastSyncSent = Date.now();
+
+      sendSyncMessage(socks, {
+        players,
+      });
+    }
   }
 
 });

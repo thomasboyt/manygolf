@@ -11,6 +11,8 @@ import {
   messagePlayerConnected,
   messagePlayerDisconnected,
   messageDisplayMessage,
+  MessageSwing,
+  messagePlayerSwing,
   TYPE_SWING,
   TYPE_ENTER_GAME,
 } from '../universal/protocol';
@@ -70,8 +72,16 @@ export default class ManygolfSocketManager extends SocketManager {
           id,
           color: player.color,
           name: player.name,
+          position: [
+            player.body.position[0],
+            player.body.position[1],
+          ],
+          velocity: [
+            player.body.velocity[0],
+            player.body.velocity[1],
+          ],
         };
-      }).toList().toJS(),
+      }).toArray(),
 
       level: state.levelData,
       expiresIn: state.expTime - Date.now(),
@@ -109,10 +119,17 @@ export default class ManygolfSocketManager extends SocketManager {
     const prevState = <State>this.store.getState();
 
     if (msg.type === TYPE_SWING) {
+      const data = <MessageSwing>msg.data;
+
       this.store.dispatch(Object.assign({
         type: 'swing',
         id,
-      }, msg.data));
+      }, data));
+
+      this.sendAll(messagePlayerSwing({
+        id,
+        velocity: [data.vec.x, data.vec.y],
+      }));
 
     } else if (msg.type === TYPE_ENTER_GAME) {
       if (!prevState.observers.get(id)) {
