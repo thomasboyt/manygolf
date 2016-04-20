@@ -129,14 +129,14 @@ server.on('request', app);
 server.listen(port, () => { console.log('Listening on ' + server.address().port); });
 
 if (process.env.NODE_ENV === 'production') {
-  console.log('*** Installing Raven')
+  console.log('*** Installing Raven');
 
   const dsn = require('../../secret.json').ravenDSNPrivate;
 
   raven.patchGlobal(dsn, (sentryError, err) => {
     console.error(err.stack);
     process.exit(1);
-  })
+  });
 
 } else {
   process.on('unhandledRejection', (err) => {
