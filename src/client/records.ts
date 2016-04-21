@@ -133,6 +133,7 @@ const StateRec = I.Record({
 
   time: null,
 
+  didSwing: false,
   syncQueue: I.List(),
 });
 
@@ -154,5 +155,6 @@ export class State extends StateRec {
 
   time: number;
 
+  didSwing: boolean;
   syncQueue: I.List<MessageSync>;
 }

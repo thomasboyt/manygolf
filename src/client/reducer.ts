@@ -76,7 +76,6 @@ function syncWorld(state: State, data: MessageSync): State {
   let shouldReset = false;
   data.players.forEach((playerPosition) => {
     const player = state.players.get(playerPosition.id)
-    console.log(data.time, player.pastPositions.reduce((maxKey, pos, key) => key > maxKey ? key : maxKey, 0))
     const posAtClock = player.pastPositions.find((pos, posTime) => posTime > data.time);
 
     if (Math.abs(posAtClock[0] - playerPosition.position[0]) >= SYNC_THRESHOLD ||
@@ -89,9 +88,25 @@ function syncWorld(state: State, data: MessageSync): State {
     return state;
   }
 
-  console.log('syncing');
+  console.log('Running sync');
 
   data.players.forEach((playerPosition) => {
+    // Update player ball
+    if (playerPosition.id === state.id) {
+      // If the player has swung between the last sync and this sync, ignore the sync message
+      // This prevents the player ball from being synced back to pre-input state
+      if (state.didSwing) {
+        state = state.set('didSwing', false);
+
+      } else {
+        const body = state.round.ball.body;
+        body.position[0] = playerPosition.position[0];
+        body.position[1] = playerPosition.position[1];
+        body.velocity[0] = playerPosition.velocity[0];
+        body.velocity[1] = playerPosition.velocity[1];
+      }
+    }
+
     const body = state.players.get(playerPosition.id).body;
     body.position[0] = playerPosition.position[0];
     body.position[1] = playerPosition.position[1];
@@ -99,9 +114,8 @@ function syncWorld(state: State, data: MessageSync): State {
     body.velocity[1] = playerPosition.velocity[1];
   });
 
-  // Step to catch up!
-  // TODO: make sure this is in seconds, not ms!
-  const dt = state.time - data.time;
+  // Step to catch up from snapshot time to the current render time
+  const dt = (state.time - data.time) / 1000;
 
   state.round.world.step(fixedStep, dt * 3, maxSubSteps);
 
@@ -199,16 +213,12 @@ function leaveGame(state: State) {
 
 export default createImmutableReducer<State>(new State(), {
   'tick': (state: State, {dt}: {dt: number}) => {
+    // update stored clock
+    state = state.update('time', (time) => time + dt * 1000);
+
     if (!state.round || state.round.roundState === RoundState.over) {
       return state;
     }
-
-    // run sync
-    const syncMsg = state.syncQueue.filter((msg) => msg.time < state.time).maxBy((msg) => msg.time);
-    if (syncMsg) {
-      state = syncWorld(state, syncMsg);
-    }
-    state = state.set('syncQueue', state.syncQueue.filterNot((msg) => msg.time < state.time));
 
     let overlapping;
     if (state.round.ball) {
@@ -222,9 +232,6 @@ export default createImmutableReducer<State>(new State(), {
     // dt is set to dt * 3 because that's the speed I actually want
     state.round.world.step(fixedStep, dt * 3, maxSubSteps);
 
-    // update stored clock
-    state = state.update('time', (time) => time + dt * 1000);
-
     // update saved positions
     state = state.set('players', state.players.map((player) => {
       return player.setIn(['pastPositions', state.time], [
@@ -232,6 +239,13 @@ export default createImmutableReducer<State>(new State(), {
         player.body.position[1],
       ]);
     }));
+
+    // run sync
+    const syncMsg = state.syncQueue.filter((msg) => msg.time < state.time).maxBy((msg) => msg.time);
+    if (syncMsg) {
+      state = syncWorld(state, syncMsg);
+    }
+    state = state.set('syncQueue', state.syncQueue.filterNot((msg) => msg.time < state.time));
 
     if (state.round.ball) {
       if (!state.round.scored) {
@@ -296,7 +310,8 @@ export default createImmutableReducer<State>(new State(), {
 
     return state
       .setIn(['round', 'inSwing'], false)
-      .updateIn(['round', 'strokes'], (strokes) => strokes + 1);
+      .updateIn(['round', 'strokes'], (strokes) => strokes + 1)
+      .set('didSwing', true);
   },
 
   'updateAim': (state: State, action) => {
