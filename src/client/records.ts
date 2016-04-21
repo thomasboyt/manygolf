@@ -7,7 +7,8 @@ import {
 } from '../universal/constants';
 
 import {
-  MessageSync
+  MessageSync,
+  MessagePlayerSwing,
 } from '../universal/protocol';
 
 export enum SwingMeterDirection {
@@ -135,6 +136,7 @@ const StateRec = I.Record({
 
   didSwing: false,
   syncQueue: I.List(),
+  swingQueue: I.List(),
 });
 
 export class State extends StateRec {
@@ -157,4 +159,5 @@ export class State extends StateRec {
 
   didSwing: boolean;
   syncQueue: I.List<MessageSync>;
+  swingQueue: I.List<MessagePlayerSwing>;
 }

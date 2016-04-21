@@ -57,7 +57,7 @@ import {
   Round,
 } from './records';
 
-const SYNC_THRESHOLD = 0;
+const SYNC_THRESHOLD = 10;
 
 const fixedStep = 1 / 60;
 
@@ -193,6 +193,16 @@ function newLevel(state: State, data: MessageInitial) {
   }));
 }
 
+function applySwing(state: State, data: MessagePlayerSwing) {
+  const id = data.id;
+
+  const body = state.players.get(id).body;
+  body.velocity[0] = data.velocity[0];
+  body.velocity[1] = data.velocity[1];
+
+  return state;
+}
+
 function enterGame(state: State) {
   const ballBody = createBall(state.round.level.spawn);
   state.round.world.addBody(ballBody);
@@ -246,6 +256,12 @@ export default createImmutableReducer<State>(new State(), {
       state = syncWorld(state, syncMsg);
     }
     state = state.set('syncQueue', state.syncQueue.filterNot((msg) => msg.time < state.time));
+
+    const swingMsgs = state.swingQueue.filter((msg) => msg.time < state.time);
+    swingMsgs.forEach((swing) => {
+      state = applySwing(state, swing);
+    });
+    state = state.set('swingQueue', state.swingQueue.filterNot((msg) => msg.time < state.time));
 
     if (state.round.ball) {
       if (!state.round.scored) {
@@ -377,11 +393,11 @@ export default createImmutableReducer<State>(new State(), {
   [`ws:${TYPE_PLAYER_SWING}`]: (state: State, {data}: {data: MessagePlayerSwing}) => {
     const id = data.id;
 
-    const body = state.players.get(id).body;
-    body.velocity[0] = data.velocity[0];
-    body.velocity[1] = data.velocity[1];
-
-    return state;
+    if (data.time < state.time) {
+      return applySwing(state, data);
+    } else {
+      return state.update('swingQueue', (swingQueue) => swingQueue.push(data));
+    }
   },
 
   [`ws:${TYPE_DISPLAY_MESSAGE}`]: (state: State, action) => {

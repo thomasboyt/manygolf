@@ -131,6 +131,7 @@ export default class ManygolfSocketManager extends SocketManager {
       this.sendAll(messagePlayerSwing({
         id,
         velocity: [data.vec.x, data.vec.y],
+        time: Date.now(),
       }));
 
     } else if (msg.type === TYPE_ENTER_GAME) {
