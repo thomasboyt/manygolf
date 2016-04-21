@@ -62,7 +62,7 @@ const StateRec = I.Record({
   roundState: RoundState.inProgress,
   roundRankedPlayers: null,
   didHurryUp: false,
-  clock: 0,
+  time: 0,
 });
 
 export class State extends StateRec {
@@ -76,5 +76,5 @@ export class State extends StateRec {
   roundState: RoundState;
   roundRankedPlayers: I.List<Player>;
   didHurryUp: boolean;
-  clock: number;
+  time: number;
 }

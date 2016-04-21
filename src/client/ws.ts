@@ -1,5 +1,17 @@
 import {Store} from 'redux';
 
+const simulateLag = document.location.search.indexOf('simlag') !== -1;
+const simLagMsMin = 25;
+const simLagMsMax = 200;
+
+if (simulateLag) {
+  console.log(`*** WARNING: Simulating lag (${simLagMsMin}-${simLagMsMax}ms)`);
+}
+
+function randomLag(): number {
+  return Math.floor(Math.random() * (simLagMsMax - simLagMsMin + 1)) + simLagMsMin;
+}
+
 class WSConnection {
   private _ws: WebSocket;
   private _store: Store;
@@ -22,10 +34,20 @@ class WSConnection {
   handleMessage(evt: MessageEvent) {
     const msg = JSON.parse(evt.data);
 
-    this._store.dispatch({
-      type: `ws:${msg.type}`,
-      data: msg.data,
-    });
+    if (simulateLag) {
+      setTimeout(() => {
+        this._store.dispatch({
+          type: `ws:${msg.type}`,
+          data: msg.data,
+        });
+      }, randomLag());
+
+    } else {
+      this._store.dispatch({
+        type: `ws:${msg.type}`,
+        data: msg.data,
+      });
+    }
   }
 
   handleClose() {
@@ -43,7 +65,14 @@ class WSConnection {
 
     const strMsg = JSON.stringify(msg);
 
-    this._ws.send(strMsg);
+    if (simulateLag) {
+      setTimeout(() => {
+        this._ws.send(strMsg);
+      }, randomLag());
+
+    } else {
+      this._ws.send(strMsg);
+    }
   }
 }
 

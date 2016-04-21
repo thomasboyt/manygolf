@@ -35,7 +35,7 @@ export interface MessageInitial {
   expiresIn: number;
   roundState: RoundState;
   isObserver: boolean;
-  clock: number;
+  time: number;
 }
 
 export function messageInitial(params: MessageInitial) {
@@ -130,7 +130,7 @@ export const TYPE_SYNC = 'sync';
 
 export interface MessageSync {
   players: Array<SyncPlayer>;
-  clock: number;
+  time: number;
 }
 
 export function messageSync(params: MessageSync) {

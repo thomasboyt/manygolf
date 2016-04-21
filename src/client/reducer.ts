@@ -71,7 +71,24 @@ const maxSubSteps = (TIMER_MS / 1000) * (1 / fixedStep);
 
 const moveSpeed = 50;  // degrees per second
 
-function resyncWorld(state: State, data: MessageSync): State {
+function syncWorld(state: State, data: MessageSync): State {
+  // Update player states if they are over some threshold at time
+  let shouldReset = false;
+  data.players.forEach((playerPosition) => {
+    const player = state.players.get(playerPosition.id)
+    console.log(data.time, player.pastPositions.reduce((maxKey, pos, key) => key > maxKey ? key : maxKey, 0))
+    const posAtClock = player.pastPositions.find((pos, posTime) => posTime > data.time);
+
+    if (Math.abs(posAtClock[0] - playerPosition.position[0]) >= SYNC_THRESHOLD ||
+        Math.abs(posAtClock[1] - playerPosition.position[1]) >= SYNC_THRESHOLD) {
+      shouldReset = true;
+    }
+  });
+
+  if (!shouldReset) {
+    return state;
+  }
+
   console.log('syncing');
 
   data.players.forEach((playerPosition) => {
@@ -84,11 +101,9 @@ function resyncWorld(state: State, data: MessageSync): State {
 
   // Step to catch up!
   // TODO: make sure this is in seconds, not ms!
-  const deltaClock = state.clock - data.clock;
+  const dt = state.time - data.time;
 
-  const step = deltaClock * fixedStep;
-
-  state.round.world.step(step);
+  state.round.world.step(fixedStep, dt * 3, maxSubSteps);
 
   return state;
 }
@@ -188,6 +203,13 @@ export default createImmutableReducer<State>(new State(), {
       return state;
     }
 
+    // run sync
+    const syncMsg = state.syncQueue.filter((msg) => msg.time < state.time).maxBy((msg) => msg.time);
+    if (syncMsg) {
+      state = syncWorld(state, syncMsg);
+    }
+    state = state.set('syncQueue', state.syncQueue.filterNot((msg) => msg.time < state.time));
+
     let overlapping;
     if (state.round.ball) {
       ensureBallInBounds(state.round.ball.body, state.round.level);
@@ -199,6 +221,17 @@ export default createImmutableReducer<State>(new State(), {
     // XXX: MMMMMonster hack
     // dt is set to dt * 3 because that's the speed I actually want
     state.round.world.step(fixedStep, dt * 3, maxSubSteps);
+
+    // update stored clock
+    state = state.update('time', (time) => time + dt * 1000);
+
+    // update saved positions
+    state = state.set('players', state.players.map((player) => {
+      return player.setIn(['pastPositions', state.time], [
+        player.body.position[0],
+        player.body.position[1],
+      ]);
+    }));
 
     if (state.round.ball) {
       if (!state.round.scored) {
@@ -214,17 +247,6 @@ export default createImmutableReducer<State>(new State(), {
         }
       }
     }
-
-    // update stored clock
-    state = state.update('clock', (clock) => clock + 1);
-
-    // update saved positions
-    state = state.set('players', state.players.map((player) => {
-      return player.setIn(['pastPositions', state.clock], [
-        player.body.position[0],
-        player.body.position[1],
-      ]);
-    }));
 
     if (state.displayMessageTimeout && Date.now() > state.displayMessageTimeout) {
       state = state
@@ -315,7 +337,7 @@ export default createImmutableReducer<State>(new State(), {
       }, I.Map()))
       .update((s) => newLevel(s, data))
       .setIn(['round', 'roundState'], data.roundState)
-      .set('clock', data.clock);
+      .set('time', data.time);
   },
 
   [`ws:${TYPE_PLAYER_CONNECTED}`]: (state: State, action) => {
@@ -382,22 +404,15 @@ export default createImmutableReducer<State>(new State(), {
   },
 
   [`ws:${TYPE_SYNC}`]: (state: State, {data}: {data: MessageSync}) => {
-    const clock = data.clock;
+    const time = data.time;
 
-    // Update player states if they are over some threshold at time
-    let shouldReset = false;
-    data.players.forEach((playerPosition) => {
-      const player = state.players.get(playerPosition.id)
-      // console.log(clock, player.pastPositions.reduce((maxKey, pos, key) => key > maxKey ? key : maxKey, 0))
-      const posAtClock = player.pastPositions.get(clock);
+    // if client is ahead of server, somehow...
+    if (time < state.time) {
+      return syncWorld(state, data);
 
-      if (Math.abs(posAtClock[0] - playerPosition[0]) > SYNC_THRESHOLD ||
-          Math.abs(posAtClock[1] - playerPosition[1]) > SYNC_THRESHOLD) {
-        shouldReset = true;
-      }
-    });
-
-    return resyncWorld(state, data);
+    } else {
+      return state.update('syncQueue', (syncQueue) => syncQueue.push(data));
+    }
   },
 
   'disconnect': (state: State) => {

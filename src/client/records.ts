@@ -6,6 +6,10 @@ import {
   RoundState,
 } from '../universal/constants';
 
+import {
+  MessageSync
+} from '../universal/protocol';
+
 export enum SwingMeterDirection {
   ascending,
   descending
@@ -127,7 +131,9 @@ const StateRec = I.Record({
 
   round: null,
 
-  clock: null,
+  time: null,
+
+  syncQueue: I.List(),
 });
 
 export class State extends StateRec {
@@ -146,5 +152,7 @@ export class State extends StateRec {
 
   round: Round;
 
-  clock: number;
+  time: number;
+
+  syncQueue: I.List<MessageSync>;
 }

@@ -128,7 +128,7 @@ runLoop.onTick((dt: number) => {
 
       sendSyncMessage(socks, {
         players,
-        clock: getState().clock,
+        time: getState().time,
       });
     }
   }
