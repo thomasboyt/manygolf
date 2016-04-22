@@ -53,4 +53,6 @@ export const goalWords = [
   'a winner is you',   // AlucardRD
   'come putt, milord', // cat doter
   '30 - love',         // oatgan
+  'nice on',           // cronox2
+  'chase the snowman', // big jeffrey
 ];
