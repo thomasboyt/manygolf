@@ -194,9 +194,14 @@ function newLevel(state: State, data: MessageInitial) {
 }
 
 function applySwing(state: State, data: MessagePlayerSwing) {
-  const id = data.id;
+  const player = state.players.get(data.id);
 
-  const body = state.players.get(id).body;
+  // player disconnected
+  if (!player) {
+    return state;
+  }
+
+  const body = player.body;
   body.velocity[0] = data.velocity[0];
   body.velocity[1] = data.velocity[1];
 
