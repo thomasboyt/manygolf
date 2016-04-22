@@ -97,6 +97,19 @@ function syncWorld(state: State, data: MessageSync): State {
   console.log('Running sync');
 
   data.players.forEach((playerPosition) => {
+    const player = state.players.get(playerPosition.id);
+
+    // player disconnected
+    if (!player) {
+      return;
+    }
+
+    const body = player.body;
+    body.position[0] = playerPosition.position[0];
+    body.position[1] = playerPosition.position[1];
+    body.velocity[0] = playerPosition.velocity[0];
+    body.velocity[1] = playerPosition.velocity[1];
+
     // Update player ball
     if (playerPosition.id === state.id) {
       // If the player has swung between the last sync and this sync, ignore the sync message
@@ -112,12 +125,6 @@ function syncWorld(state: State, data: MessageSync): State {
         body.velocity[1] = playerPosition.velocity[1];
       }
     }
-
-    const body = state.players.get(playerPosition.id).body;
-    body.position[0] = playerPosition.position[0];
-    body.position[1] = playerPosition.position[1];
-    body.velocity[0] = playerPosition.velocity[0];
-    body.velocity[1] = playerPosition.velocity[1];
   });
 
   // Step to catch up from snapshot time to the current render time
