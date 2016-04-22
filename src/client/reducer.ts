@@ -76,6 +76,12 @@ function syncWorld(state: State, data: MessageSync): State {
   let shouldReset = false;
   data.players.forEach((playerPosition) => {
     const player = state.players.get(playerPosition.id)
+
+    // player disconnected
+    if (!player) {
+      return;
+    }
+
     const posAtClock = player.pastPositions.find((pos, posTime) => posTime > data.time);
 
     if (Math.abs(posAtClock[0] - playerPosition.position[0]) >= SYNC_THRESHOLD ||
