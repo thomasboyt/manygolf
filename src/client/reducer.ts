@@ -75,7 +75,7 @@ function syncWorld(state: State, data: MessageSync): State {
   // Update player states if they are over some threshold at time
   let shouldReset = false;
   data.players.forEach((playerPosition) => {
-    const player = state.players.get(playerPosition.id)
+    const player = state.players.get(playerPosition.id);
 
     // player disconnected
     if (!player) {
@@ -409,8 +409,6 @@ export default createImmutableReducer<State>(new State(), {
   },
 
   [`ws:${TYPE_PLAYER_SWING}`]: (state: State, {data}: {data: MessagePlayerSwing}) => {
-    const id = data.id;
-
     if (data.time < state.time) {
       return applySwing(state, data);
     } else {

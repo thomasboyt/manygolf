@@ -202,5 +202,5 @@ export function messagePlayerSwing(params: MessagePlayerSwing) {
   return {
     type: TYPE_PLAYER_SWING,
     data: params,
-  }
+  };
 }

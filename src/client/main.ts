@@ -33,7 +33,8 @@ function main() {
           Your browser does not support WebSockets, which are required for Manygolf to work.
         </p>
         <p>
-          Please upgrade your browser to one of the following: Google Chrome, Firefox 11+, Internet Explorer 10+, or Safari 6+.
+          Please upgrade your browser to one of the following: Google Chrome, Firefox 11+, Internet
+          Explorer 10+, or Safari 6+.
         </p>
       </div>
     `;
