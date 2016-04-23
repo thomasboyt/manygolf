@@ -82,7 +82,7 @@ function syncWorld(state: State, data: MessageSync): State {
       return;
     }
 
-    const posAtClock = player.pastPositions.find((pos, posTime) => posTime > data.time);
+    const posAtClock = player.pastPositions.find((pos, posTime) => posTime >= data.time);
 
     if (Math.abs(posAtClock[0] - playerPosition.position[0]) >= SYNC_THRESHOLD ||
         Math.abs(posAtClock[1] - playerPosition.position[1]) >= SYNC_THRESHOLD) {
