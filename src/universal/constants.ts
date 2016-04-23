@@ -55,4 +55,7 @@ export const goalWords = [
   '30 - love',         // oatgan
   'nice on',           // cronox2
   'chase the snowman', // big jeffrey
+  'what a season',
+  'from downtown',
+  'you\'re on fire',
 ];
