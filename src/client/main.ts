@@ -14,7 +14,7 @@ import RunLoop from '../universal/RunLoop';
 import { renderControlBar } from './controlBar';
 import { registerListeners } from './util/inputter';
 import inputHandler from './inputHandler';
-import retinaFix from './util/retinaFix';
+import scaleCanvas from './util/scaleCanvas';
 
 import render from './render';
 
@@ -44,10 +44,13 @@ function main() {
 
   // set up canvas
   const canvas = <HTMLCanvasElement> document.getElementById('game');
+  scaleCanvas(canvas, WIDTH, HEIGHT);
+
+  window.onresize = () => {
+    scaleCanvas(canvas, WIDTH, HEIGHT);
+  };
+
   const ctx = canvas.getContext('2d');
-  canvas.width = WIDTH;
-  canvas.height = HEIGHT;
-  retinaFix(canvas);
 
   // Set up store
   const store = createStore(reducer);

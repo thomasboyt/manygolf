@@ -3,13 +3,10 @@ body {
   text-align: center;
   font-family: 'Press Start 2P';
   color: #cacaca;
+  padding: 10px;
 }
 
 .game-container {
-  width: 500px;  // TODO: would be nice not to duplicate this value?
-
-  // Scale so width isn't greater than viewport width
-  max-width: 100%;
   margin: 0 auto;
 }
 
@@ -18,7 +15,15 @@ canvas {
 }
 
 .container {
-  max-width: 700px;
+  margin: 0 auto;
+}
+
+.game-container {
+  max-width: 1000px;
+}
+
+.instructions {
+  max-width: 750px;
   margin: 0 auto;
 }
 
@@ -79,8 +84,8 @@ p {
 }
 
 // multi-column mode
-@media only screen and (min-width: 700px) {
-  .container {
+@media only screen and (min-width: 750px) {
+  .instructions {
     max-width: 800px;
   }
   .instructions .row {
