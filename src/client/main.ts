@@ -14,6 +14,7 @@ import RunLoop from '../universal/RunLoop';
 import { renderControlBar } from './controlBar';
 import { registerListeners } from './util/inputter';
 import inputHandler from './inputHandler';
+import retinaFix from './util/retinaFix';
 
 import render from './render';
 
@@ -46,6 +47,7 @@ function main() {
   const ctx = canvas.getContext('2d');
   canvas.width = WIDTH;
   canvas.height = HEIGHT;
+  retinaFix(canvas);
 
   // Set up store
   const store = createStore(reducer);
