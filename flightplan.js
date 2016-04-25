@@ -18,7 +18,7 @@ plan.target('production', {
   // might be okay to chown but idk?
   // remote.npm('install -g forever');
 // });
-//
+
 plan.remote((remote) => {
   remote.rm('-rf /tmp/manygolf', {failsafe: true});
 });
@@ -36,11 +36,35 @@ plan.local((local) => {
   local.transfer(files, '/tmp/manygolf');
 });
 
+// Tells whether two files are different
+function filesDiffer(remote, file1, file2) {
+  const cmp = remote.exec(`cmp ${file1} ${file2}`, {failsafe: true, silent: true});
+
+  // 0 = same, 1 = different, >1 = error
+  if (cmp.code > 1) {
+    throw new Error(`Error executing cmp: ${cmp.stderr}`);
+  }
+
+  return cmp.code === 1;
+}
+
 plan.remote((remote) => {
   remote.mkdir(`-p ${secret.path}`);
   remote.cd(secret.path);
 
   remote.with(`cd ${secret.path}`, () => {
+    const shouldRestart = filesDiffer(
+      remote,
+      'build/server.bundle.js',
+      '/tmp/manygolf/build/server.bundle.js'
+    );
+
+    if (shouldRestart) {
+      remote.log('Will restart server!');
+    } else {
+      remote.log('Skipping server restart...');
+    }
+
     remote.log('Replacing files...');
 
     remote.rm('-rf build');
@@ -49,16 +73,18 @@ plan.remote((remote) => {
     // we serve out of build/ so copy index.html in there
     remote.cp('index.html build/');
 
-    remote.log('Installing dependencies...');
+    if (shouldRestart) {
+      remote.log('Installing dependencies...');
 
-    remote.npm('install --only=production');
+      remote.npm('install --only=production');
 
-    remote.log('Restarting app...');
+      remote.log('Restarting app...');
 
-    remote.exec('forever stop scripts/server-prod', {failsafe: true});
+      remote.exec('forever stop scripts/server-prod', {failsafe: true});
 
-    remote.exec('sleep 5');  // lol
+      remote.exec('sleep 5');  // lol
 
-    remote.exec('forever start -c /bin/bash scripts/server-prod');
+      remote.exec('forever start -c /bin/bash scripts/server-prod');
+    }
   });
 });
