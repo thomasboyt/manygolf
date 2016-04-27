@@ -121,7 +121,7 @@ function syncWorld(state: State, data: MessageSync): State {
     if (playerPosition.id === state.id) {
       // If the player has swung between the last sync and this sync, ignore the sync message
       // This prevents the player ball from being synced back to pre-input state
-      if (state.didSwing) {
+      if (state.didSwing && !useNewNetcode) {
         state = state.set('didSwing', false);
 
       } else {
