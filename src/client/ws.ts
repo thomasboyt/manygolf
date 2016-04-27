@@ -1,15 +1,10 @@
 import {Store} from 'redux';
 
 const simulateLag = document.location.search.indexOf('simlag') !== -1;
-const simLagMsMin = 25;
-const simLagMsMax = 200;
+const simLagMs = 200;
 
 if (simulateLag) {
-  console.log(`*** WARNING: Simulating lag (${simLagMsMin}-${simLagMsMax}ms)`);
-}
-
-function randomLag(): number {
-  return Math.floor(Math.random() * (simLagMsMax - simLagMsMin + 1)) + simLagMsMin;
+  console.log(`*** WARNING: Simulating lag (${simLagMs}ms)`);
 }
 
 class WSConnection {
@@ -40,7 +35,7 @@ class WSConnection {
           type: `ws:${msg.type}`,
           data: msg.data,
         });
-      }, randomLag());
+      }, simLagMs);
 
     } else {
       this._store.dispatch({
@@ -68,7 +63,7 @@ class WSConnection {
     if (simulateLag) {
       setTimeout(() => {
         this._ws.send(strMsg);
-      }, randomLag());
+      }, simLagMs);
 
     } else {
       this._ws.send(strMsg);

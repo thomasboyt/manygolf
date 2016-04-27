@@ -57,6 +57,11 @@ import {
   Round,
 } from './records';
 
+const useNewSwingNetcode = document.location.search.indexOf('newnetcode') !== -1;
+if (useNewSwingNetcode) {
+  console.log('using new swing netcode');
+}
+
 const SYNC_THRESHOLD = 10;
 
 const fixedStep = 1 / 60;
@@ -215,8 +220,30 @@ function applySwing(state: State, data: MessagePlayerSwing) {
   }
 
   const body = player.body;
-  body.velocity[0] = data.velocity[0];
-  body.velocity[1] = data.velocity[1];
+
+  if (useNewSwingNetcode) {
+    // sleep all balls except the current one
+    state.round.ball.body.type = p2.Body.STATIC;
+    state.players.forEach((player) => {
+      player.body.type = p2.Body.STATIC;
+    });
+
+    body.velocity[0] = data.velocity[0];
+    body.velocity[1] = data.velocity[1];
+
+    const dt = (state.time - data.time) / 1000;
+
+    state.round.world.step(fixedStep, dt * 3, maxSubSteps);
+
+    state.round.ball.body.type = p2.Body.DYNAMIC;
+    state.players.forEach((player) => {
+      player.body.type = p2.Body.DYNAMIC;
+    });
+
+  } else {
+    body.velocity[0] = data.velocity[0];
+    body.velocity[1] = data.velocity[1];
+  }
 
   return state;
 }
