@@ -5,6 +5,7 @@
 /// <reference path="browser/ambient/mime/index.d.ts" />
 /// <reference path="browser/ambient/mocha/index.d.ts" />
 /// <reference path="browser/ambient/node/index.d.ts" />
+/// <reference path="browser/ambient/qs/index.d.ts" />
 /// <reference path="browser/ambient/redux/index.d.ts" />
 /// <reference path="browser/ambient/serve-static/index.d.ts" />
 /// <reference path="browser/ambient/tinycolor/index.d.ts" />

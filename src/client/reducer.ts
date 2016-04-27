@@ -35,6 +35,10 @@ import {
 } from '../universal/constants';
 
 import {
+  useNewNetcode,
+} from './flags';
+
+import {
   createWorld,
   createBall,
   createBallFromInitial,
@@ -57,12 +61,10 @@ import {
   Round,
 } from './records';
 
-const useNewSwingNetcode = document.location.search.indexOf('newnetcode') !== -1;
-if (useNewSwingNetcode) {
-  console.log('using new swing netcode');
+let SYNC_THRESHOLD = 10;
+if (useNewNetcode) {
+  SYNC_THRESHOLD = 1;
 }
-
-const SYNC_THRESHOLD = 10;
 
 const fixedStep = 1 / 60;
 
@@ -221,7 +223,7 @@ function applySwing(state: State, data: MessagePlayerSwing) {
 
   const body = player.body;
 
-  if (useNewSwingNetcode) {
+  if (useNewNetcode) {
     // sleep all balls except the current one
     if (!state.isObserver) {
       state.round.ball.body.type = p2.Body.STATIC;
@@ -231,10 +233,20 @@ function applySwing(state: State, data: MessagePlayerSwing) {
       player.body.type = p2.Body.STATIC;
     });
 
+    body.type = p2.Body.DYNAMIC;
     body.position[0] = data.position[0];
     body.position[1] = data.position[1];
     body.velocity[0] = data.velocity[0];
     body.velocity[1] = data.velocity[1];
+
+    if (!state.isObserver && state.id === data.id) {
+      const body = state.round.ball.body;
+      body.type = p2.Body.DYNAMIC;
+      body.position[0] = data.position[0];
+      body.position[1] = data.position[1];
+      body.velocity[0] = data.velocity[0];
+      body.velocity[1] = data.velocity[1];
+    }
 
     const dt = (state.time - data.time) / 1000;
 
@@ -374,8 +386,10 @@ export default createImmutableReducer<State>(new State(), {
   'endSwing': (state: State, action) => {
     const {vec}: {vec: {x: number, y: number}} = action;
 
-    state.round.ball.body.velocity[0] = vec.x;
-    state.round.ball.body.velocity[1] = vec.y;
+    if (!useNewNetcode) {
+      state.round.ball.body.velocity[0] = vec.x;
+      state.round.ball.body.velocity[1] = vec.y;
+    }
 
     return state
       .setIn(['round', 'inSwing'], false)

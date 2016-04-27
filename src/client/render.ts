@@ -9,6 +9,10 @@ import {
 } from '../universal/constants';
 
 import {
+  debugRender,
+} from './flags';
+
+import {
   State,
 } from './records';
 
@@ -28,8 +32,6 @@ const hurryUpTimerColor = 'red';
 const meterBoxBorderColor = 'yellow';
 const meterBoxColor = 'black';
 const meterFillColor = 'yellow';
-
-const debugRender = document.location.search.indexOf('debugRender') !== -1;
 
 function renderConnecting(ctx: CanvasRenderingContext2D, state: State) {
   ctx.fillStyle = textColor;
