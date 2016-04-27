@@ -223,7 +223,10 @@ function applySwing(state: State, data: MessagePlayerSwing) {
 
   if (useNewSwingNetcode) {
     // sleep all balls except the current one
-    state.round.ball.body.type = p2.Body.STATIC;
+    if (!state.isObserver) {
+      state.round.ball.body.type = p2.Body.STATIC;
+    }
+
     state.players.forEach((player) => {
       player.body.type = p2.Body.STATIC;
     });
@@ -235,7 +238,10 @@ function applySwing(state: State, data: MessagePlayerSwing) {
 
     state.round.world.step(fixedStep, dt * 3, maxSubSteps);
 
-    state.round.ball.body.type = p2.Body.DYNAMIC;
+    if (!state.isObserver) {
+      state.round.ball.body.type = p2.Body.DYNAMIC;
+    }
+
     state.players.forEach((player) => {
       player.body.type = p2.Body.DYNAMIC;
     });
