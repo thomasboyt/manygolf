@@ -194,6 +194,7 @@ export const TYPE_PLAYER_SWING = 'playerSwing';
 
 export interface MessagePlayerSwing {
   id: number;
+  position: number[];
   velocity: number[];
   time: number;
 }

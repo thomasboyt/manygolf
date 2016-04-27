@@ -128,8 +128,12 @@ export default class ManygolfSocketManager extends SocketManager {
         id,
       }, data));
 
+      const state = <State>this.store.getState();
+      const player = state.players.get(id);
+
       this.sendAll(messagePlayerSwing({
         id,
+        position: [player.body.position[0], player.body.position[1]],
         velocity: [data.vec.x, data.vec.y],
         time: Date.now(),
       }));
