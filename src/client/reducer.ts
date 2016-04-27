@@ -63,7 +63,7 @@ import {
 
 let SYNC_THRESHOLD = 10;
 if (useNewNetcode) {
-  SYNC_THRESHOLD = 1;
+  SYNC_THRESHOLD = 2;
 }
 
 const fixedStep = 1 / 60;
@@ -197,6 +197,14 @@ function newLevel(state: State, data: MessageInitial) {
 
     state = state.set('players', players);
   }
+
+  // Clean up synced data
+  state = state.set('players', state.players.map((player) => {
+    return player.set('pastPositions', I.Map());
+  }));
+  state = state
+    .set('syncQueue', I.List())
+    .set('swingQueue', I.List());
 
   const holeSensor = createHoleSensor(level.hole);
   world.addBody(holeSensor);
