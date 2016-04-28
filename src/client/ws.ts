@@ -31,7 +31,10 @@ class WSConnection {
   handleMessage(evt: MessageEvent) {
     const msg = JSON.parse(evt.data);
 
-    (<any>window).msgLog.push(msg);
+    (<any>window).msgLog.push({
+      time: Date.now(),
+      msg,
+    });
 
     if (simulateLag) {
       setTimeout(() => {

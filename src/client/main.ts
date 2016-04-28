@@ -23,6 +23,8 @@ import {
   HEIGHT,
 } from '../universal/constants';
 
+import testMsgs from '../testData';
+
 function main() {
   // Bail out early if missing required browser features
   // XXX: typescript doesn't think window.WebSocket exists?
@@ -65,15 +67,18 @@ function main() {
     ws.init(store);
 
   } else {
-    const level = levelGen();
+    const initTime = testMsgs[0].time;
 
-    store.dispatch({
-      type: 'ws:level',
-      data: {
-        level,
-        expiresIn: 1000 * 1000,
-      },
-    });
+    for (let msg of testMsgs) {
+      const timeDiff = msg.time - initTime;
+
+      setTimeout(() => {
+        store.dispatch({
+          type: `ws:${msg.type}`,
+          data: msg.data,
+        });
+      }, timeDiff);
+    }
   }
 
   // set up input event listeners
