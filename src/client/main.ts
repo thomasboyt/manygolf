@@ -73,9 +73,11 @@ function main() {
       const timeDiff = msg.time - initTime;
 
       setTimeout(() => {
+        console.log(msg.time);
+
         store.dispatch({
-          type: `ws:${msg.type}`,
-          data: msg.data,
+          type: `ws:${msg.msg.type}`,
+          data: msg.msg.data,
         });
       }, timeDiff);
     }
