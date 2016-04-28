@@ -7,6 +7,8 @@ if (simulateLag) {
   console.log(`*** WARNING: Simulating lag (${simLagMs}ms)`);
 }
 
+(<any>window).msgLog = [];
+
 class WSConnection {
   private _ws: WebSocket;
   private _store: Store;
@@ -28,6 +30,8 @@ class WSConnection {
 
   handleMessage(evt: MessageEvent) {
     const msg = JSON.parse(evt.data);
+
+    (<any>window).msgLog.push(msg);
 
     if (simulateLag) {
       setTimeout(() => {
