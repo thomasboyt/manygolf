@@ -5,6 +5,7 @@ import SocketManager from './util/SocketManager';
 import nameGen from './nameGen';
 
 import WebSocket from 'ws';
+import p2 from 'p2';
 
 import {
   messageInitial,
@@ -123,13 +124,25 @@ export default class ManygolfSocketManager extends SocketManager {
     if (msg.type === TYPE_SWING) {
       const data = <MessageSwing>msg.data;
 
+      let state = <State>this.store.getState();
+      let player = state.players.get(id);
+
+      // Player could be an observer
+      if (!player) {
+        return;
+      }
+
+      if (player.body.sleepState !== p2.Body.SLEEPING || player.scored) {
+        return;
+      }
+
       this.store.dispatch(Object.assign({
         type: 'swing',
         id,
       }, data));
 
-      const state = <State>this.store.getState();
-      const player = state.players.get(id);
+      state = <State>this.store.getState();
+      player = state.players.get(id);
 
       this.sendAll(messagePlayerSwing({
         id,
