@@ -41,6 +41,7 @@
     "webpack-merge": "^0.3.2"
   },
   "dependencies": {
+    "bufferutil": "^1.2.1",
     "core-js": "^2.0.3",
     "express": "^4.13.4",
     "immutable": "https://github.com/thomasboyt/immutable-js.git#fix-record-update-return-types",
