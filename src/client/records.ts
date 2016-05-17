@@ -18,10 +18,12 @@ export enum SwingMeterDirection {
 
 const BallRec = I.Record({
   body: null,
+  lastX: null,
 });
 
 export class Ball extends BallRec {
   body: p2.Body;
+  lastX: number;
 }
 
 const PlayerRec = I.Record({
@@ -83,7 +85,6 @@ const RoundRec = I.Record({
   swingMeterDirection: SwingMeterDirection.ascending,
   allowHit: false,
   inSwing: false,
-  lastX: null,
 
   expTime: null,
   strokes: 0,
@@ -107,7 +108,6 @@ export class Round extends RoundRec {
   swingMeterDirection: SwingMeterDirection;
   allowHit: boolean;
   inSwing: boolean;
-  lastX: number;
 
   expTime: number;
   strokes: number;

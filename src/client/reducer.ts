@@ -171,6 +171,7 @@ function newLevel(state: State, data: MessageInitial) {
     world.addBody(ballBody);
     ball = new Ball({
       body: ballBody,
+      lastX: ballBody.position[0],
     });
   }
 
@@ -216,7 +217,6 @@ function newLevel(state: State, data: MessageInitial) {
     level,
     expTime,
     holeSensor,
-    lastX: ball.body.position[0],
 
     ball,
   }));
@@ -350,7 +350,7 @@ export default createImmutableReducer<State>(new State(), {
           if (!state.round.allowHit && isSleeping) {
             // If the player has gone over the hole, mirror the ball's angle so they don't
             // have to slowly re-orient it
-            const lastX = state.round.lastX;
+            const lastX = state.round.ball.lastX;
             const newX = state.round.ball.body.position[0];
             const holeX = state.round.level.hole.get(0);
 
@@ -419,7 +419,7 @@ export default createImmutableReducer<State>(new State(), {
 
     return state
       .setIn(['round', 'inSwing'], false)
-      .setIn(['round', 'lastX'], lastX)
+      .setIn(['round', 'ball', 'lastX'], lastX)
       .updateIn(['round', 'strokes'], (strokes) => strokes + 1)
       .set('didSwing', true);
   },
