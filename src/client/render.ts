@@ -157,6 +157,54 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
   }
 }
 
+function renderLeaderBoard(ctx: CanvasRenderingContext2D, state: State) {
+  const x = WIDTH / 2;
+  const y = 55;
+
+  ctx.fillStyle = 'white';
+
+  if (state.round.scored) {
+    const players = state.round.roundRankedPlayers;
+    const position = players.findIndex((player) => player.id === state.id) + 1;
+    ctx.font = 'normal 16px "Press Start 2P"';
+    ctx.fillText(`You placed ${toOrdinal(position)}`, WIDTH / 2, y);
+  }
+
+  ctx.font = 'normal 8px "Press Start 2P"';
+
+  const placeX = x - 150;
+  const nameX = x - 130;
+  const scoreX = x + 90;
+  const timeX = x + 150;
+
+  // Draw header
+  ctx.textAlign = 'left';
+  ctx.fillText('Name', nameX, y + 20);
+  ctx.textAlign = 'right';
+  ctx.fillText('Strokes', scoreX, y + 20);
+  ctx.fillText('Time', timeX, y + 20);
+
+  state.round.roundRankedPlayers.forEach((player, idx) => {
+    const rowY = y + 30 + idx * 10;
+
+    ctx.textAlign = 'left';
+    ctx.fillText(`${idx + 1}`, placeX, rowY);
+    ctx.fillStyle = player.color;
+
+    if (tinycolor(player.color).isDark()) {
+      ctx.strokeText(player.name, nameX, rowY);
+    }
+
+    ctx.fillText(player.name, nameX, rowY);
+
+    ctx.textAlign = 'right';
+    ctx.fillStyle = 'white';
+    ctx.fillText(`${player.strokes}`, scoreX, rowY);
+    const elapsed = (player.scoreTime / 1000).toFixed(2);
+    ctx.fillText(elapsed, timeX, rowY);
+  });
+}
+
 function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
   renderGround(ctx, state);
   renderBalls(ctx, state);
@@ -219,29 +267,8 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
       ctx.fillText('No one wins!', x, y);
 
     } else {
-      const winner = state.round.roundRankedPlayers.get(0);
-
-      ctx.fillStyle = winner.color;
-
-      if (tinycolor(winner.color).isDark()) {
-        ctx.strokeText(winner.name, x, y - 10);
-      }
-
-      ctx.fillText(winner.name, x, y - 10);
-
-      ctx.fillStyle = textColor;
-      ctx.fillText(' wins!', x, y + 10);
-
-      ctx.font = 'normal 8px "Press Start 2P"';
-      const elapsed = (winner.scoreTime / 1000).toFixed(2);
-      const strokeLabel = winner.strokes === 1 ? 'stroke' : 'strokes';
-      ctx.fillText(`(${winner.strokes} ${strokeLabel} in ${elapsed}s)`, x, y + 22);
-
-      if (winner.id !== state.id && state.round.scored) {
-        const players = state.round.roundRankedPlayers;
-        const position = players.findIndex((player) => player.id === state.id) + 1;
-        ctx.fillText(`You placed ${toOrdinal(position)}`, x, y + 36);
-      }
+      // display round leaderboard
+      renderLeaderBoard(ctx, state);
     }
 
   } else {
