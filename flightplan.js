@@ -1,3 +1,5 @@
+"use strict";
+
 const plan = require('flightplan');
 const secret = require('./secret.json');
 const globSync = require('glob').sync;
@@ -53,11 +55,19 @@ plan.remote((remote) => {
   remote.cd(secret.path);
 
   remote.with(`cd ${secret.path}`, () => {
-    const shouldRestart = filesDiffer(
-      remote,
-      'build/server.bundle.js',
-      '/tmp/manygolf/build/server.bundle.js'
-    );
+
+    let shouldRestart;
+
+    if (plan.runtime.options['force-restart']) {
+      shouldRestart = true;
+
+    } else {
+      shouldRestart = filesDiffer(
+        remote,
+        'build/server.bundle.js',
+        '/tmp/manygolf/build/server.bundle.js'
+      );
+    }
 
     if (shouldRestart) {
       remote.log('Will restart server!');
