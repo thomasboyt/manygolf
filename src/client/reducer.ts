@@ -216,6 +216,7 @@ function newLevel(state: State, data: MessageInitial) {
     level,
     expTime,
     holeSensor,
+    lastX: ball.body.position[0],
 
     ball,
   }));
@@ -345,8 +346,23 @@ export default createImmutableReducer<State>(new State(), {
           state = enterScored(state);
 
         } else {
-          state = state
-            .setIn(['round', 'allowHit'], isSleeping);
+
+          if (!state.round.allowHit && isSleeping) {
+            // If the player has gone over the hole, mirror the ball's angle so they don't
+            // have to slowly re-orient it
+            const lastX = state.round.lastX;
+            const newX = state.round.ball.body.position[0];
+            const holeX = state.round.level.hole.get(0);
+
+            if ((lastX < holeX && newX > holeX) ||
+                (lastX > holeX && newX < holeX)) {
+              const diff = -90 - state.round.aimDirection;
+              state = state.setIn(['round', 'aimDirection'],
+                                  state.round.aimDirection + diff * 2);
+            }
+          }
+
+          state = state.setIn(['round', 'allowHit'], isSleeping);
         }
       }
     }
@@ -399,8 +415,11 @@ export default createImmutableReducer<State>(new State(), {
       state.round.ball.body.velocity[1] = vec.y;
     }
 
+    const lastX = state.round.ball.body.position[0];
+
     return state
       .setIn(['round', 'inSwing'], false)
+      .setIn(['round', 'lastX'], lastX)
       .updateIn(['round', 'strokes'], (strokes) => strokes + 1)
       .set('didSwing', true);
   },
