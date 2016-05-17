@@ -57,6 +57,7 @@ const StateRec = I.Record({
   level: null,
   players: I.Map(),
   observers: I.Map(),
+  startTime: null,
   expTime: null,
   holeSensor: null,
   roundState: RoundState.inProgress,
@@ -71,6 +72,7 @@ export class State extends StateRec {
   level: Level;
   players: PlayersMap;
   observers: PlayersMap;
+  startTime: number;
   expTime: number;
   holeSensor: p2.Body;
   roundState: RoundState;

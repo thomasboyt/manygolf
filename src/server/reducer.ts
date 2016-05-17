@@ -132,7 +132,9 @@ export default createImmutableReducer<State>(new State(), {
     }
   },
 
-  'level': (state: State, {levelData, expTime}: {levelData: any; expTime: number}) => {
+  'level': (state: State,
+            {levelData, expTime, startTime}:
+            {levelData: any; startTime: number; expTime: number}) => {
     const level = new Level(I.fromJS(levelData))
       .update(addHolePoints);
 
@@ -150,6 +152,7 @@ export default createImmutableReducer<State>(new State(), {
       levelData,
       world,
       level,
+      startTime,
       expTime,
       holeSensor,
       observers: state.observers,

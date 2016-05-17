@@ -92,7 +92,7 @@ runLoop.onTick((dt: number) => {
     checkScored(dispatch, socks, {
       overlappingMap,
       players: getState().players,
-      elapsed: Date.now() - (getState().expTime - TIMER_MS),
+      elapsed: Date.now() - getState().startTime,
     });
 
     sweepInactivePlayers(dispatch, socks, {

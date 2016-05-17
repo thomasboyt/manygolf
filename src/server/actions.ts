@@ -109,7 +109,8 @@ export function checkScored(
 export function cycleLevel(dispatch: Dispatch, socks: ManygolfSocketManager) {
   console.log('Cycling level');
 
-  const expTime = Date.now() + TIMER_MS;
+  const startTime = Date.now();
+  const expTime = startTime + TIMER_MS;
 
   const nextLevel = levelGen();
   console.log(JSON.stringify(nextLevel));
@@ -118,6 +119,7 @@ export function cycleLevel(dispatch: Dispatch, socks: ManygolfSocketManager) {
     type: 'level',
     levelData: nextLevel,
     expTime,
+    startTime,
   });
 
   socks.sendAll(messageLevel({
