@@ -233,40 +233,32 @@ function applySwing(state: State, data: MessagePlayerSwing) {
   const body = player.body;
 
   if (useNewNetcode) {
-    // sleep all balls except the current one
-    if (!state.isObserver) {
-      state.round.ball.body.type = p2.Body.STATIC;
-    }
-
-    state.players.forEach((player) => {
-      player.body.type = p2.Body.STATIC;
+    let previous = I.Map<number, {position: number[], velocity: number[]}>();
+    state.players.forEach((player, id) => {
+      previous = previous.set(id, {
+        position: [player.body.position[0], player.body.position[1]],
+        velocity: [player.body.velocity[0], player.body.velocity[1]],
+      })
     });
 
-    body.type = p2.Body.DYNAMIC;
     body.position[0] = data.position[0];
     body.position[1] = data.position[1];
     body.velocity[0] = data.velocity[0];
     body.velocity[1] = data.velocity[1];
 
-    if (!state.isObserver && state.id === data.id) {
-      const body = state.round.ball.body;
-      body.type = p2.Body.DYNAMIC;
-      body.position[0] = data.position[0];
-      body.position[1] = data.position[1];
-      body.velocity[0] = data.velocity[0];
-      body.velocity[1] = data.velocity[1];
-    }
-
     const dt = (state.time - data.time) / 1000;
+    state.round.world.step(fixedStep, -(dt * 3), maxSubSteps);
 
-    state.round.world.step(fixedStep, dt * 3, maxSubSteps);
+    state.players.forEach((player, id) => {
+      if (id === data.id) {
+        return;
+      }
 
-    if (!state.isObserver) {
-      state.round.ball.body.type = p2.Body.DYNAMIC;
-    }
-
-    state.players.forEach((player) => {
-      player.body.type = p2.Body.DYNAMIC;
+      const prev = previous.get(id);
+      player.body.position[0] = prev.position[0];
+      player.body.position[1] = prev.position[1];
+      player.body.velocity[0] = prev.velocity[0];
+      player.body.velocity[1] = prev.velocity[1];
     });
 
   } else {
