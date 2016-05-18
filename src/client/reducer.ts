@@ -21,6 +21,8 @@ import {
   TYPE_PLAYER_SWING,
   TYPE_SYNC,
   MessageSync,
+  MessageChat,
+  TYPE_CHAT,
 } from '../universal/protocol';
 
 import {
@@ -59,6 +61,7 @@ import {
   SwingMeterDirection,
   LeaderboardPlayer,
   Round,
+  ChatMessage,
 } from './records';
 
 let SYNC_THRESHOLD = 10;
@@ -365,6 +368,10 @@ export default createImmutableReducer<State>(new State(), {
         .set('displayMessageTimeout', null);
     }
 
+    state = state.set('chats', state.chats.filter((chat) => {
+      return chat.timeout > Date.now();
+    }));
+
     return state;
   },
 
@@ -528,6 +535,13 @@ export default createImmutableReducer<State>(new State(), {
     } else {
       return state.update('syncQueue', (syncQueue) => syncQueue.push(data));
     }
+  },
+
+  [`ws:${TYPE_CHAT}`]: (state: State, {data}: {data: MessageChat}) => {
+    return state.setIn(['chats', data.id], new ChatMessage({
+      emoticon: data.emoticon,
+      timeout: Date.now() + 5 * 1000,
+    }));
   },
 
   'disconnect': (state: State) => {

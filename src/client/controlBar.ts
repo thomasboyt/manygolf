@@ -1,40 +1,80 @@
+import * as diff from 'diffhtml';
+
 const leftArrowUrl = require('../../assets/left.png');
 const rightArrowUrl = require('../../assets/right.png');
 const shootUrl = require('../../assets/shoot.png');
+const happyUrl = require('../../assets/happy.png');
+const sadUrl = require('../../assets/sad.png');
 
 export enum ControlButton {
   LeftArrow,
   RightArrow,
   Shoot,
+  ChatHappy,
+  ChatSad,
 }
 
 export const buttonsDown = new Set<ControlButton>();
 
-function createControl(controlBar: HTMLElement, button: ControlButton,
-                       className: string, path: string) {
-  const control = document.createElement('img');
-  control.src = path;
-  control.className = className;
+function renderControl(
+  {type, className, icon}:
+  {type: ControlButton, className: string, icon: string}) {
 
-  control.ontouchstart = (e) => {
+  const handleTouchStart = (e) => {
     e.preventDefault();
-    buttonsDown.add(button);
+    buttonsDown.add(type);
   };
 
-  control.ontouchend = (e) => {
+  const handleTouchEnd = (e) => {
     e.preventDefault();
-    buttonsDown.delete(button);
+    buttonsDown.delete(type);
   };
 
-  controlBar.appendChild(control);
+  return diff.html`
+    <img src=${icon} class=${className} ontouchstart=${handleTouchStart} ontouchend=${handleTouchEnd} onmousedown=${handleTouchStart} onmouseup=${handleTouchEnd} />
+  `;
+}
+
+function renderTouchControls() {
+  return [{
+    type: ControlButton.LeftArrow,
+    className: 'left-arrow',
+    icon: leftArrowUrl,
+  }, {
+    type: ControlButton.RightArrow,
+    className: 'right-arrow',
+    icon: rightArrowUrl,
+  }, {
+    type: ControlButton.ChatHappy,
+    className: 'emoticon happy',
+    icon: happyUrl,
+  }, {
+    type: ControlButton.ChatSad,
+    className: 'emoticon sad',
+    icon: sadUrl,
+  }, {
+    type: ControlButton.Shoot,
+    className: 'shoot',
+    icon: shootUrl,
+  },].map(renderControl);
+}
+
+function renderDesktopControls() {
+  return [{
+    type: ControlButton.ChatHappy,
+    className: 'emoticon happy',
+    icon: happyUrl,
+  }, {
+    type: ControlButton.ChatSad,
+    className: 'emoticon sad',
+    icon: sadUrl,
+  },].map(renderControl);
 }
 
 export function renderControlBar() {
   const controlBar = <HTMLElement>document.getElementsByClassName('control-bar')[0];
 
-  createControl(controlBar, ControlButton.LeftArrow, 'left-arrow', leftArrowUrl);
-  createControl(controlBar, ControlButton.RightArrow, 'right-arrow', rightArrowUrl);
-  createControl(controlBar, ControlButton.Shoot, 'shoot', shootUrl);
+  let controls;
 
   // I know :(
   if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
@@ -48,5 +88,12 @@ export function renderControlBar() {
     for (let el of hideMobile) {
       (<HTMLElement>el).style.display = 'none';
     }
+
+    controls = renderTouchControls();
+
+  } else {
+    controls = renderDesktopControls();
   }
+
+  diff.innerHTML(controlBar, controls);
 }

@@ -4,11 +4,13 @@ import p2 from 'p2';
 import {
   ConnectionState,
   RoundState,
+  Emoticon,
 } from '../universal/constants';
 
 import {
   MessageSync,
   MessagePlayerSwing,
+  MessageChat,
 } from '../universal/protocol';
 
 export enum SwingMeterDirection {
@@ -118,6 +120,16 @@ export class Round extends RoundRec {
   roundRankedPlayers: I.List<LeaderboardPlayer>;
 }
 
+const ChatMessageRec = I.Record({
+  emoticon: null,
+  timeout: null,
+});
+
+export class ChatMessage extends ChatMessageRec {
+  emoticon: Emoticon;
+  timeout: number;
+}
+
 const StateRec = I.Record({
   connectionState: ConnectionState.connecting,
 
@@ -139,6 +151,8 @@ const StateRec = I.Record({
   didSwing: false,
   syncQueue: I.List(),
   swingQueue: I.List(),
+
+  chats: I.Map(),
 });
 
 export class State extends StateRec {
@@ -162,4 +176,6 @@ export class State extends StateRec {
   didSwing: boolean;
   syncQueue: I.List<MessageSync>;
   swingQueue: I.List<MessagePlayerSwing>;
+
+  chats: I.Map<number, ChatMessage>;
 }

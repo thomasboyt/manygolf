@@ -6,11 +6,16 @@ import {calcVectorDegrees} from './util/math';
 import ws from './ws';
 
 import { State } from './records';
-import {messageSwing, messageEnterGame} from '../universal/protocol';
+import {
+  messageSwing,
+  messageEnterGame,
+  messageSendChat,
+} from '../universal/protocol';
 
 import {
   AimDirection,
   RoundState,
+  Emoticon,
 } from '../universal/constants';
 
 import {
@@ -33,6 +38,22 @@ export default function inputHandler(dt: number, state: State, dispatch: Dispatc
     }
 
     return;
+  }
+
+  if (buttonsDown.has(ControlButton.ChatHappy)) {
+    ws.send(messageSendChat({
+      emoticon: Emoticon.happy
+    }))
+
+    buttonsDown.delete(ControlButton.ChatHappy);
+  }
+
+  if (buttonsDown.has(ControlButton.ChatSad)) {
+    ws.send(messageSendChat({
+      emoticon: Emoticon.sad
+    }))
+
+    buttonsDown.delete(ControlButton.ChatSad);
   }
 
   if (!state.round || state.round.roundState === RoundState.over) {

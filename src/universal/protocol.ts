@@ -1,5 +1,6 @@
 import {
   RoundState,
+  Emoticon,
 } from '../universal/constants';
 
 interface Player {
@@ -202,6 +203,35 @@ export interface MessagePlayerSwing {
 export function messagePlayerSwing(params: MessagePlayerSwing) {
   return {
     type: TYPE_PLAYER_SWING,
+    data: params,
+  };
+}
+
+
+export const TYPE_SEND_CHAT = 'sendChat';
+
+export interface MessageSendChat {
+  emoticon: Emoticon;
+}
+
+export function messageSendChat(params: MessageSendChat) {
+  return {
+    type: TYPE_SEND_CHAT,
+    data: params,
+  };
+}
+
+
+export const TYPE_CHAT = 'chat';
+
+export interface MessageChat {
+  id: number;
+  emoticon: Emoticon;
+}
+
+export function messageChat(params: MessageChat) {
+  return {
+    type: TYPE_CHAT,
     data: params,
   };
 }

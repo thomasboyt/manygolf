@@ -30,6 +30,11 @@ export enum ConnectionState {
   disconnected,
 }
 
+export enum Emoticon {
+  happy,
+  sad,
+}
+
 // thx friends
 export const goalWords = [
   'touchdown',

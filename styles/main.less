@@ -55,18 +55,31 @@ p {
 
 .control-bar {
   padding-top: 5px;
+  display: flex;
+  margin: 0 -10px;
+
+  justify-content: center;
 
   img {
     display: block;
+    flex: 0 0 auto;
+    margin: 0 10px;
   }
 
-  .left-arrow, .right-arrow {
-    float: left;
-    padding-right: 10px;
+  // pushes left + right arrow to the left
+  .right-arrow {
+    margin-right: auto;
   }
 
+  // pushes shoot button to the right
   .shoot {
-    float: right;
+    margin-left: auto;
+  }
+
+  .emoticon {
+    @media only screen and (max-width: 600px) {
+      display: none;
+    }
   }
 }
 

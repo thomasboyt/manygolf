@@ -6,6 +6,7 @@ import {
   HURRY_UP_MS,
   RoundState,
   ConnectionState,
+  Emoticon,
 } from '../universal/constants';
 
 import {
@@ -45,6 +46,82 @@ function renderDisconnected(ctx: CanvasRenderingContext2D, state: State) {
   ctx.font = 'normal 16px "Press Start 2P"';
   ctx.textAlign = 'center';
   ctx.fillText('Disconnected! Try reloading?', WIDTH / 2, HEIGHT / 2);
+}
+
+function renderEmoticon(ctx: CanvasRenderingContext2D, x: number, y: number, emoticon: Emoticon) {
+  ctx.save();
+
+  ctx.strokeStyle = 'white';
+  ctx.fillStyle = 'white';
+
+  ctx.beginPath();
+  ctx.arc(x + 4, y + 4, 1, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.closePath();
+
+  ctx.beginPath();
+  ctx.arc(x + 11, y + 4, 1, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.closePath();
+
+  if (emoticon === Emoticon.happy) {
+    ctx.beginPath();
+    ctx.moveTo(x + 4, y + 10);
+    ctx.quadraticCurveTo(x + 7.5, y + 15, x + 11, y + 10)
+    ctx.fill();
+    ctx.closePath();
+
+  } else if (emoticon === Emoticon.sad) {
+    ctx.beginPath();
+    ctx.moveTo(x + 4, y + 12);
+    ctx.quadraticCurveTo(x + 7.5, y + 7, x + 11, y + 12)
+    ctx.fill();
+    ctx.closePath();
+
+  }
+
+  ctx.restore();
+}
+
+function renderChat(ctx: CanvasRenderingContext2D,
+  {ballX, ballY, emoticon, onLeft=false}:
+  {ballX: number; ballY: number; emoticon: Emoticon; onLeft: boolean}) {
+
+  const flipX = onLeft ? -1 : 1;
+
+  ctx.save();
+
+  ctx.strokeStyle = 'rgba(255, 255, 255, .4)';
+  ctx.fillStyle = 'rgba(255, 255, 255, .4)';
+
+  const bubbleW = 15;
+  const bubbleH = 15;
+  const cornerRadius = 8;
+
+  const x = ballX + (6 * flipX);
+  const y = ballY - bubbleH - 10;
+
+  // "Rounded rectangle"
+  ctx.save();
+
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = cornerRadius;
+  ctx.strokeRect(x + ((cornerRadius/2) * flipX), y + cornerRadius/2,
+                 (bubbleW - cornerRadius) * flipX, bubbleH - cornerRadius);
+
+  ctx.restore();
+
+  const emoticonX = x + (onLeft ? -bubbleW : 0);
+  const emoticonY = y;
+  renderEmoticon(ctx, emoticonX, emoticonY, emoticon);
+
+  ctx.moveTo(ballX + (5 * flipX), ballY - 5);
+  ctx.quadraticCurveTo(ballX + (8 * flipX), ballY - 10, ballX + (10 * flipX), ballY - 10);
+  ctx.lineTo(ballX + (17 * flipX), ballY - 10);
+  ctx.quadraticCurveTo(ballX + (10 * flipX), ballY - 5, ballX + (5 * flipX), ballY - 5);
+  ctx.fill();
+
+  ctx.restore();
 }
 
 function renderGround(ctx: CanvasRenderingContext2D, state: State) {
@@ -98,6 +175,31 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
     ctx.fill();
     ctx.stroke();
     ctx.closePath();
+  });
+
+  //
+  // Draw chat bubbles
+  //
+  state.chats.forEach((chat, id) => {
+    let x, y, onLeft = false;
+
+    if (id === state.id) {
+      // render over current player
+      x = state.round.ball.body.interpolatedPosition[0];
+      y = state.round.ball.body.interpolatedPosition[1];
+
+      if (state.round.aimDirection > -90) {
+        onLeft = true;
+      }
+
+    } else {
+      // render over other player
+      const pos = state.players.get(id).body.interpolatedPosition;
+      x = pos[0];
+      y = pos[1];
+    }
+
+    renderChat(ctx, {ballX: x, ballY: y, emoticon: chat.emoticon, onLeft});
   });
 
   if (state.isObserver) {

@@ -43,6 +43,7 @@
   "dependencies": {
     "bufferutil": "^1.2.1",
     "core-js": "^2.0.3",
+    "diffhtml": "^0.8.0",
     "express": "^4.13.4",
     "immutable": "https://github.com/thomasboyt/immutable-js.git#fix-record-update-return-types",
     "lodash.clamp": "^4.0.1",

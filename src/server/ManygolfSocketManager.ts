@@ -14,8 +14,10 @@ import {
   messageDisplayMessage,
   MessageSwing,
   messagePlayerSwing,
+  messageChat,
   TYPE_SWING,
   TYPE_ENTER_GAME,
+  TYPE_SEND_CHAT,
 } from '../universal/protocol';
 
 import {
@@ -165,6 +167,20 @@ export default class ManygolfSocketManager extends SocketManager {
       const player = state.players.get(id);
 
       this.playerJoined(player);
+
+    } else if (msg.type === TYPE_SEND_CHAT) {
+      const state = <State>this.store.getState();
+      const player = state.players.get(id);
+
+      // Player could be an observer
+      if (!player) {
+        return;
+      }
+
+      this.sendAll(messageChat({
+        id,
+        emoticon: msg.data.emoticon,
+      }));
 
     } else {
       console.error(`unrecognized message type ${msg.type}`);
