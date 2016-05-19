@@ -121,7 +121,7 @@ function updateTwitterLink(name: string) {
   const encoded = encodeURIComponent(text);
 
   const linkUrl = `https://twitter.com/intent/tweet?text=${encoded}` +
-                  '&url=http%3A%2F%2Fmanygolf.disco.zone';
+                  '&url=http%3A%2F%2Fmanygolf.club';
 
   link.href = linkUrl;
 }
