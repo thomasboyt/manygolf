@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const plan = require('flightplan');
 const secret = require('./secret.json');
@@ -80,8 +80,8 @@ plan.remote((remote) => {
     remote.rm('-rf build');
     remote.cp('-r /tmp/manygolf/. .');
 
-    // we serve out of build/ so copy index.html in there
-    remote.cp('index.html build/');
+    // we serve out of build/ so copy static files into there
+    remote.cp('-r static/* build/');
 
     if (shouldRestart) {
       remote.log('Installing dependencies...');

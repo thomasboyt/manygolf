@@ -1,5 +1,5 @@
 var createVendorChunk = require('webpack-create-vendor-chunk');
-var ExtractTextPlugin = require("extract-text-webpack-plugin");
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
   entry: {
@@ -72,6 +72,7 @@ module.exports = {
   },
 
   devServer: {
+    contentBase: 'static',
     historyApiFallback: true,
 
     proxy: {
