@@ -81,6 +81,7 @@ plan.remote((remote) => {
     remote.cp('-r /tmp/manygolf/. .');
 
     // we serve out of build/ so copy static files into there
+    remote.exec('chmod 644 static/*');  // XXX: we have to do this for some reason :[
     remote.cp('-r static/* build/');
 
     if (shouldRestart) {
