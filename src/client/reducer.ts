@@ -241,7 +241,7 @@ function applySwing(state: State, data: MessagePlayerSwing) {
       previous = previous.set(id, {
         position: [player.body.position[0], player.body.position[1]],
         velocity: [player.body.velocity[0], player.body.velocity[1]],
-      })
+      });
     });
 
     body.position[0] = data.position[0];

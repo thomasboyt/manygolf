@@ -10,7 +10,6 @@ import {
 import {
   MessageSync,
   MessagePlayerSwing,
-  MessageChat,
 } from '../universal/protocol';
 
 export enum SwingMeterDirection {

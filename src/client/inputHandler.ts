@@ -42,16 +42,16 @@ export default function inputHandler(dt: number, state: State, dispatch: Dispatc
 
   if (buttonsDown.has(ControlButton.ChatHappy)) {
     ws.send(messageSendChat({
-      emoticon: Emoticon.happy
-    }))
+      emoticon: Emoticon.happy,
+    }));
 
     buttonsDown.delete(ControlButton.ChatHappy);
   }
 
   if (buttonsDown.has(ControlButton.ChatSad)) {
     ws.send(messageSendChat({
-      emoticon: Emoticon.sad
-    }))
+      emoticon: Emoticon.sad,
+    }));
 
     buttonsDown.delete(ControlButton.ChatSad);
   }

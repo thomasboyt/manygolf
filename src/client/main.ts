@@ -8,7 +8,7 @@ import reducer from './reducer';
 
 import ws from './ws';
 
-import levelGen from '../universal/levelGen';
+// import levelGen from '../universal/levelGen';
 import RunLoop from '../universal/RunLoop';
 
 import { renderControlBar } from './controlBar';

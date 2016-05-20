@@ -31,7 +31,8 @@ function renderControl(
   };
 
   return diff.html`
-    <img src=${icon} class=${className} ontouchstart=${handleTouchStart} ontouchend=${handleTouchEnd} onmousedown=${handleTouchStart} onmouseup=${handleTouchEnd} />
+    <img src=${icon} class=${className} ontouchstart=${handleTouchStart}
+      ontouchend=${handleTouchEnd} onmousedown=${handleTouchStart} onmouseup=${handleTouchEnd} />
   `;
 }
 
@@ -56,7 +57,7 @@ function renderTouchControls() {
     type: ControlButton.Shoot,
     className: 'shoot',
     icon: shootUrl,
-  },].map(renderControl);
+  }].map(renderControl);
 }
 
 function renderDesktopControls() {
@@ -68,7 +69,7 @@ function renderDesktopControls() {
     type: ControlButton.ChatSad,
     className: 'emoticon sad',
     icon: sadUrl,
-  },].map(renderControl);
+  }].map(renderControl);
 }
 
 export function renderControlBar() {

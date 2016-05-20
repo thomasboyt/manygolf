@@ -67,14 +67,14 @@ function renderEmoticon(ctx: CanvasRenderingContext2D, x: number, y: number, emo
   if (emoticon === Emoticon.happy) {
     ctx.beginPath();
     ctx.moveTo(x + 4, y + 10);
-    ctx.quadraticCurveTo(x + 7.5, y + 15, x + 11, y + 10)
+    ctx.quadraticCurveTo(x + 7.5, y + 15, x + 11, y + 10);
     ctx.fill();
     ctx.closePath();
 
   } else if (emoticon === Emoticon.sad) {
     ctx.beginPath();
     ctx.moveTo(x + 4, y + 12);
-    ctx.quadraticCurveTo(x + 7.5, y + 7, x + 11, y + 12)
+    ctx.quadraticCurveTo(x + 7.5, y + 7, x + 11, y + 12);
     ctx.fill();
     ctx.closePath();
 

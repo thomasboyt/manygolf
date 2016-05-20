@@ -19,7 +19,6 @@ import {
 } from './actions';
 
 import {
-  TIMER_MS,
   RoundState,
 } from '../universal/constants';
 
