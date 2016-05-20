@@ -10,6 +10,10 @@ http://manygolf.disco.zone/
 
 ## dev guide
 
+### installing
+
+after cloning the repo, run `npm install` in the project root to get all necessary dependencies to build, test, and run.
+
 ### running
 
 in two different sessions:
