@@ -63,4 +63,5 @@ export const goalWords = [
   'what a season',
   'from downtown',
   'you\'re on fire',
+  'dunk it good',      // theme song to space jam 2
 ];
