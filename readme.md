@@ -10,6 +10,12 @@ http://manygolf.disco.zone/
 
 ## dev guide
 
+### prerequisites
+
+You need several packages:
+
+npm install nodemon webpack ts babel-core webpack-dev-server webpack-merge webpack-create-vendor-chunk extract-text-webpack-plugin
+
 ### running
 
 in two different sessions:
