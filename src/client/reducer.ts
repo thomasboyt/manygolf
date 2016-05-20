@@ -351,6 +351,14 @@ export default createImmutableReducer<State>(new State(), {
 
             if ((lastX < holeX && newX > holeX) ||
                 (lastX > holeX && newX < holeX)) {
+
+              if ((newX > holeX && state.round.aimDirection < -90) ||
+                  (newX < holeX && state.round.aimDirection > -90)) {
+                // the aim is already in the correct direction, no need to flip
+                // (fixes https://github.com/thomasboyt/manygolf/issues/10)
+                return state;
+              }
+
               const diff = -90 - state.round.aimDirection;
               state = state.setIn(['round', 'aimDirection'],
                                   state.round.aimDirection + diff * 2);
