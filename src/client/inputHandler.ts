@@ -23,7 +23,7 @@ import {
   ControlButton,
 } from './controlBar';
 
-export default function inputHandler(dt: number, state: State, dispatch: Dispatch) {
+export default function inputHandler(dt: number, state: State, dispatch: Dispatch<State>) {
   if (state.isObserver) {
     if (keysDown.has(keyCodes.SPACE) || buttonsDown.has(ControlButton.Shoot)) {
       dispatch({

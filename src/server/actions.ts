@@ -29,10 +29,11 @@ import {
   Player,
   PlayersMap,
   Level,
+  State,
 } from './records';
 
 export function sweepInactivePlayers(
-  dispatch: Dispatch, socks: ManygolfSocketManager,
+  dispatch: Dispatch<State>, socks: ManygolfSocketManager,
   {players, now}: {players: PlayersMap; now: number}
 ) {
   players.forEach((player, id) => {
@@ -60,7 +61,7 @@ export function sweepInactivePlayers(
   });
 }
 
-export function ensurePlayersInBounds(dispatch: Dispatch,
+export function ensurePlayersInBounds(dispatch: Dispatch<State>,
   {level, players}: {level: Level, players: PlayersMap}
 ) {
   players.forEach((player) => {
@@ -69,7 +70,7 @@ export function ensurePlayersInBounds(dispatch: Dispatch,
 }
 
 export function checkScored(
-  dispatch: Dispatch, socks: ManygolfSocketManager,
+  dispatch: Dispatch<State>, socks: ManygolfSocketManager,
   {overlappingMap, players, elapsed}: {
     overlappingMap: I.Iterable<number, Boolean>;
     players: PlayersMap;
@@ -106,7 +107,7 @@ export function checkScored(
   });
 }
 
-export function cycleLevel(dispatch: Dispatch, socks: ManygolfSocketManager) {
+export function cycleLevel(dispatch: Dispatch<State>, socks: ManygolfSocketManager) {
   console.log('Cycling level');
 
   const startTime = Date.now();
@@ -176,7 +177,7 @@ export function rankPlayers(players: I.Map<number, Player>): I.List<Player> {
     .toList();  // This isn't supposed to be necessary but makes TypeScript happy?
 }
 
-export function levelOver(dispatch: Dispatch, socks: ManygolfSocketManager,
+export function levelOver(dispatch: Dispatch<State>, socks: ManygolfSocketManager,
   {players}: {players: PlayersMap}
 ) {
   const rankedPlayers = rankPlayers(players);
@@ -200,7 +201,7 @@ export function levelOver(dispatch: Dispatch, socks: ManygolfSocketManager,
 }
 
 export function checkHurryUp(
-  dispatch: Dispatch, socks: ManygolfSocketManager,
+  dispatch: Dispatch<State>, socks: ManygolfSocketManager,
   {players, expTime}: {players: PlayersMap; expTime: number;}
 ) {
   // Go into hurry-up mode if the number of players who have yet to score is === 1 or less than

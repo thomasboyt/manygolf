@@ -1,4 +1,5 @@
 import {Store} from 'redux';
+import {State} from './records';
 
 const simulateLag = document.location.search.indexOf('simlag') !== -1;
 const simLagMs = 200;
@@ -11,9 +12,9 @@ if (simulateLag) {
 
 class WSConnection {
   private _ws: WebSocket;
-  private _store: Store;
+  private _store: Store<State>;
 
-  init(store: Store) {
+  init(store: Store<State>) {
     this._store = store;
 
     let url = `ws://${document.location.host}/server`;

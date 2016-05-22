@@ -30,9 +30,9 @@ import {
  */
 
 export default class ManygolfSocketManager extends SocketManager {
-  store: Store;
+  store: Store<State>;
 
-  constructor(wss: WebSocket.Server, store: Store) {
+  constructor(wss: WebSocket.Server, store: Store<State>) {
     super(wss);
     this.store = store;
   }
@@ -57,7 +57,7 @@ export default class ManygolfSocketManager extends SocketManager {
       isObserver,
     });
 
-    const state: State = this.store.getState();
+    const state = this.store.getState();
 
     this.sendTo(id, messageInitial({
       roundState: state.roundState,
@@ -99,7 +99,7 @@ export default class ManygolfSocketManager extends SocketManager {
   }
 
   onDisconnect(id: number) {
-    const state: State = this.store.getState();
+    const state = this.store.getState();
 
     const player = state.players.get(id);
 
@@ -121,12 +121,12 @@ export default class ManygolfSocketManager extends SocketManager {
   }
 
   onMessage(id: number, msg: any) {
-    const prevState = <State>this.store.getState();
+    const prevState = this.store.getState();
 
     if (msg.type === TYPE_SWING) {
       const data = <MessageSwing>msg.data;
 
-      let state = <State>this.store.getState();
+      let state = this.store.getState();
       let player = state.players.get(id);
 
       // Player could be an observer
@@ -143,7 +143,7 @@ export default class ManygolfSocketManager extends SocketManager {
         id,
       }, data));
 
-      state = <State>this.store.getState();
+      state = this.store.getState();
       player = state.players.get(id);
 
       this.sendAll(messagePlayerSwing({
@@ -163,13 +163,13 @@ export default class ManygolfSocketManager extends SocketManager {
         id,
       });
 
-      const state = <State>this.store.getState();
+      const state = this.store.getState();
       const player = state.players.get(id);
 
       this.playerJoined(player);
 
     } else if (msg.type === TYPE_SEND_CHAT) {
-      const state = <State>this.store.getState();
+      const state = this.store.getState();
       const player = state.players.get(id);
 
       // Player could be an observer
