@@ -1,4 +1,4 @@
-/// <reference path="../../../typings/browser/ambient/mocha/index.d.ts" />
+/// <reference path="../../../typings/globals/mocha/index.d.ts" />
 
 import expect from 'expect';
 import I from 'immutable';
