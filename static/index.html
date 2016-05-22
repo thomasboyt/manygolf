@@ -38,6 +38,7 @@
     <meta property="og:image:height" content="200" />
 
     <!-- Piwik -->
+    <!-- (piwik is configured to only track pageviews from manygolf.club, so thankfully I don't have to add a special build step just to remove this from non-production builds :>) -->
     <script type="text/javascript">
       var _paq = _paq || [];
       _paq.push(['trackPageView']);
@@ -53,93 +54,7 @@
   </head>
 
   <body>
-    <div class="container">
-      <h1>manygolf</h1>
-
-      <div class="game-container">
-        <canvas id="game">
-        </canvas>
-
-        <div class="control-bar">
-        </div>
-
-        <div style="clear: both"></div>
-
-        <p class="orientation-help-text mobile-only">
-          (turn your phone sideways for a better view!)
-        </p>
-    </div>
-    <div class="instructions">
-
-      <div class="row">
-        <div class="section">
-          <h2>what</h2>
-          <p>
-            manygolf is a massively multiplayer golf game. everyone plays together, simultaneously,
-            in the same session.
-          </p>
-          <p>
-            whoever wins the round in the fewest number of strokes wins. in the event of a tie, the player
-            who scores the fastest wins.
-          </p>
-        </div>
-
-        <div class="section">
-          <div class="hide-mobile">
-            <h2>controls</h2>
-            <p>
-              A/D or left/right to set angle<br/>
-              hold space to shoot
-            </p>
-          </div>
-
-          <h2>share</h2>
-          <p>
-            feeling lonely? find some people to play with by pressing this fancy social media integration button! it has a marketing hashtag and everything
-          </p>
-          <p>
-            <a id="twitter-link"
-              href="https://twitter.com/intent/tweet?text=Come+play+manygolf+with+me!&url=http%3A%2F%2Fmanygolf.club"
-              target="_blank"
-              rel="noopener">
-              make tweet
-            </a>
-          </p>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="section">
-          <h2>newest changes</h2>
-          <p>
-            <em>May 20</em> - Manygolf has a new home at <a href="http://manygolf.club/">manygolf.club</a>! Your bookmarks and such should automatically redirect just fine.
-          </p>
-          <p>
-            <em>May 17, again</em> - Added :) and :( emotes you can use. I've already gotten a request for keyboard shortcuts for these, will add them shortly!
-          </p>
-          <p>
-            <em>May 17</em> - I added an end-of-round leaderboard. It currently just shows you the position everyone placed for the current hole, but is step 1 in adding some kind of persistent scoring across holes!
-          </p>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="section">
-          <h2>who</h2>
-          <p>
-            by thomas, with obvious debt to <a href="http://desertgolfing.captain-games.com/">desert golfing</a>
-          </p>
-          <p>
-            updates/feedback: <a href="https://twitter.com/manygolf">@manygolf on twitter</a>
-          </p>
-          <p>
-            <a href="https://github.com/thomasboyt/manygolf">code</a> /
-            <a href="http://devlog.disco.zone/2016/04/18/manygolf/">tech notes</a> /
-            <a href="http://disco.zone">disco.zone</a>
-          </p>
-        </div>
-      </div>
-    </div>
+    <div id="react-container"></div>
 
     <script src="/vendor.bundle.js"></script>
     <script src="/app.bundle.js"></script>
