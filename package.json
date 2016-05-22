@@ -43,7 +43,6 @@
   "dependencies": {
     "bufferutil": "^1.2.1",
     "core-js": "^2.0.3",
-    "diffhtml": "^0.8.0",
     "express": "^4.13.4",
     "immutable": "https://github.com/thomasboyt/immutable-js.git#fix-record-update-return-types",
     "lodash.clamp": "^4.0.1",
@@ -53,6 +52,8 @@
     "randomcolor": "^0.4.3",
     "raven": "^0.10.0",
     "raven-js": "^2.3.0",
+    "react": "^15.1.0",
+    "react-dom": "^15.1.0",
     "redux": "^3.0.4",
     "redux-thunk": "^2.0.1",
     "source-map-support": "^0.4.0",

@@ -7,9 +7,11 @@
     "mocha": "registry:dt/mocha#2.2.5+20160317120654",
     "node": "registry:dt/node#4.0.0+20160330064709",
     "qs": "registry:dt/qs#0.0.0+20160317120654",
-    "redux": "registry:dt/redux#3.3.1+20160326112656",
+    "react": "registry:dt/react#0.14.0+20160423065914",
+    "react-dom": "registry:dt/react-dom#0.14.0+20160412154040",
     "serve-static": "registry:dt/serve-static#0.0.0+20160317120654",
     "tinycolor": "registry:dt/tinycolor#1.1.1+20160317120654",
     "ws": "registry:dt/ws#0.0.0+20160317120654"
-  }
+  },
+  "dependencies": {}
 }
