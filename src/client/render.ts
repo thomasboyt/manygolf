@@ -45,7 +45,9 @@ function renderDisconnected(ctx: CanvasRenderingContext2D, state: State) {
   ctx.fillStyle = textColor;
   ctx.font = 'normal 16px "Press Start 2P"';
   ctx.textAlign = 'center';
-  ctx.fillText('Disconnected! Try reloading?', WIDTH / 2, HEIGHT / 2);
+  ctx.fillText('You have been disconnected', WIDTH / 2, HEIGHT / 2 - 30);
+  ctx.fillText('from the server', WIDTH / 2, HEIGHT / 2 - 10);
+  ctx.fillText('Click or tap here to reload', WIDTH / 2, HEIGHT / 2 + 20);
 }
 
 function renderEmoticon(ctx: CanvasRenderingContext2D, x: number, y: number, emoticon: Emoticon) {

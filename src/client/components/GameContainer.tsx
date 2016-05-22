@@ -26,7 +26,6 @@ export default class GameContainer extends React.Component<{}, {}> {
     return (
       <div className="game-container">
         <Canvas />
-        <Overlay />
         <ControlBar />
 
         <div style={{clear: 'both'}} />
