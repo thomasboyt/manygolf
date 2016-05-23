@@ -101,7 +101,7 @@ export class MatchEndPlayer extends MatchEndPlayerRec {
 
 const RoundRec = I.Record({
   level: null,
-  world: null,
+  worlds: null,
   ball: new Ball(),
   holeSensor: null,
 
@@ -122,7 +122,7 @@ const RoundRec = I.Record({
 
 export class Round extends RoundRec {
   level: Level;
-  world: p2.World;
+  worlds: I.Map<number, p2.World>;
   ball: Ball;
   holeSensor: p2.Body;
 
