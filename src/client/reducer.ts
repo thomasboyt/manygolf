@@ -94,6 +94,10 @@ function syncWorld(state: State, data: MessageSync): State {
 
     const posAtClock = player.pastPositions.find((pos, posTime) => posTime >= data.time);
 
+    if (!posAtClock) {
+      throw new Error(`Missing posAtClock: ${state.time}, ${data.time}, ${player.pastPositions.size}`)
+    }
+
     if (Math.abs(posAtClock[0] - playerPosition.position[0]) >= SYNC_THRESHOLD ||
         Math.abs(posAtClock[1] - playerPosition.position[1]) >= SYNC_THRESHOLD) {
       shouldReset = true;
