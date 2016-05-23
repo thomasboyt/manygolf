@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const WebSocket = require('ws');
 
@@ -9,7 +9,6 @@ function randInt(min, max) {
 }
 
 function addBot() {
-  // const ws = new WebSocket('ws://manygolf.disco.zone/server');
   const ws = new WebSocket('ws://localhost:4080');
 
   ws.on('open', () => {
@@ -22,7 +21,7 @@ function addBot() {
             y: randInt(-100, 100),
           }
         }
-      }))
+      }));
     }, randInt(1000, 2000));
   });
 }
