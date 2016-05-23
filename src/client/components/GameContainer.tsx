@@ -3,7 +3,6 @@ import isTouch from '../util/isTouch';
 
 import ControlBar from './ControlBar';
 import Canvas from './Canvas';
-import Overlay from './Overlay';
 
 import {Store} from 'redux';
 import {State} from '../records';
@@ -13,7 +12,7 @@ export default class GameContainer extends React.Component<{}, {}> {
   maybeRenderMobileHelp() {
     if (isTouch) {
       return (
-        <p class="orientation-help-text mobile-only">
+        <p className="orientation-help-text mobile-only">
           (turn your phone sideways for a better view!)
         </p>
       );
