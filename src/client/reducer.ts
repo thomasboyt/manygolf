@@ -249,6 +249,14 @@ function applySwing(state: State, data: MessagePlayerSwing) {
     body.velocity[0] = data.velocity[0];
     body.velocity[1] = data.velocity[1];
 
+    if (data.id === state.id) {
+      const body = state.round.ball.body;
+      body.position[0] = data.position[0];
+      body.position[1] = data.position[1];
+      body.velocity[0] = data.velocity[0];
+      body.velocity[1] = data.velocity[1];
+    }
+
     const dt = (state.time - data.time) / 1000;
     state.round.world.step(fixedStep, -(dt * 3), maxSubSteps);
 
@@ -262,6 +270,14 @@ function applySwing(state: State, data: MessagePlayerSwing) {
       player.body.position[1] = prev.position[1];
       player.body.velocity[0] = prev.velocity[0];
       player.body.velocity[1] = prev.velocity[1];
+
+      if (id === state.id) {
+        const body = state.round.ball.body;
+        body.position[0] = prev.position[0];
+        body.position[1] = prev.position[1];
+        body.velocity[0] = prev.velocity[0];
+        body.velocity[1] = prev.velocity[1];
+      }
     });
 
   } else {
