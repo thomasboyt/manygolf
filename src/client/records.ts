@@ -17,20 +17,24 @@ export enum SwingMeterDirection {
   descending
 }
 
+const PlayerPhysicsRec = I.Record({
+  ball: null,
+  holeSensor: null,
+  world: null,
 
-const BallRec = I.Record({
-  body: null,
-  lastX: null,
+  lastBallX: null,
 });
 
-export class Ball extends BallRec {
-  body: p2.Body;
-  lastX: number;
+export class PlayerPhysics extends PlayerPhysicsRec {
+  ball: p2.Body;
+  holeSensor: p2.Body;
+  world: p2.World;
+
+  lastBallX: number;
 }
 
 
 const PlayerRec = I.Record({
-  body: null,
   color: null,
   name: null,
   id: null,
@@ -38,7 +42,6 @@ const PlayerRec = I.Record({
 });
 
 export class Player extends PlayerRec {
-  body: p2.Body;
   color: string;
   name: string;
   id: number;
@@ -101,9 +104,7 @@ export class MatchEndPlayer extends MatchEndPlayerRec {
 
 const RoundRec = I.Record({
   level: null,
-  worlds: null,
-  ball: new Ball(),
-  holeSensor: null,
+  playerPhysics: null,
 
   aimDirection: -45,  // angle (in degrees) relative to pointing ->
   swingPower: 0,
@@ -122,8 +123,7 @@ const RoundRec = I.Record({
 
 export class Round extends RoundRec {
   level: Level;
-  worlds: I.Map<number, p2.World>;
-  ball: Ball;
+  playerPhysics: I.Map<number, PlayerPhysics>;
   holeSensor: p2.Body;
 
   aimDirection: number;
