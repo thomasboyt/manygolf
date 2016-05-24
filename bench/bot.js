@@ -2,7 +2,8 @@
 
 const WebSocket = require('ws');
 
-const NUM_BOTS = 10;
+const NUM_BOTS = parseInt(process.argv[2]) || 10;
+console.log(`Starting ${NUM_BOTS} bots`);
 
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
