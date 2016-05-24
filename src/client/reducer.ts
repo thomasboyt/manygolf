@@ -65,7 +65,7 @@ import {
   Match,
 } from './records';
 
-const SYNC_THRESHOLD = 0;
+const SYNC_THRESHOLD = 2;
 
 const fixedStep = 1 / 60;
 
@@ -94,50 +94,33 @@ function syncWorld(state: State, data: MessageSync): State {
 
     const posAtClock = player.pastPositions.find((pos, posTime) => posTime >= data.time);
 
-    if (Math.abs(posAtClock[0] - playerPosition.position[0]) >= SYNC_THRESHOLD ||
-        Math.abs(posAtClock[1] - playerPosition.position[1]) >= SYNC_THRESHOLD) {
-      shouldReset = true;
-    }
-  });
+    const xDiff = posAtClock[0] - playerPosition.position[0];
+    const yDiff = posAtClock[1] - playerPosition.position[1];
 
-  if (!shouldReset) {
-    console.log('Skipping sync');
-    return state;
-  }
-
-  console.log(`Running sync ${data.time}`);
-
-  data.players.forEach((playerPosition) => {
-    const player = state.players.get(playerPosition.id);
-
-    // player disconnected
-    if (!player) {
-      return;
-    }
-
-    const body = player.body;
-    body.position[0] = playerPosition.position[0];
-    body.position[1] = playerPosition.position[1];
-    body.velocity[0] = playerPosition.velocity[0];
-    body.velocity[1] = playerPosition.velocity[1];
-
-    // Update player ball
-    if (playerPosition.id === state.id) {
-      // If the player has swung between the last sync and this sync, ignore the sync message
-      // This prevents the player ball from being synced back to pre-input state
-      const body = state.round.ball.body;
+    if (Math.abs(xDiff) >= SYNC_THRESHOLD || Math.abs(yDiff) >= SYNC_THRESHOLD) {
+      console.log(`syncing ${playerPosition.id} (x: ${xDiff} y: ${yDiff})`);
+      // move ball to synced location
+      const body = player.body;
       body.position[0] = playerPosition.position[0];
       body.position[1] = playerPosition.position[1];
       body.velocity[0] = playerPosition.velocity[0];
       body.velocity[1] = playerPosition.velocity[1];
+
+      // Step to catch up from snapshot time to the current render time
+      const dt = (state.time - data.time) / 1000;
+      state.round.worlds.get(player.id).step(fixedStep, dt * 3, maxSubSteps);
+
+      // Update player ball
+      // if (playerPosition.id === state.id) {
+      //   // If the player has swung between the last sync and this sync, ignore the sync message
+      //   // This prevents the player ball from being synced back to pre-input state
+      //   const body = state.round.ball.body;
+      //   body.position[0] = playerPosition.position[0];
+      //   body.position[1] = playerPosition.position[1];
+      //   body.velocity[0] = playerPosition.velocity[0];
+      //   body.velocity[1] = playerPosition.velocity[1];
+      // }
     }
-  });
-
-  // Step to catch up from snapshot time to the current render time
-  const dt = (state.time - data.time) / 1000;
-
-  state.round.worlds.forEach((world) => {
-    world.step(fixedStep, dt * 3, maxSubSteps);
   });
 
   return state;
