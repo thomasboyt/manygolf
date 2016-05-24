@@ -12,6 +12,7 @@
     "server": "webpack --config webpack/server.js && node build/server.bundle.js",
     "build": "webpack --config webpack/production.js && webpack --config webpack/server.js",
     "deploy": "fly production",
+    "deploy-staging": "fly client-staging",
     "lint": "tslint src/**/*.ts"
   },
   "devDependencies": {
