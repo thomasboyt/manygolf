@@ -431,8 +431,6 @@ export default createImmutableReducer<State>(new State(), {
   [`ws:${TYPE_PLAYER_CONNECTED}`]: (state: State, action) => {
     const data = <MessagePlayerConnected>action.data;
 
-    // const ball = createBall(state.round.level.spawn);
-    // state.round.world.addBody(ball);
     const playerPhysics = createPlayerPhysics(state.round.level);
 
     return state
