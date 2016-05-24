@@ -4,11 +4,14 @@ const plan = require('flightplan');
 const secret = require('./secret.json');
 const globSync = require('glob').sync;
 
-plan.target('production', {
+const sshConfig = {
   host: secret.host,
   username: secret.username,
   agent: process.env.SSH_AUTH_SOCK,
-});
+};
+
+plan.target('production', sshConfig, secret.environments.production);
+plan.target('client-staging', sshConfig, secret.environments['client-staging']);
 
 // plan.remote('provision', {
   // XXX: some day figure out how to provision node here:
@@ -22,7 +25,7 @@ plan.target('production', {
 // });
 
 plan.remote((remote) => {
-  remote.rm('-rf /tmp/manygolf', {failsafe: true});
+  remote.rm(`-rf ${getTmpPath()}`, {failsafe: true});
 });
 
 plan.local((local) => {
@@ -35,8 +38,18 @@ plan.local((local) => {
   const files = srcFiles.concat(buildFiles);
 
   local.log('Uploading files...');
-  local.transfer(files, '/tmp/manygolf');
+  local.transfer(files, getTmpPath());
 });
+
+function fileExists(remote, file) {
+  const test = remote.exec(`test -f ${file}`, {failsafe: true, silent: true});
+
+  if (test.code >= 1) {
+    return false;
+  } else {
+    return true;
+  }
+}
 
 // Tells whether two files are different
 function filesDiffer(remote, file1, file2) {
@@ -50,11 +63,22 @@ function filesDiffer(remote, file1, file2) {
   return cmp.code === 1;
 }
 
-plan.remote((remote) => {
-  remote.mkdir(`-p ${secret.path}`);
-  remote.cd(secret.path);
+function getWebRoot() {
+  return plan.runtime.options.path;
+}
 
-  remote.with(`cd ${secret.path}`, () => {
+function getTmpPath() {
+  return `/tmp/manygolf-${plan.runtime.target}`;
+}
+
+plan.remote((remote) => {
+  const outPath = getWebRoot();
+  const tmpPath = getTmpPath();
+
+  remote.mkdir(`-p ${outPath}`);
+  remote.cd(outPath);
+
+  remote.with(`cd ${outPath}`, () => {
 
     let shouldRestart;
 
@@ -62,11 +86,21 @@ plan.remote((remote) => {
       shouldRestart = true;
 
     } else {
-      shouldRestart = filesDiffer(
-        remote,
-        'build/server.bundle.js',
-        '/tmp/manygolf/build/server.bundle.js'
-      );
+      if (!fileExists(remote, 'build/server.bundle.js')) {
+        shouldRestart = true;
+
+      } else {
+        shouldRestart = filesDiffer(
+          remote,
+          'build/server.bundle.js',
+          `${tmpPath}/build/server.bundle.js`
+        );
+      }
+    }
+
+    // No server is run for client-staging
+    if (plan.runtime.target === 'client-staging') {
+      shouldRestart = false;
     }
 
     if (shouldRestart) {
@@ -78,7 +112,7 @@ plan.remote((remote) => {
     remote.log('Replacing files...');
 
     remote.rm('-rf build');
-    remote.cp('-r /tmp/manygolf/. .');
+    remote.cp(`-r ${tmpPath}/. .`);
 
     // we serve out of build/ so copy static files into there
     remote.exec('chmod 644 static/*');  // XXX: we have to do this for some reason :[

@@ -18,6 +18,12 @@ class WSConnection {
     this._store = store;
 
     let url = `ws://${document.location.host}/server`;
+
+    // hack for client-staging environment
+    if (document.location.host === 'client-staging.manygolf.club') {
+      url = 'ws://manygolf.club/server';
+    }
+
     if (document.location.search.indexOf('observe') !== -1) {
       url += '?observe';
     }
