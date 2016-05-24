@@ -80,6 +80,8 @@ const maxSubSteps = (TIMER_MS / 1000) * (1 / fixedStep);
 const moveSpeed = 50;  // degrees per second
 
 function syncWorld(state: State, data: MessageSync): State {
+  console.log('sync ----');
+
   // Update player states if they are over some threshold at time
   data.players.forEach((playerPosition) => {
     const player = state.players.get(playerPosition.id);
@@ -194,7 +196,8 @@ function newLevel(state: State, data: MessageInitial) {
 }
 
 function applySwing(state: State, data: MessagePlayerSwing) {
-  console.log(`playing swing ${data.id} ${data.time}`);
+  const dt = (state.time - data.time) / 1000;
+  console.log(`playing swing ${dt} ${data.id} ${data.time}`);
 
   const player = state.players.get(data.id);
 
