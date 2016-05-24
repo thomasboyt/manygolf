@@ -213,7 +213,7 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
       return;
     }
 
-    const pos = player.body.interpolatedPosition;
+    const pos = state.round.playerPhysics.get(player.id).ball.interpolatedPosition;
     renderBall(ctx, pos[0], pos[1], player.color, textColor);
 
     if (state.match.leaderId === player.id) {
@@ -225,27 +225,20 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
   // Draw chat bubbles
   //
   state.chats.forEach((chat, id) => {
-    let x, y, onLeft = false;
 
     if (!state.players.get(id)) {
       // Chat received but no player/ball is present, so don't render!
       return;
     }
 
-    if (id === state.id) {
-      // render over current player
-      x = state.round.ball.body.interpolatedPosition[0];
-      y = state.round.ball.body.interpolatedPosition[1];
+    const pos = state.round.playerPhysics.get(id).ball.interpolatedPosition;
+    const x = pos[0];
+    const y = pos[1];
 
-      if (state.round.aimDirection > -90) {
-        onLeft = true;
-      }
-
-    } else {
-      // render over other player
-      const pos = state.players.get(id).body.interpolatedPosition;
-      x = pos[0];
-      y = pos[1];
+    // if it's over the current player, don't overlap the aim arrow
+    let onLeft = false;
+    if (id === state.id && state.round.aimDirection > -90) {
+      onLeft = true;
     }
 
     renderChat(ctx, {ballX: x, ballY: y, emoticon: chat.emoticon, onLeft});
@@ -258,7 +251,7 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
   //
   // Draw player ball
   //
-  const ballPos = state.round.ball.body.interpolatedPosition;
+  const ballPos = state.round.playerPhysics.get(state.id).ball.interpolatedPosition;
 
   // draw a translucent "shadow" around the player ball to make it easy to keep tack
   ctx.beginPath();

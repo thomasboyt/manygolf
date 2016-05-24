@@ -55,7 +55,7 @@ import sample from 'lodash.sample';
 import {
   State,
   Level,
-  Ball,
+  PlayerPhysics,
   Player,
   SwingMeterDirection,
   LeaderboardPlayer,
@@ -81,7 +81,6 @@ const moveSpeed = 50;  // degrees per second
 
 function syncWorld(state: State, data: MessageSync): State {
   // Update player states if they are over some threshold at time
-  let shouldReset = false;
   data.players.forEach((playerPosition) => {
     const player = state.players.get(playerPosition.id);
 
@@ -100,7 +99,7 @@ function syncWorld(state: State, data: MessageSync): State {
     if (Math.abs(xDiff) >= SYNC_THRESHOLD || Math.abs(yDiff) >= SYNC_THRESHOLD) {
       console.log(`syncing ${playerPosition.id} (x: ${xDiff} y: ${yDiff})`);
       // move ball to synced location
-      const body = player.body;
+      const body = state.round.playerPhysics.get(player.id).ball;
       body.position[0] = playerPosition.position[0];
       body.position[1] = playerPosition.position[1];
       body.velocity[0] = playerPosition.velocity[0];
@@ -108,18 +107,7 @@ function syncWorld(state: State, data: MessageSync): State {
 
       // Step to catch up from snapshot time to the current render time
       const dt = (state.time - data.time) / 1000;
-      state.round.worlds.get(player.id).step(fixedStep, dt * 3, maxSubSteps);
-
-      // Update player ball
-      // if (playerPosition.id === state.id) {
-      //   // If the player has swung between the last sync and this sync, ignore the sync message
-      //   // This prevents the player ball from being synced back to pre-input state
-      //   const body = state.round.ball.body;
-      //   body.position[0] = playerPosition.position[0];
-      //   body.position[1] = playerPosition.position[1];
-      //   body.velocity[0] = playerPosition.velocity[0];
-      //   body.velocity[1] = playerPosition.velocity[1];
-      // }
+      state.round.playerPhysics.get(player.id).world.step(fixedStep, dt * 3, maxSubSteps);
     }
   });
 
@@ -134,7 +122,8 @@ function enterScored(state: State) {
     .setIn(['round', 'goalText'], goalText);
 }
 
-function createPlayerWorld(level, player?) {
+// TODO: typedef for player w/ position, velocity
+function createPlayerPhysics(level: Level, player?: any) {
   const world = createWorld();
 
   const groundBodies = createGround(level);
@@ -155,10 +144,11 @@ function createPlayerWorld(level, player?) {
 
   world.addBody(ball);
 
-  return {
+  return new PlayerPhysics({
     ball,
     world,
-  }
+    holeSensor,
+  });
 }
 
 function newLevel(state: State, data: MessageInitial) {
@@ -168,36 +158,22 @@ function newLevel(state: State, data: MessageInitial) {
   const level = new Level(I.fromJS(levelData))
     .update(addHolePoints);
 
-  let worlds = I.Map<number, p2.World>();
+  let playerPhysicsMap = I.Map<number, PlayerPhysics>();
 
-  let players;
   if (data.players) {
     // Initial connection includes players with positions+velocities
-    data.players.forEach((player) => {
-      const {world, ball} = createPlayerWorld(level, player);
-      state = state.setIn(['players', player.id, 'body'], ball);
-      worlds = worlds.set(player.id, world);
-    });
+    playerPhysicsMap = data.players.reduce((playerPhysicsMap, player) => {
+      const playerPhysics = createPlayerPhysics(level, player);
+      return playerPhysicsMap.set(player.id, playerPhysics);
+    }, playerPhysicsMap);
 
   } else {
     // New level on existing connection
-    state.players.forEach((player) => {
-      const {world, ball} = createPlayerWorld(level);
-      state = state.setIn(['players', player.id, 'body'], ball);
-      worlds = worlds.set(player.id, world);
-    });
+    playerPhysicsMap = state.players.reduce((playerPhysicsMap, player) => {
+      const playerPhysics = createPlayerPhysics(level);
+      return playerPhysicsMap.set(player.id, playerPhysics);
+    }, playerPhysicsMap);
   }
-
-  // Create player ball
-  // let ball = null;
-  // if (!state.isObserver) {
-  //   const ballBody = createBall(level.spawn);
-  //   world.addBody(ballBody);
-  //   ball = new Ball({
-  //     body: ballBody,
-  //     lastX: ballBody.position[0],
-  //   });
-  // }
 
   // Clean up synced data
   state = state.set('players', state.players.map((player) => {
@@ -211,12 +187,9 @@ function newLevel(state: State, data: MessageInitial) {
   return state.set('round', new Round({
     gameState: GameState.roundInProgress,
 
-    worlds,
+    playerPhysics: playerPhysicsMap,
     level,
     expTime,
-    // holeSensor,
-
-    ball: null,
   }));
 }
 
@@ -230,45 +203,35 @@ function applySwing(state: State, data: MessagePlayerSwing) {
     return state;
   }
 
-  const body = player.body;
+  const body = state.round.playerPhysics.get(player.id).ball;
 
   body.position[0] = data.position[0];
   body.position[1] = data.position[1];
   body.velocity[0] = data.velocity[0];
   body.velocity[1] = data.velocity[1];
 
-  if (state.round.ball && data.id === state.id) {
-    const body = state.round.ball.body;
-    body.position[0] = data.position[0];
-    body.position[1] = data.position[1];
-    body.velocity[0] = data.velocity[0];
-    body.velocity[1] = data.velocity[1];
-  }
-
   const dt = (state.time - data.time) / 1000;
-  state.round.worlds.get(data.id).step(fixedStep, -(dt * 3), maxSubSteps);
+  state.round.playerPhysics.get(data.id).world.step(fixedStep, -(dt * 3), maxSubSteps);
 
   return state;
 }
 
 function enterGame(state: State) {
-  const ballBody = createBall(state.round.level.spawn);
-
-  state.round.world.addBody(ballBody);
-
-  const ball = new Ball({
-    body: ballBody,
-  });
+  const playerPhysics = createPlayerPhysics(state.round.level);
 
   return state
-    .set('isObserver', false)
-    .setIn(['round', 'ball'], ball);
+    .setIn(['round', 'playerPhysics', state.id], playerPhysics)
+    .set('isObserver', false);
 }
 
 function leaveGame(state: State) {
   return state
-    .set('isObserver', true)
-    .setIn(['round', 'ball'], null);
+    .deleteIn(['round', 'playerPhysics', state.id])
+    .set('isObserver', true);
+}
+
+function getCurrentPlayerPhysics(state: State): PlayerPhysics {
+  return state.round.playerPhysics.get(state.id);
 }
 
 export default createImmutableReducer<State>(new State(), {
@@ -281,25 +244,27 @@ export default createImmutableReducer<State>(new State(), {
     }
 
     let overlapping;
-    if (state.round.ball) {
-      ensureBallInBounds(state.round.ball.body, state.round.level);
+    if (getCurrentPlayerPhysics(state)) {
+      const {holeSensor, ball} = getCurrentPlayerPhysics(state);
+      ensureBallInBounds(ball, state.round.level);
 
       // overlaps() can't be used on a sleeping object, so we check overlapping before tick
-      overlapping = state.round.ball.body.overlaps(state.round.holeSensor);
+      overlapping = ball.overlaps(holeSensor);
     }
 
     // XXX: MMMMMonster hack
     // dt is set to dt * 3 because that's the speed I actually want
-    state.round.worlds.forEach((world) => {
-      world.step(fixedStep, dt * 3, maxSubSteps);
+    state.round.playerPhysics.forEach((phys) => {
+      phys.world.step(fixedStep, dt * 3, maxSubSteps);
     });
 
 
     // update saved positions
     state = state.set('players', state.players.map((player) => {
+      const body = state.round.playerPhysics.get(player.id).ball;
       return player.setIn(['pastPositions', state.time], [
-        player.body.position[0],
-        player.body.position[1],
+        body.position[0],
+        body.position[1],
       ]);
     }));
 
@@ -316,9 +281,11 @@ export default createImmutableReducer<State>(new State(), {
     });
     state = state.set('swingQueue', state.swingQueue.filterNot((msg) => msg.time < state.time));
 
-    if (state.round.ball) {
+    if (getCurrentPlayerPhysics(state)) {
+      const {ball, lastBallX} = getCurrentPlayerPhysics(state);
+
       if (!state.round.scored) {
-        const isSleeping = state.round.ball.body.sleepState === p2.Body.SLEEPING;
+        const isSleeping = ball.sleepState === p2.Body.SLEEPING;
         const scored = overlapping && isSleeping;
 
         if (scored) {
@@ -329,12 +296,11 @@ export default createImmutableReducer<State>(new State(), {
           if (!state.round.allowHit && isSleeping) {
             // If the player has gone over the hole, mirror the ball's angle so they don't
             // have to slowly re-orient it
-            const lastX = state.round.ball.lastX;
-            const newX = state.round.ball.body.position[0];
+            const newX = ball.position[0];
             const holeX = state.round.level.hole.get(0);
 
-            if ((lastX < holeX && newX > holeX) ||
-                (lastX > holeX && newX < holeX)) {
+            if ((lastBallX < holeX && newX > holeX) ||
+                (lastBallX > holeX && newX < holeX)) {
 
               if ((newX > holeX && state.round.aimDirection < -90) ||
                   (newX < holeX && state.round.aimDirection > -90)) {
@@ -399,13 +365,11 @@ export default createImmutableReducer<State>(new State(), {
   },
 
   'endSwing': (state: State, action) => {
-    const {vec}: {vec: {x: number, y: number}} = action;
-
-    const lastX = state.round.ball.body.position[0];
+    const lastX = getCurrentPlayerPhysics(state).ball.position[0];
 
     return state
       .setIn(['round', 'inSwing'], false)
-      .setIn(['round', 'ball', 'lastX'], lastX)
+      .setIn(['round', 'playerPhysics', state.id, 'lastBallX'], lastX)
       .updateIn(['round', 'strokes'], (strokes) => strokes + 1)
       .set('didSwing', true);
   },
@@ -469,15 +433,14 @@ export default createImmutableReducer<State>(new State(), {
 
     // const ball = createBall(state.round.level.spawn);
     // state.round.world.addBody(ball);
-    const {world, ball} = createPlayerWorld(state.round.level);
+    const playerPhysics = createPlayerPhysics(state.round.level);
 
     return state
-      .setIn(['round', 'worlds', data.id], world)
+      .setIn(['round', 'playerPhysics', data.id], playerPhysics)
       .setIn(['players', action.data.id], new Player({
         color: data.color,
         name: data.name,
         id: data.id,
-        body: ball,
       }));
   },
 
