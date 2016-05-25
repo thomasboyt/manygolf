@@ -4,6 +4,7 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 module.exports = {
   entry: {
     app: './src/client/main.tsx',
+    standalone: './src/client/standalone.tsx',
   },
 
   output: {
