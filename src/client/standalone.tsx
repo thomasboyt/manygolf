@@ -7,7 +7,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {Provider} from 'react-redux';
 
-import Main from './components/Main';
+import GameContainer from './components/GameContainer';
 import initialize from './initialize';
 
 function main() {
@@ -24,7 +24,7 @@ function main() {
 
   ReactDOM.render((
     <Provider store={store}>
-      <Main />
+      <GameContainer />
     </Provider>
   ), el);
 }

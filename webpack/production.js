@@ -5,6 +5,10 @@ var config = require('./base');
 var secret = require('../secret');
 
 module.exports = webpackMerge(config, {
+  entry: {
+    standalone: './src/client/standalone.tsx',
+  },
+
   plugins: [
     new webpack.DefinePlugin({
       'process.env': {

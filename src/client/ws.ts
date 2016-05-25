@@ -26,7 +26,7 @@ class WSConnection {
 
     // hack for client-staging environment
     if (document.location.host === 'client-staging.manygolf.club') {
-      url = 'ws://manygolf.club/server';
+      url = `${scheme}://manygolf.club/server`;
     }
 
     if (document.location.search.indexOf('observe') !== -1) {
