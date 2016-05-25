@@ -17,7 +17,12 @@ class WSConnection {
   init(store: Store<State>) {
     this._store = store;
 
-    let url = `ws://${document.location.host}/server`;
+    let scheme = 'ws';
+    if (document.location.protocol === 'https:') {
+      scheme = 'wss';
+    }
+
+    let url = `${scheme}://${document.location.host}/server`;
 
     // hack for client-staging environment
     if (document.location.host === 'client-staging.manygolf.club') {
