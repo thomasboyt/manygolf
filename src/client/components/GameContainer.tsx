@@ -8,7 +8,11 @@ import {Store} from 'redux';
 import {State} from '../records';
 import {Subscriber} from '../runLoop';
 
-export default class GameContainer extends React.Component<{}, {}> {
+interface Props {
+  standalone?: boolean;
+}
+
+export default class GameContainer extends React.Component<Props, {}> {
   maybeRenderMobileHelp() {
     if (isTouch) {
       return (
@@ -22,8 +26,10 @@ export default class GameContainer extends React.Component<{}, {}> {
   }
 
   render() {
+    const className = this.props.standalone ? 'game-container standalone' : 'game-container';
+
     return (
-      <div className="game-container">
+      <div className={className}>
         <Canvas />
         <ControlBar />
 

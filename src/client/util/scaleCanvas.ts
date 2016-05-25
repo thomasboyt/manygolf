@@ -1,25 +1,12 @@
 function getScaleFactor(originalWidth: number, originalHeight: number, maxWidth: number,
                         maxHeight: number): number {
-  // XXX: I picked .1x because it seems to always result in whole numbers for w=500 and h=250
-  // but there has to be a way to find the "minimum scaling factor for whole numbers" for any
-  // given width and height, right?
-  const scaleStep = 0.1;
-
-  let scale = 1;
-
   if (originalWidth > maxWidth || originalHeight > maxHeight) {
-    // fall back to css scaling...
-    return scale;
+    return 1;
   }
 
   const heightScale = maxHeight / originalHeight;
   const widthScale = maxWidth / originalWidth;
-  const initScale = Math.min(heightScale, widthScale);
-
-  // Round scaling factor to nearest scaleStep
-  scale = Math.floor(initScale / scaleStep) * scaleStep;
-
-  return scale;
+  return Math.min(heightScale, widthScale);
 }
 
 /*
@@ -29,9 +16,8 @@ function getScaleFactor(originalWidth: number, originalHeight: number, maxWidth:
 export default function scaleCanvas(canvas: HTMLCanvasElement, width: number, height: number) {
   const clientWidth = (<HTMLElement>canvas.parentNode).clientWidth;
   const viewportHeight = document.documentElement.clientHeight;
-  const heightBuffer = 125;  // leave room for control bar on touch devices
 
-  const scale = getScaleFactor(width, height, clientWidth, viewportHeight - heightBuffer);
+  const scale = getScaleFactor(width, height, clientWidth, viewportHeight);
 
   let pixelRatio = 1;
 
