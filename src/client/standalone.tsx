@@ -1,4 +1,4 @@
-require('../../styles/main.less');
+require('../../styles/standalone.less');
 
 import './util/registerPolyfill';
 import './util/registerErrorHandler';
@@ -24,7 +24,7 @@ function main() {
 
   ReactDOM.render((
     <Provider store={store}>
-      <GameContainer standalone />
+      <GameContainer />
     </Provider>
   ), el);
 }
