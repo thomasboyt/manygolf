@@ -14,7 +14,7 @@ module.exports = {
 
   plugins: [
     createVendorChunk(),
-    new ExtractTextPlugin('style.bundle.css'),
+    new ExtractTextPlugin('[name].bundle.css'),
   ],
 
   resolve: {
