@@ -10,6 +10,10 @@ import {Provider} from 'react-redux';
 import GameContainer from './components/GameContainer';
 import initialize from './initialize';
 
+import {
+  ConnectionState,
+} from '../universal/constants';
+
 function main() {
   const el = document.getElementById('react-container');
 
@@ -27,6 +31,14 @@ function main() {
       <GameContainer />
     </Provider>
   ), el);
+
+  (window as any).reconnectIfDisconnected = function() {
+    const state = store.getState();
+
+    if (state.connectionState === ConnectionState.disconnected) {
+      document.location.reload();
+    }
+  }
 }
 
 function renderMissingFeatures(el: HTMLElement) {
