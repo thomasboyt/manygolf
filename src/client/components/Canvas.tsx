@@ -1,11 +1,9 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {connect} from 'react-redux';
 
 import {
   WIDTH,
   HEIGHT,
-  ConnectionState
 } from '../../universal/constants';
 
 import {
@@ -17,7 +15,7 @@ import scaleCanvas from '../util/scaleCanvas';
 import render from '../render';
 
 interface Props {
-  connectionState: ConnectionState;
+  onClick: (scaledX: number, scaledY: number) => void;
 }
 
 function getScaleFactor(originalWidth: number, originalHeight: number, maxWidth: number,
@@ -36,6 +34,8 @@ class Canvas extends React.Component<Props, {}> {
   private _ctx: CanvasRenderingContext2D;
 
   state = {
+    width: null,
+    height: null,
     canvasWidth: null,
     canvasHeight: null,
     styleWidth: null,
@@ -72,16 +72,14 @@ class Canvas extends React.Component<Props, {}> {
       pixelRatio = window.devicePixelRatio;
     }
 
-    // canvas width and height should be the pixel-scaled size
     this.setState({
+      width: WIDTH * scale,
+      height: HEIGHT * scale,
       canvasWidth: WIDTH * scale * pixelRatio,
       canvasHeight: HEIGHT * scale * pixelRatio,
       styleWidth: `${WIDTH * scale}px`,
       styleMaxHeight: `${HEIGHT * scale}px`,
     });
-
-    // canvas.width = width * scale * pixelRatio;
-    // canvas.height = height * scale * pixelRatio;
 
     // TODO: do this elsewhere?
     setTimeout(() => {
@@ -89,10 +87,16 @@ class Canvas extends React.Component<Props, {}> {
     }, 0);
   }
 
-  handleClick() {
-    if (this.props.connectionState === ConnectionState.disconnected) {
-      document.location.reload();
-    }
+  handleClick(e) {
+    const rect = ReactDOM.findDOMNode(this).getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    // scale
+    const xScale = WIDTH / this.state.width;
+    const yScale = HEIGHT / this.state.height;
+
+    this.props.onClick(x * xScale, y * yScale);
   }
 
   render() {
@@ -103,7 +107,7 @@ class Canvas extends React.Component<Props, {}> {
 
     return (
       <canvas
-        onClick={() => this.handleClick()}
+        onClick={(e) => this.handleClick(e)}
         width={this.state.canvasWidth}
         height={this.state.canvasHeight}
         style={style} />
@@ -111,10 +115,4 @@ class Canvas extends React.Component<Props, {}> {
   }
 }
 
-function select(state) {
-  return {
-    connectionState: state.connectionState
-  };
-}
-
-export default connect(select)(Canvas);
+export default Canvas;
