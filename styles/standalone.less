@@ -1,4 +1,6 @@
-html, body{
+@import "./common.less";
+
+html, body {
   margin: 0;
   padding: 0;
   width: 100%;
@@ -6,55 +8,6 @@ html, body{
   overflow: hidden;
 
   background: black;
-}
-
-body {
-  text-align: center;
-  font-family: 'Press Start 2P';
-  color: #cacaca;
-}
-
-.game-container {
-  margin: 0 auto;
-}
-
-canvas {
-  max-width: 100%;
-}
-
-.container {
-  margin: 0 auto;
-}
-
-.control-bar {
-  padding-top: 5px;
-  display: flex;
-  margin: 0 -10px;
-
-  justify-content: center;
-
-  img {
-    display: block;
-    flex: 0 0 auto;
-    margin: 0 10px;
-    cursor: pointer;
-  }
-
-  // pushes left + right arrow to the left
-  .right-arrow {
-    margin-right: auto;
-  }
-
-  // pushes shoot button to the right
-  .shoot {
-    margin-left: auto;
-  }
-
-  .emoticon {
-    @media only screen and (max-width: 600px) {
-      display: none;
-    }
-  }
 }
 
 .control-bar {
@@ -66,24 +19,4 @@ canvas {
   img {
     opacity: 0.7;
   }
-}
-
-.mobile-only {
-  // Gets updated by JavaScript!
-  display: none;
-}
-
-.orientation-help-text {
-  display: none;
-
-  @media only screen and (orientation: portrait) {
-    display: block;
-  }
-}
-
-.browser-error {
-  margin: 100px 0px;
-  padding: 20px;
-  color: rgb(255, 255, 255);
-  border: 5px red solid;
 }
