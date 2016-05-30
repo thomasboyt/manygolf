@@ -32,3 +32,26 @@ html, body {
   user-select: none;           /* Non-prefixed version, currently
                                  not supported by any browser */
 }
+
+
+.info-screen {
+  position: fixed;
+  opacity: 0.9;
+  width: 100%;
+  height: 100%;
+  background: black;
+  z-index: 2;
+  padding: 0px 10px;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  justify-content: center;
+
+  .info-cols-container {
+    display: flex;
+
+    .info-col {
+      flex: 0 0 50%;
+    }
+  }
+}

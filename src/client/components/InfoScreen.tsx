@@ -1,41 +1,53 @@
 import * as React from 'react';
+import TwitterLink from './TwitterLink';
+import mobileBridge from '../mobileBridge';
 
 interface Props {
   onRequestClose: () => void;
 }
 
 class InfoScreen extends React.Component<Props, {}> {
-  render() {
-    const style = {
-      position: 'fixed',
-      opacity: 0.8,
-      width: '100%',
-      height: '100%',
-      background: 'black',
-      zIndex: 2,
-      padding: '0px 10px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    };
+  handleNativeShare(e: React.MouseEvent) {
+    mobileBridge.displayNativeShare();
+    e.preventDefault();
+  }
 
+  renderNativeShare() {
     return (
-      <div style={style} onClick={() => this.props.onRequestClose()}>
-        <div>
-          <h1>Manygolf</h1>
+      <a href="#" onClick={this.handleNativeShare}>share</a>
+    );
+  }
 
-          <p>
-            manygolf is a massively multiplayer golf game. everyone plays together, simultaneously,
-            in the same session.
-          </p>
-          <p>
-            whoever wins the round in the fewest number of strokes wins. in the event of a tie, the player
-            who scores the fastest wins.
-          </p>
-          <p>
-            (tap anywhere to continue)
-          </p>
+  render() {
+    return (
+      <div className="info-screen">
+        <h1>Manygolf</h1>
+
+        <div className="info-cols-container">
+          <div className="info-col">
+            <p>
+              manygolf is a massively multiplayer golf game. everyone plays together, simultaneously,
+              in the same session.
+            </p>
+            <p>
+              whoever wins the round in the fewest number of strokes wins. in the event of a tie, the player
+              who scores the fastest wins.
+            </p>
+          </div>
+          <div className="info-col">
+            <h2>share</h2>
+            <p>
+              feeling lonely? find some people to play with by pressing this fancy social media integration button! it has a marketing hashtag and everything
+            </p>
+            <p>
+              {mobileBridge.isNative ? this.renderNativeShare() : <TwitterLink />}
+            </p>
+          </div>
         </div>
+
+        <p onClick={() => this.props.onRequestClose()}>
+          tap here to close
+        </p>
       </div>
     );
   }

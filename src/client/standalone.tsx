@@ -9,10 +9,7 @@ import {Provider} from 'react-redux';
 
 import GameContainer from './components/GameContainer';
 import initialize from './initialize';
-
-import {
-  ConnectionState,
-} from '../universal/constants';
+import mobileBridge from './mobileBridge';
 
 function main() {
   const el = document.getElementById('react-container');
@@ -32,13 +29,8 @@ function main() {
     </Provider>
   ), el);
 
-  (window as any).reconnectIfDisconnected = function() {
-    const state = store.getState();
-
-    if (state.connectionState === ConnectionState.disconnected) {
-      document.location.reload();
-    }
-  }
+  // Creates the mobile bridge
+  mobileBridge.initialize(store);
 }
 
 function renderMissingFeatures(el: HTMLElement) {
