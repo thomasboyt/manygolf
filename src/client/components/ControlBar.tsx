@@ -8,6 +8,7 @@ const shootUrl = require('../../../assets/target.png');
 const happyUrl = require('../../../assets/happy.png');
 const sadUrl = require('../../../assets/sad.png');
 const chatUrl = require('../../../assets/chat.png');
+const closeUrl = require('../../../assets/close.png');
 
 import ws from '../ws';
 import {messageSendChat} from '../../universal/protocol';
@@ -39,8 +40,11 @@ class IconButton extends React.Component<ControlButtonProps, {}> {
     const className = this.props.className || '';
 
     const innerStyle = {
-      background: `url("${this.props.icon}") center no-repeat`,
+      backgroundImage: `url("${this.props.icon}")`,
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
       backgroundSize: '50px 50px',
+
       display: 'block',
       width: '100%',
       height: '100%',
@@ -119,10 +123,12 @@ class ChatControl extends React.Component<{}, {}> {
   }
 
   render() {
+    const icon = this.state.chatOptsOpen ? closeUrl : chatUrl;
+
     return (
       <div className="chat-control-container">
         {this.state.chatOptsOpen ? this.renderChatOpts() : null}
-        <IconButton icon={chatUrl} onClick={() => this.handleClick()} />
+        <IconButton icon={icon} onClick={() => this.handleClick()} />
       </div>
     );
   }
