@@ -69,4 +69,4 @@ https://workflowy.com/s/LI0MSA3cG0
 * emoticons by Austin Condiff: https://thenounproject.com/acondiff/collection/simplicicons/
   * Excited by Austin Condiff from the Noun Project
   * Disgusted by Austin Condiff from the Noun Project
-
+  * speech-bubble by Austin Condiff from the Noun Project

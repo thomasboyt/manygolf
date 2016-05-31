@@ -7,6 +7,7 @@ const rightArrowUrl = require('../../../assets/arrowRight.png');
 const shootUrl = require('../../../assets/target.png');
 const happyUrl = require('../../../assets/happy.png');
 const sadUrl = require('../../../assets/sad.png');
+const chatUrl = require('../../../assets/chat.png');
 
 import ws from '../ws';
 import {messageSendChat} from '../../universal/protocol';
@@ -121,7 +122,7 @@ class ChatControl extends React.Component<{}, {}> {
     return (
       <div className="chat-control-container">
         {this.state.chatOptsOpen ? this.renderChatOpts() : null}
-        <IconButton icon={happyUrl} onClick={() => this.handleClick()} />
+        <IconButton icon={chatUrl} onClick={() => this.handleClick()} />
       </div>
     );
   }
