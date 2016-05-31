@@ -7,7 +7,6 @@ import ws from './ws';
 import RunLoop from '../universal/RunLoop';
 import {
   runLoopCb,
-  subscribe as runLoopSubscribe,
 } from './runLoop';
 
 import { registerListeners } from './util/inputter';
