@@ -66,7 +66,9 @@ https://workflowy.com/s/LI0MSA3cG0
 ## credits
 
 * virtual buttons for mobile by Kenney: http://kenney.nl/assets/game-icons
+  * Licensed under [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/)
 * emoticons by Austin Condiff: https://thenounproject.com/acondiff/collection/simplicicons/
+  * Licensed under [CC Attribution 3.0 United States](http://creativecommons.org/licenses/by/3.0/us/)
   * Excited by Austin Condiff from the Noun Project
   * Disgusted by Austin Condiff from the Noun Project
   * speech-bubble by Austin Condiff from the Noun Project
