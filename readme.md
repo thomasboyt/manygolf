@@ -6,7 +6,7 @@ massively multiplayer procedurally-generated 2d golf. think desert golf + trackm
 
 ## play
 
-http://manygolf.disco.zone/
+https://manygolf.club/
 
 ## dev guide
 
