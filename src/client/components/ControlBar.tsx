@@ -82,21 +82,9 @@ class ChatControl extends React.Component<{}, {}> {
   }
 
   renderChatOpts() {
-    const style = {
-      display: 'flex',
-      background: '#444',
-      position: 'absolute',
-      zIndex: '2',
-      bottom: '100%',
-      marginLeft: '-50%',
-      marginBottom: '10px',
-      padding: '5px',
-      borderRadius: '10px',
-      opacity: 0.7,
-    };
 
     return (
-      <div style={style}>
+      <div className="chat-popup">
         <img src={happyUrl} onClick={() => this.handleClickChatIcon(ControlButton.ChatHappy)} />
         <img src={sadUrl} onClick={() => this.handleClickChatIcon(ControlButton.ChatSad)} />
       </div>
@@ -105,7 +93,7 @@ class ChatControl extends React.Component<{}, {}> {
 
   render() {
     return (
-      <div style={{position: 'relative'}}>
+      <div className="chat-control-container">
         {this.state.chatOptsOpen ? this.renderChatOpts() : null}
         <img src={happyUrl} onClick={() => this.handleClick()} />
       </div>
@@ -135,16 +123,18 @@ export default class ControlBar extends React.Component<{}, {}> {
   }
 
   render() {
-    let controls;
+    let controls, className;
 
     if (isTouch) {
       controls = this.renderTouchControls();
+      className = 'touch';
     } else {
       controls = this.renderDesktopControls();
+      className = 'desktop';
     }
 
     return (
-      <div className="control-bar">
+      <div className={`control-bar ${className}`}>
         {controls}
       </div>
     );

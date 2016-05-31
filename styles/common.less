@@ -74,6 +74,35 @@ canvas {
   .shoot {
     margin-left: auto;
   }
+
+  .chat-popup {
+    display: flex;
+    background: #444;
+    position: absolute;
+    z-index: 2;
+    bottom: 100%;
+    margin-left: -50%;
+    margin-bottom: 10px;
+    padding: 5px;
+    border-radius: 10px;
+    opacity: 0.7;
+  }
+
+  .chat-control-container {
+    position: relative;
+  }
+
+  &.desktop {
+    .chat-control-container {
+      margin-left: auto;
+    }
+
+    .chat-popup {
+      margin-left: 0;
+      right: 0px;
+    }
+  }
+
 }
 
 .mobile-only {
