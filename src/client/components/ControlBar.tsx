@@ -2,9 +2,9 @@ import * as React from 'react';
 
 import isTouch from '../util/isTouch';
 
-const leftArrowUrl = require('../../../assets/left.png');
-const rightArrowUrl = require('../../../assets/right.png');
-const shootUrl = require('../../../assets/shoot.png');
+const leftArrowUrl = require('../../../assets/arrowLeft.png');
+const rightArrowUrl = require('../../../assets/arrowRight.png');
+const shootUrl = require('../../../assets/target.png');
 const happyUrl = require('../../../assets/happy.png');
 const sadUrl = require('../../../assets/sad.png');
 
@@ -29,6 +29,30 @@ interface ControlProps {
   icon: string;
 }
 
+interface ControlButtonProps extends React.HTMLProps<HTMLButtonElement> {
+  icon: string;
+}
+
+class IconButton extends React.Component<ControlButtonProps, {}> {
+  render() {
+    const className = this.props.className || '';
+
+    const innerStyle = {
+      background: `url("${this.props.icon}") center no-repeat`,
+      backgroundSize: '50px 50px',
+      display: 'block',
+      width: '100%',
+      height: '100%',
+    };
+
+    return (
+      <button {...this.props} className={`control-button ${className}`}>
+        <span style={innerStyle} />
+      </button>
+    )
+  }
+}
+
 class GameControl extends React.Component<ControlProps, {}> {
   handleTouchStart(e) {
     e.preventDefault();
@@ -41,10 +65,11 @@ class GameControl extends React.Component<ControlProps, {}> {
   }
 
   render() {
-    const {type, icon, className} = this.props;
+    const {icon, className} = this.props;
 
     return (
-      <img src={icon} className={className}
+      <IconButton className={className}
+        icon={icon}
         onTouchStart={(e) => this.handleTouchStart(e)}
         onTouchEnd={(e) => this.handleTouchEnd(e)}
         onMouseDown={(e) => this.handleTouchStart(e)}
@@ -82,11 +107,12 @@ class ChatControl extends React.Component<{}, {}> {
   }
 
   renderChatOpts() {
-
     return (
       <div className="chat-popup">
-        <img src={happyUrl} onClick={() => this.handleClickChatIcon(ControlButton.ChatHappy)} />
-        <img src={sadUrl} onClick={() => this.handleClickChatIcon(ControlButton.ChatSad)} />
+        <IconButton icon={happyUrl}
+          onClick={() => this.handleClickChatIcon(ControlButton.ChatHappy)} />
+        <IconButton icon={sadUrl}
+          onClick={() => this.handleClickChatIcon(ControlButton.ChatSad)} />
       </div>
     );
   }
@@ -95,7 +121,7 @@ class ChatControl extends React.Component<{}, {}> {
     return (
       <div className="chat-control-container">
         {this.state.chatOptsOpen ? this.renderChatOpts() : null}
-        <img src={happyUrl} onClick={() => this.handleClick()} />
+        <IconButton icon={happyUrl} onClick={() => this.handleClick()} />
       </div>
     );
   }

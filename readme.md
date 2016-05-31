@@ -65,4 +65,8 @@ https://workflowy.com/s/LI0MSA3cG0
 
 ## credits
 
-* virtual buttons for mobile by Kenney: http://kenney.nl/assets/onscreen-controls
+* virtual buttons for mobile by Kenney: http://kenney.nl/assets/game-icons
+* emoticons by Austin Condiff: https://thenounproject.com/acondiff/collection/simplicicons/
+  * Excited by Austin Condiff from the Noun Project
+  * Disgusted by Austin Condiff from the Noun Project
+
