@@ -15,7 +15,11 @@ import {State} from '../records';
 import {Subscriber} from '../runLoop';
 
 interface Props {
-  connectionState: ConnectionState,
+  standalone?: boolean;
+}
+
+interface ReduxProps extends Props {
+  connectionState: ConnectionState;
 }
 
 interface Bounds {
@@ -29,7 +33,7 @@ function inBounds(x: number, y: number, {left, right, top, bottom}: Bounds) {
   return x >= left && x <= right && y >= top && y <= bottom;
 }
 
-class GameContainer extends React.Component<Props, {}> {
+class GameContainer extends React.Component<ReduxProps, {}> {
   state = {
     showInfoScreen: false,
   }
@@ -51,15 +55,17 @@ class GameContainer extends React.Component<Props, {}> {
       document.location.reload();
 
     } else {
-      const timerBounds = {
-        left: 200,
-        right: 300,
-        top: 0,
-        bottom: 40
-      };
+      if (this.props.standalone) {
+        const infoScreenBounds = {
+          left: 0,
+          right: 500,
+          top: 0,
+          bottom: 40
+        };
 
-      if (inBounds(scaledX, scaledY, timerBounds)) {
-        this.showInfoScreen();
+        if (inBounds(scaledX, scaledY, infoScreenBounds)) {
+          this.showInfoScreen();
+        }
       }
     }
   }
@@ -94,7 +100,7 @@ class GameContainer extends React.Component<Props, {}> {
   }
 }
 
-function select(state: State) {
+function select(state: State, ownProps?: Props) {
   return {
     connectionState: state.connectionState,
   }

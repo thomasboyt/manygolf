@@ -40,7 +40,7 @@ class InfoScreen extends React.Component<Props, {}> {
               feeling lonely? find some people to play with by pressing this fancy social media integration button! it has a marketing hashtag and everything
             </p>
             <p>
-              {mobileBridge.isNative ? this.renderNativeShare() : <TwitterLink />}
+              {mobileBridge.isNative() ? this.renderNativeShare() : <TwitterLink />}
             </p>
           </div>
         </div>

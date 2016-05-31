@@ -25,7 +25,7 @@ function main() {
 
   ReactDOM.render((
     <Provider store={store}>
-      <GameContainer />
+      <GameContainer standalone />
     </Provider>
   ), el);
 

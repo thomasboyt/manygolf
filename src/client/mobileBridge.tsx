@@ -1,9 +1,9 @@
 import {Store} from 'redux';
 import {State} from './records';
+
 import {
   ConnectionState,
 } from '../universal/constants';
-
 
 enum Device {
   iOS,
@@ -11,7 +11,7 @@ enum Device {
 }
 
 class MobileBridge {
-  device: Device;
+  device: Device = null;
   store: Store<State>;
 
   initialize(store: Store<State>) {
