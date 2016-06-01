@@ -19,7 +19,7 @@ import {
 import {
   buttonsDown,
   ControlButton,
-} from './components/ControlBar';
+} from './buttons';
 
 export default function inputHandler(dt: number, state: State, dispatch: Dispatch<State>) {
   if (state.isObserver) {
