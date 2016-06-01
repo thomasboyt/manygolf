@@ -25,6 +25,18 @@ export default class Main extends React.Component<{}, {}> {
     }
   }
 
+  maybeRenderMobileHelp() {
+    if (isTouch) {
+      return (
+        <p className="orientation-help-text">
+          (turn your phone sideways for a better view!)
+        </p>
+      );
+    } else {
+      return null;
+    }
+  }
+
   render() {
     return (
       <div>
@@ -32,6 +44,7 @@ export default class Main extends React.Component<{}, {}> {
           <h1>manygolf</h1>
 
           <GameContainer />
+          {this.maybeRenderMobileHelp()}
         </div>
 
         <div className="instructions">

@@ -70,18 +70,6 @@ class GameContainer extends React.Component<ReduxProps, {}> {
     }
   }
 
-  maybeRenderMobileHelp() {
-    if (isTouch) {
-      return (
-        <p className="orientation-help-text mobile-only">
-          (turn your phone sideways for a better view!)
-        </p>
-      );
-    } else {
-      return null;
-    }
-  }
-
   render() {
     return (
       <div className='game-container'>
@@ -91,10 +79,6 @@ class GameContainer extends React.Component<ReduxProps, {}> {
 
         <Canvas onClick={(x, y) => this.handleCanvasClick(x, y)} />
         <ControlBar />
-
-        <div style={{clear: 'both'}} />
-
-        {this.maybeRenderMobileHelp()}
       </div>
     );
   }

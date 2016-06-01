@@ -41,6 +41,8 @@ p {
 .game-container {
   margin: 0 auto;
   position: relative;
+  padding-bottom: 50px;
+  background: black;
 }
 
 canvas {
@@ -112,6 +114,11 @@ canvas {
 
   .chat-control-container {
     position: relative;
+
+    // hide chat control on portrait screens since there's no room!
+    @media only screen and (orientation: portrait) {
+      display: none;
+    }
   }
 
   &.desktop {
@@ -125,11 +132,6 @@ canvas {
     }
   }
 
-}
-
-.mobile-only {
-  // Gets updated by JavaScript!
-  display: none;
 }
 
 .orientation-help-text {
