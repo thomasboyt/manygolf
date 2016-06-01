@@ -34,6 +34,7 @@ class Canvas extends React.Component<Props, {}> {
   private _ctx: CanvasRenderingContext2D;
 
   state = {
+    scaleFactor: 1,
     width: null,
     height: null,
     canvasWidth: null,
@@ -54,7 +55,7 @@ class Canvas extends React.Component<Props, {}> {
     };
 
     runLoopSubscribe((state) => {
-      render(this._ctx, state);
+      render(this._ctx, state, this.state.scaleFactor);
     });
   }
 
@@ -73,6 +74,7 @@ class Canvas extends React.Component<Props, {}> {
     }
 
     this.setState({
+      scaleFactor: scale,
       width: WIDTH * scale,
       height: HEIGHT * scale,
       canvasWidth: WIDTH * scale * pixelRatio,

@@ -309,7 +309,7 @@ function renderLeaderBoard(ctx: CanvasRenderingContext2D, state: State) {
   });
 }
 
-function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
+function renderInGame(ctx: CanvasRenderingContext2D, state: State, scaleFactor: number) {
   renderGround(ctx, state);
   renderBalls(ctx, state);
 
@@ -413,7 +413,7 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
     const colorEnd = state.displayMessage.indexOf('}}');
 
     const x = 10;
-    const y = HEIGHT - 10;
+    const y = Math.round(HEIGHT - (55 / scaleFactor));
 
     if (colorStart !== -1) {
       const before = state.displayMessage.slice(0, colorStart);
@@ -440,7 +440,7 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State) {
   }
 }
 
-export default function render(ctx: CanvasRenderingContext2D, state: State) {
+export default function render(ctx: CanvasRenderingContext2D, state: State, scaleFactor: number) {
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
 
   ctx.save();
@@ -451,7 +451,7 @@ export default function render(ctx: CanvasRenderingContext2D, state: State) {
   if (state.connectionState === ConnectionState.connecting) {
     renderConnecting(ctx, state);
   } else if (state.connectionState === ConnectionState.connected) {
-    renderInGame(ctx, state);
+    renderInGame(ctx, state, scaleFactor);
   } else if (state.connectionState === ConnectionState.disconnected) {
     renderDisconnected(ctx, state);
   }
