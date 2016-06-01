@@ -85,7 +85,9 @@ class Canvas extends React.Component<Props, {}> {
 
     // TODO: do this elsewhere?
     setTimeout(() => {
-      this._canvas.getContext('2d').scale(scale * pixelRatio, scale * pixelRatio);
+      const ctx = this._canvas.getContext('2d');
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(scale * pixelRatio, scale * pixelRatio);
     }, 0);
   }
 
