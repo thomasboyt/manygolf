@@ -40,6 +40,7 @@ p {
 
 .game-container {
   margin: 0 auto;
+  position: relative;
 }
 
 canvas {
@@ -58,6 +59,12 @@ canvas {
 
   justify-content: center;
 
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  z-index: 1;
+  padding: 5px;
+
   .control-button {
     display: block;
     flex: 0 0 auto;
@@ -74,6 +81,10 @@ canvas {
     &:focus, &:active {
       outline: none;
     }
+  }
+
+  & > .control-button, .chat-control-container > .control-button {
+    opacity: 0.7;
   }
 
   // pushes left + right arrow to the left
