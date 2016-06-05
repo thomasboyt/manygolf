@@ -17,21 +17,35 @@ function randInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-export default function levelGen() {
-  let numSegments = randInt(10, 30);
+export function getSegmentWidths(totalWidth: number, minWidth: number): number[] {
+  const widths = [];
+  let remainingWidth = totalWidth;
 
-  // ceil to prevent sum(segment widths) with being < WIDTH...
-  const segmentWidth = Math.ceil(WIDTH / numSegments);
+  while (remainingWidth > 0) {
+    let maxWidth = 50;
 
-  // ...but with ceil() you can end up in an annoying edge case where points[n - 1].x >= 500
-  // example: n=26, width=500, segmentWidth=20, 20*25 = 500
-  // this causes two points with x=width to exist which can break ground polygon creation
-  //
-  // as a hack, we just decrease numSegments by 1 if this scenario is encountered, but keep
-  // the previous segment width
-  if (segmentWidth * (numSegments - 1) >= WIDTH) {
-    numSegments -= 1;
+    if (remainingWidth < maxWidth) {
+      maxWidth = remainingWidth;
+    }
+
+    let width = randInt(minWidth, maxWidth);
+
+    // if this segment would leave us with < minWidth remaining width, just make this segment the
+    // entire remaining width
+    if (remainingWidth - width < minWidth) {
+      width = remainingWidth;
+    }
+
+    widths.push(width);
+    remainingWidth -= width;
   }
+
+  return widths;
+}
+
+export default function levelGen() {
+  const segmentWidths = getSegmentWidths(WIDTH, 10);
+  const numSegments = segmentWidths.length;
 
   const spawnSegment = randInt(2, Math.floor(numSegments / 3));
 
@@ -47,6 +61,8 @@ export default function levelGen() {
   const maxY = 210;
 
   for (let idx = 0; idx <= numSegments; idx++) {
+    const segmentWidth = segmentWidths[idx - 1];
+
     let x, y;
 
     if (idx === 0) {
@@ -98,6 +114,7 @@ export default function levelGen() {
   }
 
   const color = sample(colors);
+  console.log(points);
 
   const level = {
     points,
