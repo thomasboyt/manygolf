@@ -17,6 +17,14 @@ function randInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function shuffle(a: any[]) {
+  for (let i = a.length; i; i -= 1) {
+    const j = Math.floor(Math.random() * i);
+    const x = a[i - 1];
+    a[i - 1] = a[j];
+    a[j] = x;
+  }
+}
 export function getSegmentWidths(totalWidth: number, minWidth: number): number[] {
   const widths = [];
   let remainingWidth = totalWidth;
@@ -40,19 +48,18 @@ export function getSegmentWidths(totalWidth: number, minWidth: number): number[]
     remainingWidth -= width;
   }
 
+  // shuffle widths so it's not biased towards having smaller segments at the end
+  shuffle(widths);
+
   return widths;
 }
 
 export default function levelGen() {
-  const segmentWidths = getSegmentWidths(WIDTH, 10);
+  const segmentWidths = getSegmentWidths(WIDTH, 12);
   const numSegments = segmentWidths.length;
 
-  const spawnSegment = randInt(2, Math.floor(numSegments / 3));
-
-  // hole can't be on the last segment because it may be smaller than the rest
-  // this causes the hole alignment to be off which causes an invalid shape that the ball just
-  // kinda falls through
-  const holeSegment = randInt(Math.floor(numSegments / 3) * 2, numSegments - 1);
+  const spawnSegment = randInt(1, Math.floor(numSegments / 3));
+  const holeSegment = numSegments - randInt(1, Math.floor(numSegments / 3));
 
   const points = [];
   let spawnX, spawnY, holeX, holeY;
