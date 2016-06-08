@@ -87,22 +87,28 @@ export default function levelGen() {
     } else {
       const prevY = points[idx - 1][1];
 
-      let boundLow = prevY - 40;
-      let boundHigh = prevY + 40;
+      // special-case flat section
+      if (randInt(1, 3) === 1) {
+        y = prevY;
 
-      // clamp high/low bounds so that if they go out of screen bounds, the bounds shift to contain
-      // the same range but clamped
-      if (boundLow < minY) {
-        boundHigh = boundHigh - (boundLow - minY);
-        boundLow = minY;
+      } else {
+        let boundLow = prevY - 40;
+        let boundHigh = prevY + 40;
+
+        // clamp high/low bounds so that if they go out of screen bounds, the bounds shift to contain
+        // the same range but clamped
+        if (boundLow < minY) {
+          boundHigh = boundHigh - (boundLow - minY);
+          boundLow = minY;
+        }
+
+        if (boundHigh > maxY) {
+          boundLow = boundLow - (boundHigh - maxY);
+          boundHigh = maxY;
+        }
+
+        y = randInt(boundLow, boundHigh);
       }
-
-      if (boundHigh > maxY) {
-        boundLow = boundLow - (boundHigh - maxY);
-        boundHigh = maxY;
-      }
-
-      y = randInt(boundLow, boundHigh);
     }
 
     if (idx === spawnSegment) {
