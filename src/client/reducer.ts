@@ -530,6 +530,7 @@ export default createImmutableReducer<State>(new State(), {
     const data = <MessageLevelOver>action.data;
 
     return state
+      .setIn(['round', 'expTime'], data.expTime)
       .setIn(['round', 'roundState'], RoundState.over)
       .setIn(['round', 'roundRankedPlayers'], I.fromJS(data.roundRankedPlayers).map((player) => {
         return new LeaderboardPlayer(player);

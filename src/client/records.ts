@@ -63,6 +63,8 @@ const LeaderboardPlayerRec = I.Record({
   id: null,
   strokes: null,
   scoreTime: null,
+  prevPoints: null,
+  addedPoints: null,
 });
 
 export class LeaderboardPlayer extends LeaderboardPlayerRec {
@@ -71,6 +73,8 @@ export class LeaderboardPlayer extends LeaderboardPlayerRec {
   id: number;
   strokes: number;
   scoreTime: number;
+  prevPoints: number;
+  addedPoints: number;
 }
 
 const RoundRec = I.Record({

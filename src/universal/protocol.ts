@@ -25,6 +25,8 @@ interface Position {
 interface LeaderboardPlayer extends Player {
   strokes: number;
   scoreTime: number;
+  prevPoints: number;
+  addedPoints: number;
 }
 
 export const TYPE_INITIAL = 'initial';
@@ -96,6 +98,7 @@ export const TYPE_LEVEL_OVER = 'levelOver';
 
 export interface MessageLevelOver {
   roundRankedPlayers: Array<LeaderboardPlayer>;
+  expTime: number;
 }
 
 export function messageLevelOver(params: MessageLevelOver) {

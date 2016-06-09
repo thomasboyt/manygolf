@@ -15,6 +15,7 @@ import {
 
 import {
   State,
+  LeaderboardPlayer,
 } from './records';
 
 import tinycolor from 'tinycolor2';
@@ -267,29 +268,39 @@ function renderLeaderBoard(ctx: CanvasRenderingContext2D, state: State) {
 
   ctx.fillStyle = 'white';
 
-  if (state.round.scored) {
-    const players = state.round.roundRankedPlayers;
-    const position = players.findIndex((player) => player.id === state.id) + 1;
+  if (!state.isObserver) {
     ctx.font = 'normal 16px "Press Start 2P"';
-    ctx.fillText(`You placed ${toOrdinal(position)}`, WIDTH / 2, y);
+
+    if (state.round.scored) {
+      const players = state.round.roundRankedPlayers;
+      const position = players.findIndex((player) => player.id === state.id) + 1;
+      ctx.fillText(`You placed ${toOrdinal(position)}`, WIDTH / 2, y);
+
+    } else {
+      ctx.fillText('You didn\'t make it in :(', WIDTH / 2, y);
+    }
   }
 
   ctx.font = 'normal 8px "Press Start 2P"';
 
-  const placeX = x - 150;
-  const nameX = x - 130;
-  const scoreX = x + 90;
-  const timeX = x + 150;
+  const placeX = x - 200;
+  const nameX = x - 180;
+  const scoreX = x + 30;
+  const timeX = x + 90;
+  const pointsX = x + 160;
 
   // Draw header
+  const headerY = y + 20;
   ctx.textAlign = 'left';
-  ctx.fillText('Name', nameX, y + 20);
+  ctx.fillText('Name', nameX, headerY);
   ctx.textAlign = 'right';
-  ctx.fillText('Strokes', scoreX, y + 20);
-  ctx.fillText('Time', timeX, y + 20);
+  ctx.fillText('Strokes', scoreX, headerY);
+  ctx.fillText('Time', timeX, headerY);
+  ctx.textAlign = 'right';
+  ctx.fillText('Points', pointsX, headerY);
 
   state.round.roundRankedPlayers.forEach((player, idx) => {
-    const rowY = y + 30 + idx * 10;
+    const rowY = y + 30 + idx * 12;
 
     ctx.textAlign = 'left';
     ctx.fillText(`${idx + 1}`, placeX, rowY);
@@ -306,7 +317,44 @@ function renderLeaderBoard(ctx: CanvasRenderingContext2D, state: State) {
     ctx.fillText(`${player.strokes}`, scoreX, rowY);
     const elapsed = (player.scoreTime / 1000).toFixed(2);
     ctx.fillText(elapsed, timeX, rowY);
+
+    renderLeaderboardPoints(ctx, state, player, pointsX, rowY);
   });
+}
+
+function renderLeaderboardPoints(ctx: CanvasRenderingContext2D, state: State, player: LeaderboardPlayer, pointsX: number, rowY: number) {
+  const timeLeftMs = state.round.expTime - Date.now();
+
+  // render as "animation" over timeLeftMs
+
+  const beginCountingMs = 3000;
+
+  if (timeLeftMs > beginCountingMs) {
+    ctx.textAlign = 'right';
+    ctx.fillText(`${player.prevPoints}`, pointsX, rowY);
+    ctx.textAlign = 'left';
+    ctx.fillText(`+${player.addedPoints}`, pointsX + 10, rowY);
+
+  } else {
+    // remove one point every 80ms
+    let movedPoints = Math.floor(Math.abs(timeLeftMs - beginCountingMs) / 50);
+
+    if (movedPoints > player.addedPoints) {
+      movedPoints = player.addedPoints;
+    }
+
+    const remainingPoints = player.addedPoints - movedPoints;
+    const newPoints = player.prevPoints + movedPoints;
+
+    ctx.textAlign = 'right';
+    ctx.fillText(`${newPoints}`, pointsX, rowY);
+
+    if (remainingPoints > 0) {
+      ctx.textAlign = 'left';
+      ctx.fillText(`+${remainingPoints}`, pointsX + 10, rowY);
+    }
+  }
+
 }
 
 function renderInGame(ctx: CanvasRenderingContext2D, state: State, scaleFactor: number) {
