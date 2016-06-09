@@ -8,6 +8,8 @@ import {Subscriber} from '../runLoop';
 import TwitterLink from './TwitterLink';
 import GameContainer from './GameContainer';
 
+const headerImage = require('../../../assets/header.png');
+
 export default class Main extends React.Component<{}, {}> {
   maybeRenderControls() {
     if (isTouch) {
@@ -41,7 +43,9 @@ export default class Main extends React.Component<{}, {}> {
     return (
       <div>
         <div className="container">
-          <h1>manygolf</h1>
+          <header>
+            <img src={headerImage} alt="Manygolf" />
+          </header>
 
           <GameContainer />
           {this.maybeRenderMobileHelp()}
