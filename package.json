@@ -27,6 +27,7 @@
     "file-loader": "^0.8.3",
     "flightplan": "^0.6.13",
     "glob": "^7.0.3",
+    "html-webpack-plugin": "^2.19.0",
     "json-loader": "^0.5.4",
     "less": "^2.5.1",
     "less-loader": "^2.2.0",

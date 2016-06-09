@@ -1,5 +1,6 @@
 var createVendorChunk = require('webpack-create-vendor-chunk');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: {
@@ -9,12 +10,26 @@ module.exports = {
 
   output: {
     path: './build/',
-    filename: '[name].bundle.js'
+    filename: '[name].[chunkhash].js'
   },
 
   plugins: [
     createVendorChunk(),
-    new ExtractTextPlugin('[name].bundle.css'),
+    new ExtractTextPlugin('[name].[chunkhash].css'),
+
+    new HtmlWebpackPlugin({
+      template: './templates/index.html',
+      filename: 'index.html',
+      inject: 'body',
+      chunks: ['vendor', 'app'],
+    }),
+
+    new HtmlWebpackPlugin({
+      template: './templates/standalone.html',
+      filename: 'standalone.html',
+      inject: 'body',
+      chunks: ['vendor', 'standalone'],
+    }),
   ],
 
   resolve: {
