@@ -1,5 +1,5 @@
-export const WIDTH = 500;
-export const HEIGHT = 250;
+export const WIDTH = 600;
+export const HEIGHT = 300;
 
 export const HOLE_HEIGHT = 10;
 export const HOLE_WIDTH = 10;

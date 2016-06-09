@@ -65,7 +65,7 @@ export default function levelGen() {
   let spawnX, spawnY, holeX, holeY;
 
   const minY = 80;
-  const maxY = 210;
+  const maxY = 250;
 
   for (let idx = 0; idx <= numSegments; idx++) {
     const segmentWidth = segmentWidths[idx - 1];
