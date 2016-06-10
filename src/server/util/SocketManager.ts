@@ -29,7 +29,7 @@ abstract class SocketManager {
   }
 
   handleMessage(id: number, strMsg: string) {
-    console.log('received: %s', strMsg);
+    console.log(`received: ${strMsg}`);
 
     let msg;
     try {
@@ -62,7 +62,11 @@ abstract class SocketManager {
   }
 
   sendTo(id: number, msg: Object) {
-    return this._getSocket(id).send(JSON.stringify(msg), (err) => {
+    const msgStr = JSON.stringify(msg);
+
+    console.log(`sent to ${id}: ${msgStr}`);
+
+    return this._getSocket(id).send(msgStr, (err) => {
       if (err) {
         console.log(`error sending to ${id}`, err);
       }
@@ -71,6 +75,8 @@ abstract class SocketManager {
 
   sendAll(msg: Object) {
     const msgStr = JSON.stringify(msg);
+
+    console.log(`sent: ${msgStr}`);
 
     this._getSockets().forEach((socket, id) => {
       socket.send(msgStr, (err) => {

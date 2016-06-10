@@ -21,6 +21,8 @@ const PlayerRec = I.Record({
   strokes: 0,
   scoreTime: null,
 
+  points: 0,
+
   lastSwingTime: null,
 });
 
@@ -28,12 +30,17 @@ export type PlayersMap = I.Map<number, Player>;
 
 export class Player extends PlayerRec {
   id: number;
+
   body: p2.Body;
   color: string;
   name: string;
-  strokes: number;
+
   scored: boolean;
+  strokes: number;
   scoreTime: number;
+
+  points: number;
+
   lastSwingTime: number;
 }
 

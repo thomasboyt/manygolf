@@ -1,6 +1,5 @@
 import I from 'immutable';
 import p2 from 'p2';
-import {Dispatch} from 'redux';
 
 import ManygolfSocketManager from './ManygolfSocketManager';
 import levelGen from '../universal/levelGen';
@@ -32,8 +31,10 @@ import {
   State,
 } from './records';
 
+type Dispatch = (action) => State;
+
 export function sweepInactivePlayers(
-  dispatch: Dispatch<State>, socks: ManygolfSocketManager,
+  dispatch: Dispatch, socks: ManygolfSocketManager,
   {players, now}: {players: PlayersMap; now: number}
 ) {
   players.forEach((player, id) => {
@@ -61,7 +62,7 @@ export function sweepInactivePlayers(
   });
 }
 
-export function ensurePlayersInBounds(dispatch: Dispatch<State>,
+export function ensurePlayersInBounds(dispatch: Dispatch,
   {level, players}: {level: Level, players: PlayersMap}
 ) {
   players.forEach((player) => {
@@ -70,7 +71,7 @@ export function ensurePlayersInBounds(dispatch: Dispatch<State>,
 }
 
 export function checkScored(
-  dispatch: Dispatch<State>, socks: ManygolfSocketManager,
+  dispatch: Dispatch, socks: ManygolfSocketManager,
   {overlappingMap, players, elapsed}: {
     overlappingMap: I.Iterable<number, Boolean>;
     players: PlayersMap;
@@ -107,7 +108,7 @@ export function checkScored(
   });
 }
 
-export function cycleLevel(dispatch: Dispatch<State>, socks: ManygolfSocketManager) {
+export function cycleLevel(dispatch: Dispatch, socks: ManygolfSocketManager) {
   console.log('Cycling level');
 
   const startTime = Date.now();
@@ -153,55 +154,38 @@ export function sendSyncMessage(
   }));
 }
 
-export function rankPlayers(players: I.Map<number, Player>): I.List<Player> {
-  const playersList = players.toList();
-
-  return playersList
-    .filter((player) => player.scored)
-    // TODO: There HAS to be a better way to do this, right?
-    .sort((a, b) => {
-      if (a.strokes > b.strokes) {
-        return 1;
-      } else if (a.strokes < b.strokes) {
-        return -1;
-      } else {
-        if (a.scoreTime > b.scoreTime) {
-          return 1;
-        } else if (a.scoreTime < b.scoreTime) {
-          return -1;
-        } else {
-          return 0;
-        }
-      }
-    })
-    .toList();  // This isn't supposed to be necessary but makes TypeScript happy?
-}
-
-export function levelOver(dispatch: Dispatch<State>, socks: ManygolfSocketManager,
+export function levelOver(dispatch: Dispatch, socks: ManygolfSocketManager,
   {players}: {players: PlayersMap}
 ) {
-  const rankedPlayers = rankPlayers(players);
-
-  dispatch({
+  const newState = dispatch({
     type: 'levelOver',
-    rankedPlayers,
   });
+
+  const rankedPlayers = newState.roundRankedPlayers;
 
   socks.sendAll(messageLevelOver({
     roundRankedPlayers: rankedPlayers.toArray().map((player) => {
+      // XXX: this references the players map from *before* they are updated with new points
+      const prevPoints = players.get(player.id).points;
+
       return {
         id: player.id,
         color: player.color,
         name: player.name,
         strokes: player.strokes,
         scoreTime: player.scoreTime,
+
+        prevPoints,
+        addedPoints: player.points - prevPoints,
       };
     }),
+
+    expTime: newState.expTime,
   }));
 }
 
 export function checkHurryUp(
-  dispatch: Dispatch<State>, socks: ManygolfSocketManager,
+  dispatch: Dispatch, socks: ManygolfSocketManager,
   {players, expTime}: {players: PlayersMap; expTime: number;}
 ) {
   // Go into hurry-up mode if the number of players who have yet to score is === 1 or less than

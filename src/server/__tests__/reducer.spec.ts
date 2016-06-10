@@ -4,7 +4,7 @@ import expect from 'expect';
 import I from 'immutable';
 
 import {Player} from '../records';
-import {rankPlayers} from '../actions';
+import {rankPlayers, updatePoints} from '../reducer';
 
 describe('rankPlayers', () => {
   it('ranks players by strokes', () => {
@@ -24,7 +24,7 @@ describe('rankPlayers', () => {
 
     const ranked = rankPlayers(players);
 
-    expect(ranked.get(0).id).toEqual(2);
+    expect(ranked.get(0)).toEqual(2);
   });
 
   it('ranks players with better time when strokes are equal', () => {
@@ -50,7 +50,7 @@ describe('rankPlayers', () => {
 
     const ranked = rankPlayers(players);
 
-    expect(ranked.get(0).id).toEqual(2);
+    expect(ranked.get(0)).toEqual(2);
   });
 
   it('does not rank players who did not score', () => {
@@ -70,6 +70,33 @@ describe('rankPlayers', () => {
 
     const ranked = rankPlayers(players);
 
-    expect(ranked.get(0).id).toEqual(2);
+    expect(ranked.get(0)).toEqual(2);
+  });
+});
+
+describe('updatePoints', () => {
+  it('adds new points based on scores', () => {
+    let players = I.Map<number, Player>();
+
+    players = players
+      .set(1, new Player({
+        id: 1,
+        scored: true,
+        strokes: 3,
+        scoreTime: 1,
+      }))
+      .set(2, new Player({
+        id: 2,
+        scored: true,
+        strokes: 4,
+        scoreTime: 1,
+        points: 5,
+      }));
+
+    const ranked = rankPlayers(players);
+    players = updatePoints(players, ranked);
+
+    expect(players.get(1).points).toEqual(10);
+    expect(players.get(2).points).toEqual(5 + 8);
   });
 });

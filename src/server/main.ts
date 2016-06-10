@@ -51,6 +51,11 @@ function getState(): State {
   return store.getState();
 }
 
+function dispatch(action): State {
+  store.dispatch(action);
+  return store.getState();
+}
+
 const fixedStep = 1 / 60;
 const maxSubSteps = 10;
 
@@ -58,8 +63,6 @@ let lastSyncSent = 0;
 
 runLoop.onTick((dt: number) => {
   dt = dt / 1000;  // ms -> s
-
-  const dispatch = store.dispatch.bind(store);
 
   const prevState = <State>store.getState();
 

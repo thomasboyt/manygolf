@@ -48,6 +48,55 @@ function leaveGame(player: Player, state: State) {
   return player.set('body', null);
 }
 
+// Map of rank index -> number of points awarded
+const points = I.Map<number, number>()
+  .set(0, 10)
+  .set(1, 8)
+  .set(2, 6)
+  .set(3, 4)
+  .set(4, 2);
+
+function pointsForRank(index: number): number {
+  if (index > 4) {
+    return 0;
+  } else {
+    return points.get(index);
+  }
+}
+
+export function updatePoints(players: I.Map<number, Player>, rankedPlayerIds: I.List<number>) {
+  return rankedPlayerIds
+    .reduce((players, rankedPlayerId, index) => {
+      return players
+        .updateIn([rankedPlayerId, 'points'], (points) => points + pointsForRank(index));
+    }, players);
+}
+
+export function rankPlayers(players: I.Map<number, Player>): I.List<number> {
+  const playersList = players.toList();
+
+  return playersList
+    .filter((player) => player.scored)
+    // TODO: There HAS to be a better way to do this, right?
+    .sort((a, b) => {
+      if (a.strokes > b.strokes) {
+        return 1;
+      } else if (a.strokes < b.strokes) {
+        return -1;
+      } else {
+        if (a.scoreTime > b.scoreTime) {
+          return 1;
+        } else if (a.scoreTime < b.scoreTime) {
+          return -1;
+        } else {
+          return 0;
+        }
+      }
+    })
+    .map((player) => player.id)
+    .toList();  // This isn't supposed to be necessary but makes TypeScript happy?
+}
+
 export default createImmutableReducer<State>(new State(), {
   'tick': (state: State, action) => {
     return state.set('time', Date.now());
@@ -71,12 +120,19 @@ export default createImmutableReducer<State>(new State(), {
   },
 
   'levelOver': (state: State, action) => {
-    const rankedPlayers = action.rankedPlayers;
+    // calculate points for each player
+    const rankedPlayerIds = rankPlayers(state.players);
+    const players = updatePoints(state.players, rankedPlayerIds);
+
+    // this is copied from players so that if players disconnect, the server doesn't lose track of
+    // their info and can still send it to newly-connected clients
+    const roundRankedPlayers = rankedPlayerIds.map((id) => players.get(id));
 
     return state
+      .set('players', players)
+      .set('roundRankedPlayers', roundRankedPlayers)
       .set('roundState', RoundState.over)
-      .set('expTime', Date.now() + OVER_TIMER_MS)
-      .set('roundRankedPlayers', rankedPlayers);
+      .set('expTime', Date.now() + OVER_TIMER_MS);
   },
 
   'playerConnected': (state: State, {id, name, color, isObserver}: AddPlayerOpts) => {
