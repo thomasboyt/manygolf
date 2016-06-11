@@ -223,6 +223,7 @@ export default createImmutableReducer<State>(new State(), {
       startTime,
       expTime,
       holeSensor,
+      leaderId: state.leaderId,
       observers: state.observers,
     });
 
