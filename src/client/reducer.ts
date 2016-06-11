@@ -487,7 +487,8 @@ export default createImmutableReducer<State>(new State(), {
       }, I.Map()))
       .update((s) => newLevel(s, data))
       .setIn(['round', 'roundState'], data.roundState)
-      .set('time', data.time);
+      .set('time', data.time)
+      .set('leaderId', data.leaderId);
   },
 
   [`ws:${TYPE_PLAYER_CONNECTED}`]: (state: State, action) => {
