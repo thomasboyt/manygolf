@@ -71,6 +71,7 @@ const StateRec = I.Record({
   roundRankedPlayers: null,
   didHurryUp: false,
   time: 0,
+  leaderId: null,
 });
 
 export class State extends StateRec {
@@ -86,4 +87,5 @@ export class State extends StateRec {
   roundRankedPlayers: I.List<Player>;
   didHurryUp: boolean;
   time: number;
+  leaderId: number;
 }

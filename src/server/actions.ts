@@ -181,6 +181,7 @@ export function levelOver(dispatch: Dispatch, socks: ManygolfSocketManager,
     }),
 
     expTime: newState.expTime,
+    leaderId: newState.leaderId,
   }));
 }
 

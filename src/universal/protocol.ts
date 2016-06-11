@@ -39,6 +39,7 @@ export interface MessageInitial {
   roundState: RoundState;
   isObserver: boolean;
   time: number;
+  leaderId: number;
 }
 
 export function messageInitial(params: MessageInitial) {
@@ -99,6 +100,7 @@ export const TYPE_LEVEL_OVER = 'levelOver';
 export interface MessageLevelOver {
   roundRankedPlayers: Array<LeaderboardPlayer>;
   expTime: number;
+  leaderId: number;
 }
 
 export function messageLevelOver(params: MessageLevelOver) {

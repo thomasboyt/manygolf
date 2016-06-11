@@ -157,6 +157,32 @@ function renderGround(ctx: CanvasRenderingContext2D, state: State) {
   ctx.closePath();
 }
 
+function drawCrown(ctx: CanvasRenderingContext2D, ballX: number, ballY: number) {
+  ctx.save();
+
+  const bottomY = ballY - 2;
+  const topY = bottomY - 6;
+
+  ctx.strokeStyle = 'black';
+  ctx.fillStyle = 'yellow';
+  ctx.beginPath();
+  ctx.moveTo(ballX - 5, bottomY);
+  ctx.moveTo(ballX - 5, bottomY);
+  ctx.moveTo(ballX - 3, bottomY);
+  ctx.lineTo(ballX - 3, topY);
+  ctx.lineTo(ballX - 1, bottomY);
+  ctx.lineTo(ballX, topY);
+  ctx.lineTo(ballX + 1, bottomY);
+  ctx.lineTo(ballX + 3, topY);
+  ctx.lineTo(ballX + 3, bottomY);
+  ctx.lineTo(ballX + 5, bottomY);
+  ctx.lineTo(ballX - 5, bottomY);
+  ctx.fill();
+  ctx.closePath();
+
+  ctx.restore();
+}
+
 function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
   // ball border width
   ctx.lineWidth = 1;
@@ -178,6 +204,10 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
     ctx.fill();
     ctx.stroke();
     ctx.closePath();
+
+    if (state.leaderId === player.id) {
+      drawCrown(ctx, pos[0], pos[1]);
+    }
   });
 
   //
@@ -226,6 +256,10 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
   ctx.fill();
   ctx.stroke();
   ctx.closePath();
+
+  if (state.leaderId === state.id) {
+    drawCrown(ctx, ballPos[0], ballPos[1]);
+  }
 
   //
   // Draw aim arrow

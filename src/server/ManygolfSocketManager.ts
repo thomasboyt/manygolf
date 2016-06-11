@@ -70,6 +70,8 @@ export default class ManygolfSocketManager extends SocketManager {
 
       isObserver,
 
+      leaderId: state.leaderId,
+
       players: state.players.map((player, id) => {
         return {
           id,

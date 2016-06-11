@@ -53,7 +53,7 @@ describe('rankPlayers', () => {
     expect(ranked.get(0)).toEqual(2);
   });
 
-  it('does not rank players who did not score', () => {
+  it('does ranks players who did not score at the end', () => {
     const players = I.Map<number, Player>()
       .set(1, new Player({
         id: 1,
@@ -71,6 +71,7 @@ describe('rankPlayers', () => {
     const ranked = rankPlayers(players);
 
     expect(ranked.get(0)).toEqual(2);
+    expect(ranked.get(1)).toEqual(1);
   });
 });
 

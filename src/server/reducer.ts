@@ -76,22 +76,31 @@ export function rankPlayers(players: I.Map<number, Player>): I.List<number> {
   const playersList = players.toList();
 
   return playersList
-    .filter((player) => player.scored)
+    // .filter((player) => player.scored)
     // TODO: There HAS to be a better way to do this, right?
     .sort((a, b) => {
+      // players who haven't scored should be ranked lower
+      if (a.scored && !b.scored) {
+        return -1;
+      } else if (!a.scored && b.scored) {
+        return 1;
+      }
+
+      // players with more strokes should be ranked lower
       if (a.strokes > b.strokes) {
         return 1;
       } else if (a.strokes < b.strokes) {
         return -1;
-      } else {
-        if (a.scoreTime > b.scoreTime) {
-          return 1;
-        } else if (a.scoreTime < b.scoreTime) {
-          return -1;
-        } else {
-          return 0;
-        }
       }
+
+      // players with higher times should be ranked lower
+      if (a.scoreTime > b.scoreTime) {
+        return 1;
+      } else if (a.scoreTime < b.scoreTime) {
+        return -1;
+      }
+
+      return 0;
     })
     .map((player) => player.id)
     .toList();  // This isn't supposed to be necessary but makes TypeScript happy?
@@ -128,8 +137,11 @@ export default createImmutableReducer<State>(new State(), {
     // their info and can still send it to newly-connected clients
     const roundRankedPlayers = rankedPlayerIds.map((id) => players.get(id));
 
+    const leaderId = roundRankedPlayers.maxBy((player) => player.points).id;
+
     return state
       .set('players', players)
+      .set('leaderId', leaderId)
       .set('roundRankedPlayers', roundRankedPlayers)
       .set('roundState', RoundState.over)
       .set('expTime', Date.now() + OVER_TIMER_MS);

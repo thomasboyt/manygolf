@@ -156,6 +156,8 @@ const StateRec = I.Record({
   swingQueue: I.List(),
 
   chats: I.Map(),
+
+  leaderId: null,
 });
 
 export class State extends StateRec {
@@ -181,4 +183,6 @@ export class State extends StateRec {
   swingQueue: I.List<MessagePlayerSwing>;
 
   chats: I.Map<number, ChatMessage>;
+
+  leaderId: number;
 }
