@@ -186,6 +186,11 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
   state.chats.forEach((chat, id) => {
     let x, y, onLeft = false;
 
+    if (!state.players.get(id)) {
+      // Chat received but no player/ball is present, so don't render!
+      return;
+    }
+
     if (id === state.id) {
       // render over current player
       x = state.round.ball.body.interpolatedPosition[0];
