@@ -137,7 +137,8 @@ export default createImmutableReducer<State>(new State(), {
     // their info and can still send it to newly-connected clients
     const roundRankedPlayers = rankedPlayerIds.map((id) => players.get(id));
 
-    const leaderId = roundRankedPlayers.maxBy((player) => player.points).id;
+    const leader = roundRankedPlayers.maxBy((player) => player.points);
+    const leaderId = leader ? leader.id : null;
 
     return state
       .set('players', players)
