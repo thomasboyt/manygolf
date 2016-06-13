@@ -25,13 +25,12 @@ import {
 } from '../universal/constants';
 
 import {
-  Player,
   PlayersMap,
   Level,
   State,
 } from './records';
 
-type Dispatch = (action) => State;
+type Dispatch = (action: any) => State;
 
 export function sweepInactivePlayers(
   dispatch: Dispatch, socks: ManygolfSocketManager,

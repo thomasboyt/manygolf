@@ -95,8 +95,8 @@ export default function levelGen() {
         let boundLow = prevY - 40;
         let boundHigh = prevY + 40;
 
-        // clamp high/low bounds so that if they go out of screen bounds, the bounds shift to contain
-        // the same range but clamped
+        // clamp high/low bounds so that if they go out of screen bounds, the bounds shift to
+        // contain the same range but clamped
         if (boundLow < minY) {
           boundHigh = boundHigh - (boundLow - minY);
           boundLow = minY;

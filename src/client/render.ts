@@ -342,7 +342,7 @@ function renderLeaderBoard(ctx: CanvasRenderingContext2D, state: State) {
     const rowY = y + 30 + idx * 12;
 
     const place = player.scored ? `${idx + 1}` : '';
-    const strokes = player.scored ? `${player.strokes}` : '---'
+    const strokes = player.scored ? `${player.strokes}` : '---';
     const elapsed = player.scored ? (player.scoreTime / 1000).toFixed(2) : '---';
 
     // Render place
@@ -369,7 +369,10 @@ function renderLeaderBoard(ctx: CanvasRenderingContext2D, state: State) {
   });
 }
 
-function renderLeaderboardPoints(ctx: CanvasRenderingContext2D, state: State, player: LeaderboardPlayer, pointsX: number, rowY: number) {
+function renderLeaderboardPoints(
+  ctx: CanvasRenderingContext2D, state: State, player: LeaderboardPlayer, pointsX: number,
+  rowY: number
+) {
   const timeLeftMs = state.round.expTime - Date.now();
 
   // render as "animation" over timeLeftMs

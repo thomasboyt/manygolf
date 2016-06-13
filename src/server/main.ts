@@ -51,7 +51,7 @@ function getState(): State {
   return store.getState();
 }
 
-function dispatch(action): State {
+function dispatch(action: any): State {
   store.dispatch(action);
   return store.getState();
 }
