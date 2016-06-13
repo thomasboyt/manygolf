@@ -341,22 +341,30 @@ function renderLeaderBoard(ctx: CanvasRenderingContext2D, state: State) {
   state.round.roundRankedPlayers.forEach((player, idx) => {
     const rowY = y + 30 + idx * 12;
 
-    ctx.textAlign = 'left';
-    ctx.fillText(`${idx + 1}`, placeX, rowY);
-    ctx.fillStyle = player.color;
+    const place = player.scored ? `${idx + 1}` : '';
+    const strokes = player.scored ? `${player.strokes}` : '---'
+    const elapsed = player.scored ? (player.scoreTime / 1000).toFixed(2) : '---';
 
+    // Render place
+    ctx.textAlign = 'left';
+    ctx.fillText(place, placeX, rowY);
+
+    // Render name
     if (tinycolor(player.color).isDark()) {
       ctx.strokeText(player.name, nameX, rowY);
     }
 
+    ctx.fillStyle = player.color;
     ctx.fillText(player.name, nameX, rowY);
 
+    // Render strokes & time elapsed
     ctx.textAlign = 'right';
     ctx.fillStyle = 'white';
-    ctx.fillText(`${player.strokes}`, scoreX, rowY);
-    const elapsed = (player.scoreTime / 1000).toFixed(2);
+
+    ctx.fillText(strokes, scoreX, rowY);
     ctx.fillText(elapsed, timeX, rowY);
 
+    // Render points
     renderLeaderboardPoints(ctx, state, player, pointsX, rowY);
   });
 }

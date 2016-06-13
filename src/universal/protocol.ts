@@ -27,6 +27,7 @@ interface LeaderboardPlayer extends Player {
   scoreTime: number;
   prevPoints: number;
   addedPoints: number;
+  scored: boolean;
 }
 
 export const TYPE_INITIAL = 'initial';

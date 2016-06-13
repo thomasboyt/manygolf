@@ -174,6 +174,7 @@ export function levelOver(dispatch: Dispatch, socks: ManygolfSocketManager,
         name: player.name,
         strokes: player.strokes,
         scoreTime: player.scoreTime,
+        scored: player.scored,
 
         prevPoints,
         addedPoints: player.points - prevPoints,
