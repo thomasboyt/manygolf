@@ -67,6 +67,13 @@ function pointsForRank(index: number): number {
 export function updatePoints(players: I.Map<number, Player>, rankedPlayerIds: I.List<number>) {
   return rankedPlayerIds
     .reduce((players, rankedPlayerId, index) => {
+      const scored = players.get(rankedPlayerId).scored;
+
+      // don't award points to players who did not score
+      if (!scored) {
+        return players;
+      }
+
       return players
         .updateIn([rankedPlayerId, 'points'], (points) => points + pointsForRank(index));
     }, players);

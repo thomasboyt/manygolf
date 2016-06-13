@@ -100,4 +100,29 @@ describe('updatePoints', () => {
     expect(players.get(1).points).toEqual(10);
     expect(players.get(2).points).toEqual(5 + 8);
   });
+
+  it('does not award points to players who failed to score', () => {
+    let players = I.Map<number, Player>();
+
+    players = players
+      .set(1, new Player({
+        id: 1,
+        scored: false,
+        strokes: 3,
+        scoreTime: 1,
+      }))
+      .set(2, new Player({
+        id: 2,
+        scored: true,
+        strokes: 4,
+        scoreTime: 1,
+        points: 5,
+      }));
+
+    const ranked = rankPlayers(players);
+    players = updatePoints(players, ranked);
+
+    expect(players.get(1).points).toEqual(0);
+    expect(players.get(2).points).toEqual(5 + 10);
+  });
 });
