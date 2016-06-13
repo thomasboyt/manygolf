@@ -368,6 +368,15 @@ function renderLeaderboardPoints(ctx: CanvasRenderingContext2D, state: State, pl
 
   const beginCountingMs = 3000;
 
+  const addedPoints = player.addedPoints;
+
+  if (addedPoints === 0) {
+    // Don't bother with the animating adding points logic if we're not even rendering added points
+    ctx.textAlign = 'right';
+    ctx.fillText(`${player.prevPoints}`, pointsX, rowY);
+    return;
+  }
+
   if (timeLeftMs > beginCountingMs) {
     ctx.textAlign = 'right';
     ctx.fillText(`${player.prevPoints}`, pointsX, rowY);
