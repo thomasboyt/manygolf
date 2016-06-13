@@ -470,7 +470,7 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State, scaleFactor: 
       // player connected late and missed the roundOver message, display placeholder
       ctx.fillText('Waiting for next round....', x, y);
 
-    } else if (state.round.roundRankedPlayers.size === 0 ) {
+    } else if (state.round.roundRankedPlayers.every((player) => !player.scored)) {
       // no one finished
       ctx.fillText('No one wins!', x, y);
 
