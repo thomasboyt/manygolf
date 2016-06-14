@@ -4,7 +4,7 @@ import {
   WIDTH,
   HEIGHT,
   HURRY_UP_MS,
-  RoundState,
+  GameState,
 } from '../../universal/constants';
 
 import {
@@ -91,7 +91,7 @@ export function renderHud(ctx: CanvasRenderingContext2D, state: State) {
 
   ctx.font = 'normal 16px "Press Start 2P"';
 
-  if (state.round.roundState !== RoundState.over) {
+  if (state.round.gameState === GameState.roundInProgress) {
     // Timer
     const expTime = state.round.expTime;
     const remainingMs = expTime - Date.now();
@@ -102,7 +102,7 @@ export function renderHud(ctx: CanvasRenderingContext2D, state: State) {
 
     let remainingSec = Math.ceil(remainingMs / 1000);
 
-    // prevent seconds from going into negatives (possible due to server lag on roundOver message)
+    // prevent seconds from going into negatives (possible due to server lag on levelOver message)
     if (remainingSec < 0) {
       remainingSec = 0;
     }

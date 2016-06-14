@@ -19,9 +19,10 @@ export enum AimDirection {
   right,
 }
 
-export enum RoundState {
-  inProgress,
-  over,
+export enum GameState {
+  roundInProgress,
+  levelOver,
+  matchOver,
 };
 
 export enum ConnectionState {

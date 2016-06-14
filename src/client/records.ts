@@ -3,7 +3,7 @@ import p2 from 'p2';
 
 import {
   ConnectionState,
-  RoundState,
+  GameState,
   Emoticon,
 } from '../universal/constants';
 
@@ -80,7 +80,7 @@ export class LeaderboardPlayer extends LeaderboardPlayerRec {
 }
 
 const RoundRec = I.Record({
-  roundState: null,
+  gameState: null,
 
   level: null,
   world: null,
@@ -103,7 +103,7 @@ const RoundRec = I.Record({
 });
 
 export class Round extends RoundRec {
-  roundState: RoundState;
+  gameState: GameState;
 
   level: Level;
   world: p2.World;

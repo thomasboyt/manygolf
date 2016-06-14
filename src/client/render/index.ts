@@ -6,7 +6,7 @@ import {
   MIN_POWER,
   MAX_POWER,
   HURRY_UP_MS,
-  RoundState,
+  GameState,
   ConnectionState,
   Emoticon,
 } from '../../universal/constants';
@@ -306,12 +306,17 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
 }
 
 function renderInGame(ctx: CanvasRenderingContext2D, state: State, scaleFactor: number) {
+  if (state.round.gameState === GameState.matchOver) {
+    // renderMatchOver(ctx, state);
+    return;
+  }
+
   renderGround(ctx, state);
   renderBalls(ctx, state);
   renderMessages(ctx, state, scaleFactor);
   renderHud(ctx, state);
 
-  if (state.round.roundState === RoundState.over) {
+  if (state.round.gameState === GameState.levelOver) {
     renderLeaderBoard(ctx, state);
   }
 }

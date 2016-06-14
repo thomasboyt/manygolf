@@ -31,7 +31,7 @@ import {
   SWING_STEP,
   TIMER_MS,
   goalWords,
-  RoundState,
+  GameState,
   ConnectionState,
   AimDirection,
 } from '../universal/constants';
@@ -216,7 +216,7 @@ function newLevel(state: State, data: MessageInitial) {
   world.addBody(holeSensor);
 
   return state.set('round', new Round({
-    roundState: RoundState.inProgress,
+    gameState: GameState.roundInProgress,
 
     world,
     level,
@@ -313,7 +313,7 @@ export default createImmutableReducer<State>(new State(), {
     // update stored clock
     state = state.update('time', (time) => time + dt * 1000);
 
-    if (!state.round || state.round.roundState === RoundState.over) {
+    if (!state.round || state.round.gameState !== GameState.roundInProgress) {
       return state;
     }
 
@@ -486,7 +486,7 @@ export default createImmutableReducer<State>(new State(), {
         }));
       }, I.Map()))
       .update((s) => newLevel(s, data))
-      .setIn(['round', 'roundState'], data.roundState)
+      .setIn(['round', 'gameState'], data.gameState)
       .set('time', data.time)
       .set('leaderId', data.leaderId);
   },
@@ -538,7 +538,7 @@ export default createImmutableReducer<State>(new State(), {
     return state
       .set('leaderId', leaderId)
       .setIn(['round', 'expTime'], data.expTime)
-      .setIn(['round', 'roundState'], RoundState.over)
+      .setIn(['round', 'gameState'], GameState.levelOver)
       .setIn(['round', 'roundRankedPlayers'], rankedPlayers);
   },
 

@@ -2,7 +2,7 @@ import I from 'immutable';
 import p2 from 'p2';
 
 import {
-  RoundState,
+  GameState,
 } from '../universal/constants';
 
 export interface Coordinates {
@@ -67,7 +67,7 @@ const StateRec = I.Record({
   startTime: null,
   expTime: null,
   holeSensor: null,
-  roundState: RoundState.inProgress,
+  gameState: GameState.roundInProgress,
   roundRankedPlayers: null,
   didHurryUp: false,
   time: 0,
@@ -83,7 +83,7 @@ export class State extends StateRec {
   startTime: number;
   expTime: number;
   holeSensor: p2.Body;
-  roundState: RoundState;
+  gameState: GameState;
   roundRankedPlayers: I.List<Player>;
   didHurryUp: boolean;
   time: number;

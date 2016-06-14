@@ -20,7 +20,7 @@ import {
 
 import {
   OVER_TIMER_MS,
-  RoundState,
+  GameState,
 } from '../universal/constants';
 
 interface AddPlayerOpts {
@@ -151,7 +151,7 @@ export default createImmutableReducer<State>(new State(), {
       .set('players', players)
       .set('leaderId', leaderId)
       .set('roundRankedPlayers', roundRankedPlayers)
-      .set('roundState', RoundState.over)
+      .set('gameState', GameState.levelOver)
       .set('expTime', Date.now() + OVER_TIMER_MS);
   },
 

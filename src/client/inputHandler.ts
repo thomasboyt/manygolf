@@ -13,7 +13,7 @@ import {
 
 import {
   AimDirection,
-  RoundState,
+  GameState,
 } from '../universal/constants';
 
 import {
@@ -38,7 +38,7 @@ export default function inputHandler(dt: number, state: State, dispatch: Dispatc
     return;
   }
 
-  if (!state.round || state.round.roundState === RoundState.over) {
+  if (!state.round || state.round.gameState !== GameState.roundInProgress) {
     // ignore input
     return;
   }

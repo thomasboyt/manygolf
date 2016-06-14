@@ -19,7 +19,7 @@ import {
 } from './actions';
 
 import {
-  RoundState,
+  GameState,
 } from '../universal/constants';
 
 import {
@@ -79,7 +79,7 @@ runLoop.onTick((dt: number) => {
     type: 'tick',
   });
 
-  if (getState().roundState === RoundState.over) {
+  if (getState().gameState === GameState.levelOver) {
     if (getState().expTime !== null && getState().expTime < Date.now()) {
       cycleLevel(dispatch, socks);
       return;

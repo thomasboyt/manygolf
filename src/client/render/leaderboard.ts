@@ -64,7 +64,7 @@ export default function renderLeaderBoard(ctx: CanvasRenderingContext2D, state: 
   const y = 55;
 
   if (state.round.roundRankedPlayers === null) {
-    // player connected late and missed the roundOver message, display placeholder
+    // player connected late and missed the levelOver message, display placeholder
     ctx.fillText('Waiting for next round....', x, HEIGHT / 2);
     return;
 

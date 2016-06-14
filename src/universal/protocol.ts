@@ -1,5 +1,5 @@
 import {
-  RoundState,
+  GameState,
   Emoticon,
 } from '../universal/constants';
 
@@ -37,7 +37,7 @@ export interface MessageInitial {
   players: Array<Player>;
   level: Level;
   expiresIn: number;
-  roundState: RoundState;
+  gameState: GameState;
   isObserver: boolean;
   time: number;
   leaderId: number;
