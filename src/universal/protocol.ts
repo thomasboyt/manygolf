@@ -30,15 +30,24 @@ interface LeaderboardPlayer extends Player {
   scored: boolean;
 }
 
+interface MatchEndPlayer extends Player {
+  points: number;
+}
+
 export const TYPE_INITIAL = 'initial';
 
 export interface MessageInitial {
   self: Player;
+  gameState: GameState;
+
   players: Array<Player>;
+  matchEndsIn: number;
+  isObserver: boolean;
+
+  // TODO: this should all go under a "current round" sub-message or something. this message should
+  // support sending information about "end of round" and "end of match" states too...
   level: Level;
   expiresIn: number;
-  gameState: GameState;
-  isObserver: boolean;
   time: number;
   leaderId: number;
 }
@@ -238,6 +247,23 @@ export interface MessageChat {
 export function messageChat(params: MessageChat) {
   return {
     type: TYPE_CHAT,
+    data: params,
+  };
+}
+
+
+export const TYPE_MATCH_OVER = 'matchOver';
+
+export interface MessageMatchOver {
+  // ms until next match
+  nextMatchIn: number;
+
+  matchRankedPlayers: MatchEndPlayer[];
+}
+
+export function messageMatchOver(params: MessageMatchOver) {
+  return {
+    type: TYPE_MATCH_OVER,
     data: params,
   };
 }

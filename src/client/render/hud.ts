@@ -110,6 +110,25 @@ export function renderHud(ctx: CanvasRenderingContext2D, state: State) {
     ctx.textAlign = 'center';
     ctx.fillText(remainingSec + '', WIDTH / 2, 20);
 
+    // Match Timer
+    ctx.fillStyle = textColor;
+    ctx.font = 'normal 8px "Press Start 2P"';
+
+    const remainingMatchMs = state.matchEndsAt - Date.now();
+
+    if (remainingMatchMs < 0) {
+      ctx.fillText('Final hole!!', WIDTH / 2, 30);
+
+    } else {
+      const matchMinutes = Math.floor(remainingMatchMs / 1000 / 60);
+      const matchSeconds = (Math.floor(remainingMatchMs / 1000) % 60);
+      const fmtMinutes = matchMinutes + '';
+      const fmtSeconds = matchSeconds < 10 ? '0' + matchSeconds : matchSeconds;
+
+      ctx.fillText(`Match ends in: ${fmtMinutes}:${fmtSeconds}`, WIDTH / 2, 30)
+    }
+
+    ctx.font = 'normal 16px "Press Start 2P"';
     ctx.fillStyle = textColor;
 
     // Show goalText when you score

@@ -79,6 +79,20 @@ export class LeaderboardPlayer extends LeaderboardPlayerRec {
   scored: boolean;
 }
 
+const MatchEndPlayerRec = I.Record({
+  color: null,
+  name: null,
+  id: null,
+  points: null,
+});
+
+export class MatchEndPlayer extends MatchEndPlayerRec {
+  color: string;
+  name: string;
+  id: number;
+  points: number;
+}
+
 const RoundRec = I.Record({
   gameState: null,
 
@@ -160,6 +174,8 @@ const StateRec = I.Record({
   chats: I.Map(),
 
   leaderId: null,
+  matchEndsAt: null,
+  matchRankedPlayers: null,
 });
 
 export class State extends StateRec {
@@ -186,5 +202,8 @@ export class State extends StateRec {
 
   chats: I.Map<number, ChatMessage>;
 
+  // todo: move into "Match" record/key?
   leaderId: number;
+  matchEndsAt: number;
+  matchRankedPlayers: I.List<MatchEndPlayer>;
 }

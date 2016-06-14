@@ -155,6 +155,15 @@ export default createImmutableReducer<State>(new State(), {
       .set('expTime', Date.now() + OVER_TIMER_MS);
   },
 
+  'matchOver': (state: State, {nextMatchAt}: {nextMatchAt: number}) => {
+    const matchRankedPlayers = state.players.sortBy((player) => player.points).reverse().toList();
+
+    return state
+      .set('matchRankedPlayers', matchRankedPlayers)
+      .set('gameState', GameState.matchOver)
+      .set('expTime', nextMatchAt);
+  },
+
   'playerConnected': (state: State, {id, name, color, isObserver}: AddPlayerOpts) => {
     const player = new Player({
       id,
@@ -208,6 +217,10 @@ export default createImmutableReducer<State>(new State(), {
     }
   },
 
+  'startMatch': (state: State, {endTime}: {endTime: number}) => {
+     return state.set('matchEndTime', endTime);
+   },
+
   'level': (state: State,
             {levelData, expTime, startTime}:
             {levelData: any; startTime: number; expTime: number}) => {
@@ -233,6 +246,7 @@ export default createImmutableReducer<State>(new State(), {
       holeSensor,
       leaderId: state.leaderId,
       observers: state.observers,
+      matchEndTime: state.matchEndTime,
     });
 
     // XXX: This is done separately because it depends on the updated `state`

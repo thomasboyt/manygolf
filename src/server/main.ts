@@ -16,6 +16,8 @@ import {
   sendSyncMessage,
   levelOver,
   checkHurryUp,
+  startMatch,
+  endMatch,
 } from './actions';
 
 import {
@@ -43,8 +45,6 @@ const socks = new ManygolfSocketManager(wss, store);
  * Run loop
  */
 
-cycleLevel(store.dispatch.bind(store), socks);
-
 const runLoop = new RunLoop();
 
 function getState(): State {
@@ -55,6 +55,9 @@ function dispatch(action: any): State {
   store.dispatch(action);
   return store.getState();
 }
+
+startMatch(dispatch);
+cycleLevel(dispatch, socks);
 
 const fixedStep = 1 / 60;
 const maxSubSteps = 10;
@@ -79,9 +82,22 @@ runLoop.onTick((dt: number) => {
     type: 'tick',
   });
 
-  if (getState().gameState === GameState.levelOver) {
-    if (getState().expTime !== null && getState().expTime < Date.now()) {
+  const {gameState, expTime, matchEndTime} = getState();
+
+  if (gameState === GameState.matchOver) {
+    if (expTime < Date.now()) {
+      startMatch(dispatch);
       cycleLevel(dispatch, socks);
+    }
+  }
+
+  if (gameState === GameState.levelOver) {
+    if (expTime !== null && expTime < Date.now()) {
+      if (Date.now() >= matchEndTime) {
+        endMatch(dispatch, socks);
+      } else {
+        cycleLevel(dispatch, socks);
+      }
       return;
     }
 

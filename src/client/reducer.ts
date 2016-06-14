@@ -23,6 +23,8 @@ import {
   MessageSync,
   MessageChat,
   TYPE_CHAT,
+  MessageMatchOver,
+  TYPE_MATCH_OVER,
 } from '../universal/protocol';
 
 import {
@@ -62,6 +64,7 @@ import {
   LeaderboardPlayer,
   Round,
   ChatMessage,
+  MatchEndPlayer,
 } from './records';
 
 let SYNC_THRESHOLD = 10;
@@ -488,7 +491,8 @@ export default createImmutableReducer<State>(new State(), {
       .update((s) => newLevel(s, data))
       .setIn(['round', 'gameState'], data.gameState)
       .set('time', data.time)
-      .set('leaderId', data.leaderId);
+      .set('leaderId', data.leaderId)
+      .set('matchEndsAt', Date.now() + data.matchEndsIn);
   },
 
   [`ws:${TYPE_PLAYER_CONNECTED}`]: (state: State, action) => {
@@ -574,6 +578,15 @@ export default createImmutableReducer<State>(new State(), {
       emoticon: data.emoticon,
       timeout: Date.now() + 5 * 1000,
     }));
+  },
+
+  ['ws:${TYPE_MATCH_OVER}']: (state: State, {data}: {data: MessageMatchOver}) => {
+    const rankedPlayers: I.List<MatchEndPlayer> = I.fromJS(data.matchRankedPlayers)
+      .map((player) => new MatchEndPlayer(player));
+
+    return state
+      .set('gameState', GameState.matchOver)
+      .set('matchRankedPlayers', rankedPlayers);
   },
 
   'disconnect': (state: State) => {

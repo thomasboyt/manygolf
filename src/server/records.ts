@@ -58,6 +58,13 @@ export class Level extends LevelRec {
   color: string;
 }
 
+/*
+ * TODO Oh my god this record is a god damn mess
+ * Should be split into game state + round state like client is
+ * ALSO IF YOU ADD ANYTHING TO THIS THAT PERSISTS BETWEEN ROUNDS REMEMBER TO UPDATE THE NEW LEVEL
+ * REDUCER OR YOU'RE GONNA HAVE A BAD TIME
+ */
+
 const StateRec = I.Record({
   levelData: null,
   world: null,
@@ -69,9 +76,11 @@ const StateRec = I.Record({
   holeSensor: null,
   gameState: GameState.roundInProgress,
   roundRankedPlayers: null,
+  matchRankedPlayers: null,
   didHurryUp: false,
   time: 0,
   leaderId: null,
+  matchEndTime: null,
 });
 
 export class State extends StateRec {
@@ -85,7 +94,9 @@ export class State extends StateRec {
   holeSensor: p2.Body;
   gameState: GameState;
   roundRankedPlayers: I.List<Player>;
+  matchRankedPlayers: I.List<Player>;
   didHurryUp: boolean;
   time: number;
   leaderId: number;
+  matchEndTime: number;
 }

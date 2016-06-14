@@ -25,6 +25,7 @@ import toOrdinal from '../util/toOrdinal';
 import createMemoizedRender from './util/createMemoizedRender';
 
 import renderLeaderBoard from './leaderboard';
+import renderMatchEnd from './matchEnd';
 import {
   renderMessages,
   renderHud,
@@ -308,7 +309,7 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
 
 function renderInGame(ctx: CanvasRenderingContext2D, state: State, scaleFactor: number) {
   if (state.round.gameState === GameState.matchOver) {
-    // renderMatchOver(ctx, state);
+    renderMatchEnd(ctx, state);
     return;
   }
 

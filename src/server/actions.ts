@@ -12,6 +12,7 @@ import {
   messageSync,
   messageLevelOver,
   messageHurryUp,
+  messageMatchOver,
 } from '../universal/protocol';
 
 import {
@@ -22,6 +23,8 @@ import {
   IDLE_KICK_MS,
   TIMER_MS,
   HURRY_UP_MS,
+  MATCH_LENGTH_MS,
+  MATCH_OVER_MS,
 } from '../universal/constants';
 
 import {
@@ -105,6 +108,38 @@ export function checkScored(
       }
     }
   });
+}
+
+export function startMatch(dispatch: Dispatch) {
+  const endTime = Date.now() + MATCH_LENGTH_MS;
+
+  dispatch({
+    type: 'startMatch',
+    endTime,
+  });
+}
+
+export function endMatch(dispatch: Dispatch, socks: ManygolfSocketManager) {
+  const nextMatchAt = Date.now() + MATCH_OVER_MS;
+
+  const state = dispatch({
+    type: 'matchOver',
+    nextMatchAt,
+  });
+
+  const rankedPlayers = state.matchRankedPlayers;
+
+  socks.sendAll(messageMatchOver({
+    nextMatchIn: MATCH_OVER_MS,
+    matchRankedPlayers: rankedPlayers.toArray().map((player) => {
+      return {
+        id: player.id,
+        color: player.color,
+        name: player.name,
+        points: player.points,
+      };
+    })
+  }));
 }
 
 export function cycleLevel(dispatch: Dispatch, socks: ManygolfSocketManager) {
