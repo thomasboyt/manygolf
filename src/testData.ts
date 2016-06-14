@@ -10,8 +10,11 @@ const msgs = [
       "data": {
         "expTime": Date.now() + 6000,
         "roundRankedPlayers": [
-          {"id":2,"color":"#b74bed","name":"Amazing Backspin","strokes":4,"scoreTime":33627,"prevPoints":20,"addedPoints":10},
-          {"id":3,"color":"#b74bed","name":"Fred Goodatgolf","strokes":4,"scoreTime":33627,"prevPoints":50,"addedPoints":5},
+          {"id":2,"color":"#b74bed","name":"Amazing Backspin","strokes":4,"scoreTime":33627,"prevPoints":20,"addedPoints":10, scored: true},
+          {"id":3,"color":"#b74bed","name":"Fred Goodatgolf","strokes":4,"scoreTime":33627,"prevPoints":50,"addedPoints":8, scored: true},
+          {"id":7,"color":"#b74bed","name":"asdfadsfads asdfdasf","strokes":4,"scoreTime":33627,"prevPoints":500,"addedPoints":6, scored: true},
+          {"id":9,"color":"#b74bed","name":"garbage text","strokes":4,"scoreTime":33627,"prevPoints":20,"addedPoints":4, scored: true},
+          {"id":5,"color":"#b74bed","name":"blah foo","strokes":4,"scoreTime":33627,"prevPoints":10,"addedPoints":0, scored: false},
         ]
       }
     }

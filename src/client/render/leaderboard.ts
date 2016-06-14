@@ -3,6 +3,7 @@ import tinycolor from 'tinycolor2';
 import {
   WIDTH,
   HEIGHT,
+  OVER_TIMER_MS,
 } from '../../universal/constants';
 
 import {
@@ -12,26 +13,22 @@ import {
 
 import toOrdinal from '../util/toOrdinal';
 
+const beginCountingMs = 2500;
+const endCountingMs = 3500;
+const endSortingMs = 4500;
+
 function renderLeaderboardPoints(
   ctx: CanvasRenderingContext2D, state: State, player: LeaderboardPlayer, pointsX: number,
-  rowY: number
+  rowY: number, elapsedMs: number
 ) {
-  const timeLeftMs = state.round.expTime - Date.now();
-
-  // render as "animation" over timeLeftMs
-
-  const beginCountingMs = 3000;
-
-  const addedPoints = player.addedPoints;
-
-  if (addedPoints === 0) {
+  if (player.addedPoints === 0) {
     // Don't bother with the animating adding points logic if we're not even rendering added points
     ctx.textAlign = 'right';
     ctx.fillText(`${player.prevPoints}`, pointsX, rowY);
     return;
   }
 
-  if (timeLeftMs > beginCountingMs) {
+  if (beginCountingMs >= elapsedMs) {
     ctx.textAlign = 'right';
     ctx.fillText(`${player.prevPoints}`, pointsX, rowY);
     ctx.textAlign = 'left';
@@ -39,7 +36,7 @@ function renderLeaderboardPoints(
 
   } else {
     // remove one point every 80ms
-    let movedPoints = Math.floor(Math.abs(timeLeftMs - beginCountingMs) / 50);
+    let movedPoints = Math.floor((elapsedMs - beginCountingMs) / 50);
 
     if (movedPoints > player.addedPoints) {
       movedPoints = player.addedPoints;
@@ -110,10 +107,40 @@ export default function renderLeaderBoard(ctx: CanvasRenderingContext2D, state: 
   ctx.textAlign = 'right';
   ctx.fillText('Points', pointsX, headerY);
 
-  state.round.roundRankedPlayers.forEach((player, idx) => {
-    const rowY = y + 30 + idx * 12;
+  // TODO: HOLY SHIT MEMOIZE THIS
+  const matchRankedPlayers = state.round.roundRankedPlayers
+    .sortBy((player) => player.prevPoints + player.addedPoints)
+    .reverse()
+    .toList();  // unnecessary at runtime but needed for TypeScript to know what type this is :()
 
-    const place = player.scored ? `${idx + 1}` : '';
+  const startTime = state.round.expTime - OVER_TIMER_MS;
+  const elapsedMs = Date.now() - startTime;
+
+  state.round.roundRankedPlayers.forEach((player, roundPos) => {
+
+    // TODO: this lookup sucks, combine with above memoization to map a map of {id => pos} or
+    // something
+    const matchPos = matchRankedPlayers.findIndex((matchPlayer) => matchPlayer.id === player.id);
+
+    const roundRowY = y + 30 + roundPos * 12;
+    const matchRowY = y + 30 + matchPos * 12;
+
+    let rowY, pos;
+    if (elapsedMs < endCountingMs) {
+      pos = roundPos + 1;
+      rowY = roundRowY;
+    } else if (elapsedMs > endSortingMs) {
+      pos = matchPos + 1;
+      rowY = matchRowY;
+    } else {
+      pos = '';
+
+      const sortingElapsedMs = elapsedMs - endCountingMs;
+      const progress = sortingElapsedMs / (endSortingMs - endCountingMs);
+      rowY = roundRowY + ((matchRowY - roundRowY) * progress)
+    }
+
+    const place = player.scored ? `${pos}` : '';
     const strokes = player.scored ? `${player.strokes}` : '---';
     const elapsed = player.scored ? (player.scoreTime / 1000).toFixed(2) : '---';
 
@@ -137,6 +164,6 @@ export default function renderLeaderBoard(ctx: CanvasRenderingContext2D, state: 
     ctx.fillText(elapsed, timeX, rowY);
 
     // Render points
-    renderLeaderboardPoints(ctx, state, player, pointsX, rowY);
+    renderLeaderboardPoints(ctx, state, player, pointsX, rowY, elapsedMs);
   });
 }
