@@ -38,7 +38,7 @@ export default function inputHandler(dt: number, state: State, dispatch: Dispatc
     return;
   }
 
-  if (!state.round || state.round.gameState !== GameState.roundInProgress) {
+  if (!state.round || state.gameState !== GameState.roundInProgress) {
     // ignore input
     return;
   }

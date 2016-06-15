@@ -219,8 +219,6 @@ function newLevel(state: State, data: MessageInitial) {
   world.addBody(holeSensor);
 
   return state.set('round', new Round({
-    gameState: GameState.roundInProgress,
-
     world,
     level,
     expTime,
@@ -316,7 +314,7 @@ export default createImmutableReducer<State>(new State(), {
     // update stored clock
     state = state.update('time', (time) => time + dt * 1000);
 
-    if (!state.round || state.round.gameState !== GameState.roundInProgress) {
+    if (!state.round || state.gameState !== GameState.roundInProgress) {
       return state;
     }
 
@@ -469,7 +467,8 @@ export default createImmutableReducer<State>(new State(), {
   },
 
   [`ws:${TYPE_LEVEL}`]: (state: State, action) => {
-    return newLevel(state, action.data);
+    return newLevel(state, action.data)
+      .set('gameState', GameState.roundInProgress);
   },
 
   [`ws:${TYPE_INITIAL}`]: (state: State, action) => {
@@ -489,7 +488,7 @@ export default createImmutableReducer<State>(new State(), {
         }));
       }, I.Map()))
       .update((s) => newLevel(s, data))
-      .setIn(['round', 'gameState'], data.gameState)
+      .set('gameState', data.gameState)
       .set('time', data.time)
       .set('leaderId', data.leaderId)
       .set('matchEndsAt', Date.now() + data.matchEndsIn);
@@ -541,8 +540,8 @@ export default createImmutableReducer<State>(new State(), {
 
     return state
       .set('leaderId', leaderId)
+      .set('gameState', GameState.levelOver)
       .setIn(['round', 'expTime'], data.expTime)
-      .setIn(['round', 'gameState'], GameState.levelOver)
       .setIn(['round', 'roundRankedPlayers'], rankedPlayers);
   },
 
@@ -580,7 +579,7 @@ export default createImmutableReducer<State>(new State(), {
     }));
   },
 
-  ['ws:${TYPE_MATCH_OVER}']: (state: State, {data}: {data: MessageMatchOver}) => {
+  [`ws:${TYPE_MATCH_OVER}`]: (state: State, {data}: {data: MessageMatchOver}) => {
     const rankedPlayers: I.List<MatchEndPlayer> = I.fromJS(data.matchRankedPlayers)
       .map((player) => new MatchEndPlayer(player));
 

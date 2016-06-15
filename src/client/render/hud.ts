@@ -91,7 +91,7 @@ export function renderHud(ctx: CanvasRenderingContext2D, state: State) {
 
   ctx.font = 'normal 16px "Press Start 2P"';
 
-  if (state.round.gameState === GameState.roundInProgress) {
+  if (state.gameState === GameState.roundInProgress) {
     // Timer
     const expTime = state.round.expTime;
     const remainingMs = expTime - Date.now();

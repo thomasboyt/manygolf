@@ -308,7 +308,7 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
 }
 
 function renderInGame(ctx: CanvasRenderingContext2D, state: State, scaleFactor: number) {
-  if (state.round.gameState === GameState.matchOver) {
+  if (state.gameState === GameState.matchOver) {
     renderMatchEnd(ctx, state);
     return;
   }
@@ -318,7 +318,7 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State, scaleFactor: 
   renderMessages(ctx, state, scaleFactor);
   renderHud(ctx, state);
 
-  if (state.round.gameState === GameState.levelOver) {
+  if (state.gameState === GameState.levelOver) {
     renderLeaderBoard(ctx, state);
   }
 }

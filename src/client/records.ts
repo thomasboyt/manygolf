@@ -94,8 +94,6 @@ export class MatchEndPlayer extends MatchEndPlayerRec {
 }
 
 const RoundRec = I.Record({
-  gameState: null,
-
   level: null,
   world: null,
   ball: new Ball(),
@@ -117,8 +115,6 @@ const RoundRec = I.Record({
 });
 
 export class Round extends RoundRec {
-  gameState: GameState;
-
   level: Level;
   world: p2.World;
   ball: Ball;
@@ -150,6 +146,8 @@ export class ChatMessage extends ChatMessageRec {
 }
 
 const StateRec = I.Record({
+  gameState: null,
+
   connectionState: ConnectionState.connecting,
 
   players: I.Map(),
@@ -179,6 +177,8 @@ const StateRec = I.Record({
 });
 
 export class State extends StateRec {
+  gameState: GameState;
+
   connectionState: ConnectionState;
 
   players: I.Map<number, Player>;
