@@ -84,13 +84,6 @@ runLoop.onTick((dt: number) => {
 
   const {gameState, expTime, matchEndTime} = getState();
 
-  if (gameState === GameState.matchOver) {
-    if (expTime < Date.now()) {
-      startMatch(dispatch);
-      cycleLevel(dispatch, socks);
-    }
-  }
-
   if (gameState === GameState.levelOver) {
     if (expTime !== null && expTime < Date.now()) {
       if (Date.now() >= matchEndTime) {
@@ -101,7 +94,13 @@ runLoop.onTick((dt: number) => {
       return;
     }
 
-  } else {
+  } else if (gameState === GameState.matchOver) {
+    if (expTime < Date.now()) {
+      startMatch(dispatch);
+      cycleLevel(dispatch, socks);
+    }
+
+  } else if (gameState === GameState.roundInProgress) {
     ensurePlayersInBounds(dispatch, {
       level: getState().level,
       players: getState().players,
