@@ -173,6 +173,7 @@ const StateRec = I.Record({
 
   leaderId: null,
   matchEndsAt: null,
+  nextMatchTime: null,
   matchRankedPlayers: null,
 });
 
@@ -205,5 +206,6 @@ export class State extends StateRec {
   // todo: move into "Match" record/key?
   leaderId: number;
   matchEndsAt: number;
+  nextMatchTime: number;
   matchRankedPlayers: I.List<MatchEndPlayer>;
 }

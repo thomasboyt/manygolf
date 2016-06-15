@@ -585,7 +585,8 @@ export default createImmutableReducer<State>(new State(), {
 
     return state
       .set('gameState', GameState.matchOver)
-      .set('matchRankedPlayers', rankedPlayers);
+      .set('matchRankedPlayers', rankedPlayers)
+      .set('nextMatchTime', Date.now() + data.nextMatchIn);
   },
 
   'disconnect': (state: State) => {

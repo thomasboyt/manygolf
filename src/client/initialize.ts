@@ -33,8 +33,6 @@ export default function initialize(): Store<State> {
       const timeDiff = msg.time - initTime;
 
       setTimeout(() => {
-        console.log(msg.time);
-
         store.dispatch({
           type: `ws:${msg.msg.type}`,
           data: msg.msg.data,

@@ -1,6 +1,7 @@
 import {
   WIDTH,
   HEIGHT,
+  MATCH_OVER_MS
 } from '../../universal/constants';
 
 import {
@@ -84,7 +85,61 @@ function drawPodium(
   ctx.fillText(`${player.name}`, x, bottomY + 15);
 }
 
+function renderFirework(
+  ctx: CanvasRenderingContext2D, x: number, y: number, startingTime: number, totalElapsed: number,
+  color: string
+) {
+  if (startingTime > totalElapsed) {
+    return;
+  }
+
+  const elapsed = totalElapsed - startingTime;
+  const step = 1 / 10;
+
+  ctx.save();
+  ctx.translate(x, y);
+
+  const beginDecay = 500;
+  const decayTime = 500;
+
+  const decay = elapsed <= beginDecay ? 0 : (elapsed - beginDecay) / decayTime;
+  const brightness = 1 - decay;
+
+  ctx.fillStyle = `rgba(${color}, ${brightness})`;
+
+  // make a firework with like 12 particles
+  for (let i = 0; i < 12; i += 1) {
+    ctx.save();
+    ctx.rotate(i * ((2 * Math.PI) / 12));
+
+    ctx.beginPath();
+    const x = 0;
+    const y = elapsed * step;
+    ctx.arc(x, y, 2.5, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.closePath();
+
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
+function renderFireworks(ctx: CanvasRenderingContext2D, timeElapsed: number) {
+  // TODO: randomize this
+  // probably will need to generate fireworks in the reducer when you enter this state
+  renderFirework(ctx, 200, 50, 1000, timeElapsed, '255, 0, 0');
+  renderFirework(ctx, 410, 100, 2000, timeElapsed, '255, 255, 0');
+  renderFirework(ctx, 120, 60, 2400, timeElapsed, '0, 255, 0');
+  renderFirework(ctx, 440, 30, 3000, timeElapsed, '0, 255, 255');
+  renderFirework(ctx, 500, 50, 3600, timeElapsed, '0, 0, 255');
+  renderFirework(ctx, 260, 40, 4000, timeElapsed, '255, 255, 255');
+}
+
 export default function renderMatchEnd(ctx: CanvasRenderingContext2D, state: State) {
+  const timeElapsed = Date.now() - (state.nextMatchTime - MATCH_OVER_MS);
+  renderFireworks(ctx, timeElapsed);
+
   const players = state.matchRankedPlayers;
 
   drawPodium(ctx, players.get(0), 1, 300);
