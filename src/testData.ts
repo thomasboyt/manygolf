@@ -1,3 +1,7 @@
+import {
+  MATCH_OVER_MS
+} from './universal/constants';
+
 const msgs = [
   {
     time: 0,
@@ -8,7 +12,7 @@ const msgs = [
     msg: {
       "type":"matchOver",
       "data": {
-        "expTime": Date.now() + 6000,
+        "nextMatchIn": MATCH_OVER_MS,
         "matchRankedPlayers": [
           {"id":2,"color":"#b74bed","name":"Amazing Backspin","points":100},
           {"id":3,"color":"#b74bed","name":"Amazing Backspin","points":80},
