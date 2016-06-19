@@ -17,6 +17,7 @@ export enum SwingMeterDirection {
   descending
 }
 
+
 const BallRec = I.Record({
   body: null,
   lastX: null,
@@ -26,6 +27,7 @@ export class Ball extends BallRec {
   body: p2.Body;
   lastX: number;
 }
+
 
 const PlayerRec = I.Record({
   body: null,
@@ -43,6 +45,7 @@ export class Player extends PlayerRec {
   pastPositions: I.Map<number, number[]>;
 }
 
+
 const LevelRec = I.Record({
   points: null,
   hole: null,
@@ -56,6 +59,7 @@ export class Level extends LevelRec {
   spawn: I.List<number>;
   color: string;
 }
+
 
 const LeaderboardPlayerRec = I.Record({
   color: null,
@@ -79,6 +83,7 @@ export class LeaderboardPlayer extends LeaderboardPlayerRec {
   scored: boolean;
 }
 
+
 const MatchEndPlayerRec = I.Record({
   color: null,
   name: null,
@@ -92,6 +97,7 @@ export class MatchEndPlayer extends MatchEndPlayerRec {
   id: number;
   points: number;
 }
+
 
 const RoundRec = I.Record({
   level: null,
@@ -135,6 +141,7 @@ export class Round extends RoundRec {
   roundRankedPlayers: I.List<LeaderboardPlayer>;
 }
 
+
 const ChatMessageRec = I.Record({
   emoticon: null,
   timeout: null,
@@ -144,6 +151,22 @@ export class ChatMessage extends ChatMessageRec {
   emoticon: Emoticon;
   timeout: number;
 }
+
+
+const MatchRec = I.Record({
+  leaderId: null,
+  matchEndsAt: null,
+  nextMatchTime: null,
+  matchRankedPlayers: null,
+});
+
+export class Match extends MatchRec {
+  leaderId: number;
+  matchEndsAt: number;
+  nextMatchTime: number;
+  matchRankedPlayers: I.List<MatchEndPlayer>;
+}
+
 
 const StateRec = I.Record({
   gameState: null,
@@ -162,6 +185,7 @@ const StateRec = I.Record({
   displayMessageColor: null,
 
   round: null,
+  match: null,
 
   time: null,
 
@@ -170,11 +194,6 @@ const StateRec = I.Record({
   swingQueue: I.List(),
 
   chats: I.Map(),
-
-  leaderId: null,
-  matchEndsAt: null,
-  nextMatchTime: null,
-  matchRankedPlayers: null,
 });
 
 export class State extends StateRec {
@@ -194,6 +213,7 @@ export class State extends StateRec {
   displayMessageColor: string;
 
   round: Round;
+  match: Match;
 
   time: number;
 
@@ -202,10 +222,4 @@ export class State extends StateRec {
   swingQueue: I.List<MessagePlayerSwing>;
 
   chats: I.Map<number, ChatMessage>;
-
-  // todo: move into "Match" record/key?
-  leaderId: number;
-  matchEndsAt: number;
-  nextMatchTime: number;
-  matchRankedPlayers: I.List<MatchEndPlayer>;
 }

@@ -36,6 +36,7 @@ import {
   GameState,
   ConnectionState,
   AimDirection,
+  MATCH_LENGTH_MS,
 } from '../universal/constants';
 
 import {
@@ -65,6 +66,7 @@ import {
   Round,
   ChatMessage,
   MatchEndPlayer,
+  Match,
 } from './records';
 
 let SYNC_THRESHOLD = 10;
@@ -466,9 +468,17 @@ export default createImmutableReducer<State>(new State(), {
     return state.setIn(['round', 'aimDirection'], newDir);
   },
 
-  [`ws:${TYPE_LEVEL}`]: (state: State, action) => {
-    return newLevel(state, action.data)
+  [`ws:${TYPE_LEVEL}`]: (prevState: State, action) => {
+    let newState = newLevel(prevState, action.data)
       .set('gameState', GameState.roundInProgress);
+
+    if (prevState.gameState === GameState.matchOver) {
+      newState = newState.set('match', new Match({
+        matchEndsAt: Date.now() + MATCH_LENGTH_MS,
+      }));
+    }
+
+    return newState;
   },
 
   [`ws:${TYPE_INITIAL}`]: (state: State, action) => {
@@ -490,8 +500,10 @@ export default createImmutableReducer<State>(new State(), {
       .update((s) => newLevel(s, data))
       .set('gameState', data.gameState)
       .set('time', data.time)
-      .set('leaderId', data.leaderId)
-      .set('matchEndsAt', Date.now() + data.matchEndsIn);
+      .set('match', new Match({
+        leaderId: data.leaderId,
+        matchEndsAt: Date.now() + data.matchEndsIn,
+      }));
   },
 
   [`ws:${TYPE_PLAYER_CONNECTED}`]: (state: State, action) => {
@@ -539,8 +551,8 @@ export default createImmutableReducer<State>(new State(), {
     const leaderId = data.leaderId;
 
     return state
-      .set('leaderId', leaderId)
       .set('gameState', GameState.levelOver)
+      .setIn(['match', 'leaderId'], leaderId)
       .setIn(['round', 'expTime'], data.expTime)
       .setIn(['round', 'roundRankedPlayers'], rankedPlayers);
   },
@@ -583,10 +595,12 @@ export default createImmutableReducer<State>(new State(), {
     const rankedPlayers: I.List<MatchEndPlayer> = I.fromJS(data.matchRankedPlayers)
       .map((player) => new MatchEndPlayer(player));
 
+    const nextMatchTime = Date.now() + data.nextMatchIn;
+
     return state
       .set('gameState', GameState.matchOver)
-      .set('matchRankedPlayers', rankedPlayers)
-      .set('nextMatchTime', Date.now() + data.nextMatchIn);
+      .setIn(['match', 'matchRankedPlayers'], rankedPlayers)
+      .setIn(['match', 'nextMatchTime'],  nextMatchTime);
   },
 
   'disconnect': (state: State) => {

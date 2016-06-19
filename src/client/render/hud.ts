@@ -114,7 +114,7 @@ export function renderHud(ctx: CanvasRenderingContext2D, state: State) {
     ctx.fillStyle = textColor;
     ctx.font = 'normal 8px "Press Start 2P"';
 
-    const remainingMatchMs = state.matchEndsAt - Date.now();
+    const remainingMatchMs = state.match.matchEndsAt - Date.now();
 
     if (remainingMatchMs < 0) {
       ctx.fillText('Final hole!!', WIDTH / 2, 30);

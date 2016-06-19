@@ -137,12 +137,12 @@ function renderFireworks(ctx: CanvasRenderingContext2D, timeElapsed: number) {
 }
 
 export default function renderMatchEnd(ctx: CanvasRenderingContext2D, state: State) {
-  const timeElapsed = Date.now() - (state.nextMatchTime - MATCH_OVER_MS);
+  const timeElapsed = Date.now() - (state.match.nextMatchTime - MATCH_OVER_MS);
   renderFireworks(ctx, timeElapsed);
 
-  const players = state.matchRankedPlayers;
+  const players = state.match.matchRankedPlayers;
 
   drawPodium(ctx, players.get(0), 1, 300);
-  drawPodium(ctx, players.get(0), 2, 100);
-  drawPodium(ctx, players.get(0), 3, 500);
+  drawPodium(ctx, players.get(1), 2, 100);
+  drawPodium(ctx, players.get(2), 3, 500);
 }

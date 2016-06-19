@@ -211,7 +211,7 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
     ctx.stroke();
     ctx.closePath();
 
-    if (state.leaderId === player.id) {
+    if (state.match.leaderId === player.id) {
       drawCrown(ctx, pos[0], pos[1]);
     }
   });
@@ -263,7 +263,7 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
   ctx.stroke();
   ctx.closePath();
 
-  if (state.leaderId === state.id) {
+  if (state.match.leaderId === state.id) {
     drawCrown(ctx, ballPos[0], ballPos[1]);
   }
 
