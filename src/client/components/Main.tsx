@@ -39,6 +39,18 @@ export default class Main extends React.Component<{}, {}> {
     }
   }
 
+  maybeRenderRev() {
+    if (process.env.NODE_ENV === 'production') {
+      const sha = process.env.BUILD_SHA;
+
+      return (
+        <p>
+          build: {sha}
+        </p>
+      );
+    }
+  }
+
   render() {
     return (
       <div>
@@ -108,6 +120,8 @@ export default class Main extends React.Component<{}, {}> {
                 <a href="http://devlog.disco.zone/2016/04/18/manygolf/">tech notes</a> /
                 <a href="http://disco.zone">disco.zone</a>
               </p>
+
+              {this.maybeRenderRev()}
             </div>
           </div>
         </div>

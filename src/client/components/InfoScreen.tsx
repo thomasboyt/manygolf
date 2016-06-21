@@ -18,6 +18,18 @@ class InfoScreen extends React.Component<Props, {}> {
     );
   }
 
+  maybeRenderRev() {
+    if (process.env.NODE_ENV === 'production') {
+      const sha = process.env.BUILD_SHA;
+
+      return (
+        <p>
+          build: {sha}
+        </p>
+      );
+    }
+  }
+
   render() {
     return (
       <div className="info-screen">
@@ -42,6 +54,7 @@ class InfoScreen extends React.Component<Props, {}> {
             <p>
               {mobileBridge.isNative() ? this.renderNativeShare() : <TwitterLink />}
             </p>
+            {this.maybeRenderRev()}
           </div>
         </div>
 
