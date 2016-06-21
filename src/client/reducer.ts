@@ -65,6 +65,8 @@ import {
   Match,
 } from './records';
 
+const runBehind = 50;  // ms to enforce run-behind
+
 const SYNC_THRESHOLD = 2;
 
 const fixedStep = 1 / 60;
@@ -422,7 +424,7 @@ export default createImmutableReducer<State>(new State(), {
       }, I.Map()))
       .update((s) => newLevel(s, data))
       .set('gameState', data.gameState)
-      .set('time', data.time)
+      .set('time', data.time - runBehind)
       .set('match', new Match({
         leaderId: data.leaderId,
         matchEndsAt: Date.now() + data.matchEndsIn,
@@ -497,7 +499,8 @@ export default createImmutableReducer<State>(new State(), {
   [`ws:${TYPE_SYNC}`]: (state: State, {data}: {data: MessageSync}) => {
     const time = data.time;
 
-    // if client is ahead of server, somehow...
+    // if client is ahead of server, due to lag during the time it took to receive message...
+    // this should be an exceptional case, ideally
     if (time < state.time) {
       return syncWorld(state, data);
 
