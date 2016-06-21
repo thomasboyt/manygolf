@@ -138,7 +138,7 @@ export function endMatch(dispatch: Dispatch, socks: ManygolfSocketManager) {
         name: player.name,
         points: player.points,
       };
-    })
+    }),
   }));
 }
 
