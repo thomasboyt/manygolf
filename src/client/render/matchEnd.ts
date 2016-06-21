@@ -137,6 +137,17 @@ function renderFireworks(ctx: CanvasRenderingContext2D, timeElapsed: number) {
 }
 
 export default function renderMatchEnd(ctx: CanvasRenderingContext2D, state: State) {
+  if (!state.match.matchRankedPlayers) {
+    // player just connected
+    ctx.fillStyle = 'white';
+    ctx.font = 'normal 16px "Press Start 2P"';
+    ctx.textAlign = 'center';
+    ctx.fillText('A match just ended.', WIDTH / 2, HEIGHT / 2 - 20);
+    ctx.fillText('A new one will begin', WIDTH / 2, HEIGHT / 2);
+    ctx.fillText('in a few moments...', WIDTH / 2, HEIGHT / 2 + 20);
+    return;
+  }
+
   const timeElapsed = Date.now() - (state.match.nextMatchTime - MATCH_OVER_MS);
   renderFireworks(ctx, timeElapsed);
 
