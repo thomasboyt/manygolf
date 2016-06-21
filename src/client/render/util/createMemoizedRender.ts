@@ -1,17 +1,23 @@
 import {WIDTH, HEIGHT} from '../../../universal/constants';
 
+function getPixelRatio() {
+  return window.devicePixelRatio ? window.devicePixelRatio : 1;
+}
+
 export class OffscreenCanvas {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
 
   constructor(scaleFactor: number) {
+    const pixelRatio = getPixelRatio();
+
     this.canvas = document.createElement('canvas') as HTMLCanvasElement;
-    this.canvas.width = WIDTH * scaleFactor;
-    this.canvas.height = HEIGHT * scaleFactor;
+    this.canvas.width = WIDTH * scaleFactor * pixelRatio;
+    this.canvas.height = HEIGHT * scaleFactor * pixelRatio;
 
     this.ctx = this.canvas.getContext('2d');
     this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-    this.ctx.scale(scaleFactor, scaleFactor);
+    this.ctx.scale(scaleFactor * pixelRatio, scaleFactor * pixelRatio);
   }
 
   /*
