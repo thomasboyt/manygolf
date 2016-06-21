@@ -17,10 +17,12 @@ import {
 
 import {
   State,
+  Level,
 } from '../records';
 
 import {calcVectorDegrees} from '../util/math';
 import toOrdinal from '../util/toOrdinal';
+import createMemoizedRender from './util/createMemoizedRender';
 
 import renderLeaderBoard from './leaderboard';
 import {
@@ -131,9 +133,8 @@ function renderChat(ctx: CanvasRenderingContext2D,
   ctx.restore();
 }
 
-function renderGround(ctx: CanvasRenderingContext2D, state: State) {
-  const level = state.round.level;
-
+const renderGround = createMemoizedRender(
+  (ctx: CanvasRenderingContext2D, level: Level, scaleFactor: number) => {
   const points = level.points;
 
   ctx.fillStyle = groundColor;
@@ -155,11 +156,11 @@ function renderGround(ctx: CanvasRenderingContext2D, state: State) {
   ctx.lineTo(-groundLineWidth, points.get(0).get(1));
 
   ctx.lineWidth = groundLineWidth;
-  ctx.strokeStyle = state.round.level.color;
+  ctx.strokeStyle = level.color;
   ctx.stroke();
   ctx.fill();
   ctx.closePath();
-}
+});
 
 function drawCrown(ctx: CanvasRenderingContext2D, ballX: number, ballY: number) {
   ctx.save();
@@ -311,7 +312,7 @@ function renderInGame(ctx: CanvasRenderingContext2D, state: State, scaleFactor: 
     return;
   }
 
-  renderGround(ctx, state);
+  renderGround(ctx, scaleFactor, state.round.level);
   renderBalls(ctx, state);
   renderMessages(ctx, state, scaleFactor);
   renderHud(ctx, state);
