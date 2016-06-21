@@ -111,7 +111,7 @@ export default function renderLeaderBoard(ctx: CanvasRenderingContext2D, state: 
   const matchRankedPlayers = state.round.roundRankedPlayers
     .sortBy((player) => player.prevPoints + player.addedPoints)
     .reverse()
-    .toList();  // unnecessary at runtime but needed for TypeScript to know what type this is :()
+    .toList();  // unnecessary at runtime but needed for TypeScript to know what type this is :(
 
   const startTime = state.round.expTime - OVER_TIMER_MS;
   const elapsedMs = Date.now() - startTime;
