@@ -88,10 +88,13 @@ export default function renderLeaderBoard(ctx: CanvasRenderingContext2D, state: 
   if (!state.isObserver) {
     ctx.font = 'normal 16px "Press Start 2P"';
 
-    if (state.round.scored) {
-      const players = state.round.roundRankedPlayers;
-      const position = players.findIndex((player) => player.id === state.id) + 1;
-      ctx.fillText(`You placed ${toOrdinal(position)}`, WIDTH / 2, y);
+    // can't use state.round.scored here because the round-end message can be sent before this is
+    // computed locally due to lag
+    const players = state.round.roundRankedPlayers;
+    const idx = players.findIndex((player) => player.id === state.id);
+
+    if (players.get(idx).scored) {
+      ctx.fillText(`You placed ${toOrdinal(idx + 1)}`, WIDTH / 2, y);
 
     } else {
       ctx.fillText('You didn\'t make it in :(', WIDTH / 2, y);
