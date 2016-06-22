@@ -218,7 +218,13 @@ export default createImmutableReducer<State>(new State(), {
   },
 
   'startMatch': (state: State, {endTime}: {endTime: number}) => {
-     return state.set('matchEndTime', endTime);
+     return state
+       .set('matchEndTime', endTime)
+       .update('players', (players: I.Map<number, Player>) => {
+         return players.map((player) => {
+           return player.set('points', 0);
+         });
+       });
    },
 
   'level': (state: State,
