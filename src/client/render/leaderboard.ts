@@ -127,26 +127,25 @@ export default function renderLeaderBoard(ctx: CanvasRenderingContext2D, state: 
 
     let rowY, pos;
     if (elapsedMs < endCountingMs) {
-      pos = roundPos + 1;
+      pos = player.scored ? roundPos + 1 : '';
       rowY = roundRowY;
     } else if (elapsedMs > endSortingMs) {
       pos = matchPos + 1;
       rowY = matchRowY;
     } else {
-      pos = '';
+      pos = matchPos + 1;
 
       const sortingElapsedMs = elapsedMs - endCountingMs;
       const progress = sortingElapsedMs / (endSortingMs - endCountingMs);
       rowY = roundRowY + ((matchRowY - roundRowY) * progress)
     }
 
-    const place = player.scored ? `${pos}` : '';
     const strokes = player.scored ? `${player.strokes}` : '---';
     const elapsed = player.scored ? (player.scoreTime / 1000).toFixed(2) : '---';
 
     // Render place
     ctx.textAlign = 'left';
-    ctx.fillText(place, placeX, rowY);
+    ctx.fillText(pos, placeX, rowY);
 
     // Render name
     if (tinycolor(player.color).isDark()) {
