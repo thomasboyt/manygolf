@@ -154,6 +154,13 @@ runLoop.onTick((dt: number) => {
 
 runLoop.start();
 
+app.get('/player-count', (req, res) => {
+  res.type('text/plain');
+
+  const count = getState().players.size;
+  res.send(`${count}`);
+});
+
 server.on('request', app);
 server.listen(port, () => { console.log('Listening on ' + server.address().port); });
 
