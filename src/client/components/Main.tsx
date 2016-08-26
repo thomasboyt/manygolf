@@ -95,6 +95,9 @@ export default class Main extends React.Component<{}, {}> {
             <div className="section">
               <h2>newest changes</h2>
               <p>
+                <em>Aug 26</em> - Hi <a href="http://boingboing.net/2016/08/26/manygolf-simple-addictive-on.html">Boing Boing players</a>! Y'all are putting the server under much more average strain than usual, so I apologize for the lag you're probably seeing. Thanks for playing!
+              </p>
+              <p>
                 <em>May 20</em> - Manygolf has a new home at <a href="http://manygolf.club/">manygolf.club</a>! Your bookmarks and such should automatically redirect just fine.
               </p>
               <p>
