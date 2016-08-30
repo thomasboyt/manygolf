@@ -4,7 +4,7 @@ import randomColor from 'randomcolor';
 import SocketManager from './util/SocketManager';
 import nameGen from './nameGen';
 
-import WebSocket from 'ws';
+import WebSocket from 'uws';
 import p2 from 'p2';
 
 import {

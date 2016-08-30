@@ -51,3 +51,9 @@ declare module "lodash.sample" {
 declare module "raven" {
   function patchGlobal(client, cb): void;
 }
+
+// uws uses the exact same interface as ws, soooooo
+declare module "uws" {
+  import ws from 'ws';
+  export = ws;
+}

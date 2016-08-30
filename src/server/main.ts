@@ -1,5 +1,5 @@
 import http from 'http';
-import ws from 'ws';
+import ws from 'uws';
 import express from 'express';
 import { createStore } from 'redux';
 import raven from 'raven';

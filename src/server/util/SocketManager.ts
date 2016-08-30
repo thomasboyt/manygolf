@@ -1,4 +1,4 @@
-import WebSocket, {Server} from 'ws';
+import WebSocket, {Server} from 'uws';
 
 abstract class SocketManager {
   idCounter: number;
