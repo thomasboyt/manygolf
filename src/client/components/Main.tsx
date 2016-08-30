@@ -95,16 +95,9 @@ export default class Main extends React.Component<{}, {}> {
             <div className="section">
               <h2>newest changes</h2>
               <p>
-                <em>Aug 26</em> - Hi <a href="http://boingboing.net/2016/08/26/manygolf-simple-addictive-on.html">Boing Boing players</a>! Y'all are putting the server under much more average strain than usual, so I apologize for the lag you're probably seeing. Thanks for playing!
-              </p>
-              <p>
-                <em>May 20</em> - Manygolf has a new home at <a href="http://manygolf.club/">manygolf.club</a>! Your bookmarks and such should automatically redirect just fine.
-              </p>
-              <p>
-                <em>May 17, again</em> - Added :) and :( emotes you can use. I've already gotten a request for keyboard shortcuts for these, will add them shortly!
-              </p>
-              <p>
-                <em>May 17</em> - I added an end-of-round leaderboard. It currently just shows you the position everyone placed for the current hole, but is step 1 in adding some kind of persistent scoring across holes!
+                <em>Aug 30</em> - Big news: <span style={{color: 'white'}}>
+                Manygolf now has a <a href="http://steamcommunity.com/sharedfiles/filedetails/?id=751794609">Steam Greenlight page</a> and an <a href="https://docs.google.com/forms/d/e/1FAIpQLScAJAsaPGTE_elKg5MbqXgsa-W1rbrWRdDQGi-gXLBgaTM34Q/viewform">iOS beta test</a>!
+                </span> More info on <a href="http://devlog.disco.zone/2016/08/30/manygolf-steam-ios/">my dev blog</a>.
               </p>
             </div>
           </div>
