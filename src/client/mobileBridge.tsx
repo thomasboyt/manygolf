@@ -8,6 +8,7 @@ import {
 enum Device {
   iOS,
   Android,
+  Steam,
 }
 
 class MobileBridge {
@@ -34,6 +35,14 @@ class MobileBridge {
     });
   }
 
+  sendSteamPlayerConnected(playerId: number, steamId: string) {
+    this.sendMessage({
+      type: 'steamPlayerConnected',
+      playerId,
+      steamId,
+    });
+  }
+
   /*
    * Globally-injected methods
    */
@@ -43,6 +52,9 @@ class MobileBridge {
       this.device = Device.iOS;
     } else if (device === 'android') {
       this.device = Device.Android;
+    } else if (device === 'steam') {
+      this.device = Device.Steam;
+      this.initializeElectronIPC();
     } else {
       throw new Error('Unrecognized device');
     }
@@ -71,9 +83,32 @@ class MobileBridge {
       } catch(err) {
         console.error(`Error sending message to Android: ${err}`);
       }
+    } else if (this.device === Device.Steam) {
+      (window as any).ipcRenderer.sendToHost('', message);
     }
   }
 
+  private initializeElectronIPC() {
+    (window as any).ipcRenderer.on('message', (evt: any, message: any) => {
+      this.handleMessage(message);
+    });
+  }
+
+  private handleMessage(message: any) {
+    if (message.type === 'showSteamFriend') {
+      this.showSteamFriend(message.playerId, message.name);
+    } else if (message.type === 'registerSteam') {
+      this.registerSteamSelf(message.ticket);
+    }
+  }
+
+  private registerSteamSelf(ticket: string) {
+    console.log('registering steam auth ticket', ticket);
+  }
+
+  private showSteamFriend(playerId: number, name: string) {
+    console.log('displaying steam friend', name);
+  }
 }
 
 const mobileBridge = new MobileBridge();

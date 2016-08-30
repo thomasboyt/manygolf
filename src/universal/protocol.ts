@@ -299,6 +299,18 @@ export function messageMatchOver(params: MessageMatchOver) {
 }
 
 
+//
+// Steam integration
+//
+
+export const TYPE_STEAM_REGISTER = 'steamRegister';
+
+export interface MessageSteamRegister {
+}
+
+export function messageSteamRegister(params: MessageSteamRegister) {
+}
+
 export const TYPE_REQUEST_PAUSE_STREAM = 'requestPauseStream';
 
 export function messageReqPauseStream() {
