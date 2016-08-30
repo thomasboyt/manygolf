@@ -1,5 +1,11 @@
 import WebSocket, {Server} from 'uws';
 
+function log(msg: any, ...params: any[]) {
+  if (process.env.LOG_WS) {
+    console.log(msg, ...params);
+  }
+}
+
 abstract class SocketManager {
   idCounter: number;
   _sockets: Map<number, WebSocket>;
@@ -29,13 +35,13 @@ abstract class SocketManager {
   }
 
   handleMessage(id: number, strMsg: string) {
-    console.log(`received: ${strMsg}`);
+    log(`received: ${strMsg}`);
 
     let msg;
     try {
       msg = JSON.parse(strMsg);
     } catch(err) {
-      console.error('ignoring malformed message');
+      log('ignoring malformed message');
     }
 
     this.onMessage(id, msg);
@@ -43,7 +49,7 @@ abstract class SocketManager {
 
   handleCloseSocket(id: number, didError: boolean) {
     const reason = didError ? '(errored)' : '';
-    console.log(`*** ID ${id} disconnected ${reason}`);
+    log(`*** ID ${id} disconnected ${reason}`);
 
     this.onDisconnect(id);
 
@@ -64,11 +70,11 @@ abstract class SocketManager {
   sendTo(id: number, msg: Object) {
     const msgStr = JSON.stringify(msg);
 
-    console.log(`sent to ${id}: ${msgStr}`);
+    log(`sent to ${id}: ${msgStr}`);
 
     return this._getSocket(id).send(msgStr, (err) => {
       if (err) {
-        console.log(`error sending to ${id}`, err);
+        log(`error sending to ${id}`, err);
       }
     });
   }
@@ -76,12 +82,12 @@ abstract class SocketManager {
   sendAll(msg: Object) {
     const msgStr = JSON.stringify(msg);
 
-    console.log(`sent: ${msgStr}`);
+    log(`sent: ${msgStr}`);
 
     this._getSockets().forEach((socket, id) => {
       socket.send(msgStr, (err) => {
         if (err) {
-          console.log(`error sending to ${id}`, err);
+          log(`error sending to ${id}`, err);
         }
       });
     });
