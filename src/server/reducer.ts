@@ -79,6 +79,12 @@ export function updatePoints(players: I.Map<number, Player>, rankedPlayerIds: I.
     }, players);
 }
 
+function resetPoints(players: I.Map<number, Player>) {
+  return players.map((player) => {
+    return player.set('points', 0);
+  });
+}
+
 export function rankPlayers(players: I.Map<number, Player>): I.List<number> {
   const playersList = players.toList();
 
@@ -220,12 +226,9 @@ export default createImmutableReducer<State>(new State(), {
   'startMatch': (state: State, {endTime}: {endTime: number}) => {
      return state
        .set('matchEndTime', endTime)
-       .update('players', (players: I.Map<number, Player>) => {
-         return players.map((player) => {
-           return player.set('points', 0);
-         });
-       });
-   },
+       .update('players', resetPoints)
+       .update('observers', resetPoints);
+  },
 
   'level': (state: State,
             {levelData, expTime, startTime}:

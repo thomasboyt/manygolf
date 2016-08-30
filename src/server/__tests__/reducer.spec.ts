@@ -3,8 +3,8 @@
 import expect from 'expect';
 import I from 'immutable';
 
-import {Player} from '../records';
-import {rankPlayers, updatePoints} from '../reducer';
+import {Player, State} from '../records';
+import reducer, {rankPlayers, updatePoints} from '../reducer';
 
 describe('rankPlayers', () => {
   it('ranks players by strokes', () => {
@@ -124,5 +124,25 @@ describe('updatePoints', () => {
 
     expect(players.get(1).points).toEqual(0);
     expect(players.get(2).points).toEqual(5 + 10);
+  });
+});
+
+describe('startMatch', () => {
+  it('resets the points of players and observers', () => {
+    const initialState = new State()
+      .setIn(['players', 1], new Player({
+        points: 10,
+      }))
+      .setIn(['observers', 2], new Player({
+        points: 10,
+      }));
+
+    const state = reducer(initialState, {
+      type: 'startMatch',
+      endTime: 123,
+    });
+
+    expect(state.players.get(1).points).toEqual(0);
+    expect(state.observers.get(2).points).toEqual(0);
   });
 });
