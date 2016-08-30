@@ -260,6 +260,21 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
   //
   const ballPos = state.round.ball.body.interpolatedPosition;
 
+  // draw a translucent "shadow" around the player ball to make it easy to keep tack
+  ctx.beginPath();
+  ctx.arc(ballPos[0], ballPos[1], 8, 0, 2 * Math.PI);
+  ctx.fillStyle = 'rgba(128, 128, 0, .6)';
+  ctx.fill();
+  ctx.closePath();
+
+  ctx.beginPath();
+  ctx.arc(ballPos[0], ballPos[1], 2.5, 0, 2 * Math.PI);
+  ctx.fillStyle = ballColor;
+  ctx.strokeStyle = ballColor; // add stroke so it's the same size as the ghosts
+  ctx.fill();
+  ctx.stroke();
+  ctx.closePath();
+
   renderBall(ctx, ballPos[0], ballPos[1], ballColor, ballColor);
 
   if (state.match.leaderId === state.id) {
