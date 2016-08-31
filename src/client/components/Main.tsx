@@ -116,8 +116,8 @@ export default class Main extends React.Component<{}, {}> {
                 updates/feedback: <a href="https://twitter.com/manygolf">@manygolf on twitter</a>
               </p>
               <p>
-                <a href="https://github.com/thomasboyt/manygolf">code</a> /
-                <a href="http://devlog.disco.zone/2016/04/18/manygolf/">tech notes</a> /
+                <a href="https://github.com/thomasboyt/manygolf">code</a> /{' '}
+                <a href="http://devlog.disco.zone/2016/04/18/manygolf/">tech notes</a> /{' '}
                 <a href="http://disco.zone">disco.zone</a>
               </p>
 
