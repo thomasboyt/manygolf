@@ -34,18 +34,6 @@ class MobileBridge {
     });
   }
 
-  private sendMessage(message: Object) {
-    const messageStr = JSON.stringify(message);
-
-    if (this.device === Device.iOS) {
-      try {
-        (window as any).webkit.messageHandlers.callbackHandler.postMessage(messageStr);
-      } catch(err) {
-        console.error(`Error sending message to iOS: ${err}`);
-      }
-    }
-  }
-
   /*
    * Globally-injected methods
    */
@@ -53,6 +41,8 @@ class MobileBridge {
   enable(device: string) {
     if (device === 'ios') {
       this.device = Device.iOS;
+    } else if (device === 'android') {
+      this.device = Device.Android;
     } else {
       throw new Error('Unrecognized device');
     }
@@ -65,6 +55,25 @@ class MobileBridge {
       document.location.reload();
     }
   }
+
+  private sendMessage(message: Object) {
+    const messageStr = JSON.stringify(message);
+
+    if (this.device === Device.iOS) {
+      try {
+        (window as any).webkit.messageHandlers.callbackHandler.postMessage(messageStr);
+      } catch(err) {
+        console.error(`Error sending message to iOS: ${err}`);
+      }
+    } else if (this.device === Device.Android) {
+      try {
+        (window as any).Android.postMessage(messageStr);
+      } catch(err) {
+        console.error(`Error sending message to Android: ${err}`);
+      }
+    }
+  }
+
 }
 
 const mobileBridge = new MobileBridge();
