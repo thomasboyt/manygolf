@@ -17,6 +17,14 @@ export default class TwitterTimeline extends React.Component<{}, {}> {
         // dark arts here...
         const iframe = (this.refs['container'] as Element).getElementsByClassName('twitter-timeline')[0];
         const timeline = (iframe as HTMLIFrameElement).contentDocument;
+        const head = timeline.getElementsByTagName('head')[0];
+
+        const fontLink = document.createElement('link');
+        fontLink.href = 'https://fonts.googleapis.com/css?family=Press+Start+2P';
+        fontLink.rel = 'stylesheet';
+        fontLink.type = 'text/css';
+        head.appendChild(fontLink);
+
         const style = document.createElement('style');
         style.textContent = `
           * { font-family: "Press Start 2P" !important }
@@ -25,6 +33,7 @@ export default class TwitterTimeline extends React.Component<{}, {}> {
             line-height: 20px !important;
           }
         `;
+        head.appendChild(style);
 
         timeline.getElementsByTagName('head')[0].appendChild(style);
       });
