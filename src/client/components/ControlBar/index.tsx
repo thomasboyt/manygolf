@@ -1,7 +1,10 @@
 import React from 'react';
+import {connect} from 'react-redux';
 
 import {ControlButton} from '../../buttons';
 import isTouch from '../../util/isTouch';
+import {State} from '../../records';
+import {GameState} from '../../../universal/constants';
 
 import GameControl from './GameControl';
 import ChatControl from './ChatControl';
@@ -10,7 +13,11 @@ const leftArrowUrl = require('../../../../assets/arrowLeft.png');
 const rightArrowUrl = require('../../../../assets/arrowRight.png');
 const shootUrl = require('../../../../assets/target.png');
 
-export default class ControlBar extends React.Component<{}, {}> {
+interface Props {
+  gameState: GameState;
+}
+
+class ControlBar extends React.Component<Props, {}> {
   renderTouchControls() {
     return [
       <GameControl type={ControlButton.LeftArrow} className="left-arrow"
@@ -32,6 +39,10 @@ export default class ControlBar extends React.Component<{}, {}> {
   }
 
   render() {
+    if (this.props.gameState !== GameState.roundInProgress) {
+      return null;
+    }
+
     let controls, className;
 
     if (isTouch) {
@@ -49,3 +60,11 @@ export default class ControlBar extends React.Component<{}, {}> {
     );
   }
 }
+
+function select(state: State) {
+  return {
+    gameState: state.gameState,
+  };
+}
+
+export default connect(select)(ControlBar);
