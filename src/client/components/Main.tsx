@@ -1,11 +1,8 @@
 import * as React from 'react';
 import isTouch from '../util/isTouch';
 
-import {Store} from 'redux';
-import {State} from '../records';
-import {Subscriber} from '../runLoop';
-
 import TwitterLink from './TwitterLink';
+import TwitterTimeline from './Timeline';
 import GameContainer from './GameContainer';
 
 const headerImage = require('../../../assets/header.png');
@@ -67,6 +64,29 @@ export default class Main extends React.Component<{}, {}> {
 
           <div className="row">
             <div className="section">
+              <p>
+                <a
+                  style={{color: "#fff203"}}
+                  href="http://steamcommunity.com/sharedfiles/filedetails/?id=751794609">
+                  Vote for Manygolf on Steam Greenlight!
+                </a>
+              </p>
+              <p>
+                <a
+                  href="https://docs.google.com/forms/d/e/1FAIpQLScAJAsaPGTE_elKg5MbqXgsa-W1rbrWRdDQGi-gXLBgaTM34Q/viewform">
+                  Join the iOS beta
+                </a>
+                {' / '}
+                <a
+                  href="https://play.google.com/apps/testing/com.thomasboyt.manygolf">
+                  Join the Android beta
+                </a>
+              </p>
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="section">
               <h2>what</h2>
               <p>
                 manygolf is a massively multiplayer golf game. everyone plays together, simultaneously,
@@ -93,19 +113,9 @@ export default class Main extends React.Component<{}, {}> {
 
           <div className="row">
             <div className="section">
-              <h2>newest changes</h2>
-              <p>
-                <em>Aug 31</em> -{' '}
-                <a href="https://play.google.com/apps/testing/com.thomasboyt.manygolf">
-                  An Android beta is now available on the Play Store!
-                </a>
-              </p>
+              <h2>updates</h2>
 
-              <p>
-                <em>Aug 30</em> - Big news: <span style={{color: 'white'}}>
-                Manygolf now has a <a href="http://steamcommunity.com/sharedfiles/filedetails/?id=751794609">Steam Greenlight page</a> and an <a href="https://docs.google.com/forms/d/e/1FAIpQLScAJAsaPGTE_elKg5MbqXgsa-W1rbrWRdDQGi-gXLBgaTM34Q/viewform">iOS beta test</a>!
-                </span> More info on <a href="http://devlog.disco.zone/2016/08/30/manygolf-steam-ios/">my dev blog</a>.
-              </p>
+              <TwitterTimeline />
             </div>
           </div>
 
