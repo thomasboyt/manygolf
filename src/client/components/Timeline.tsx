@@ -10,8 +10,8 @@ export default class TwitterTimeline extends React.Component<{}, {}> {
 
         theme: 'dark',
         width: 500,
-        height: 500,
-        chrome: 'noheader noborder nofooter transparent',
+        tweetLimit: 5,
+        chrome: 'noheader noscrollbar nofooter transparent',
 
       }).then(() => {
         // dark arts here...

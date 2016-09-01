@@ -111,11 +111,28 @@ export default class Main extends React.Component<{}, {}> {
             </div>
           </div>
 
-          <div className="row">
-            <div className="section">
-              <h2>updates</h2>
+          <div className="updates-full">
+            <div className="row">
+              <div className="section">
+                <h2>updates</h2>
 
-              <TwitterTimeline />
+                <TwitterTimeline />
+
+                <p style={{marginTop: '30px'}}>
+                  for more updates &amp; feedback, visit <a href="https://twitter.com/manygolf">@manygolf on twitter</a>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="updates-mobile">
+            <div className="row">
+              <div className="section">
+                <h2>updates &amp; feedback</h2>
+                <p>
+                  visit <a href="https://twitter.com/manygolf">@manygolf on twitter</a>!
+                </p>
+              </div>
             </div>
           </div>
 
@@ -124,9 +141,6 @@ export default class Main extends React.Component<{}, {}> {
               <h2>who</h2>
               <p>
                 by thomas, with obvious debt to <a href="http://desertgolfing.captain-games.com/">desert golfing</a>
-              </p>
-              <p>
-                updates/feedback: <a href="https://twitter.com/manygolf">@manygolf on twitter</a>
               </p>
               <p>
                 <a href="https://github.com/thomasboyt/manygolf">code</a> /{' '}

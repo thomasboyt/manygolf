@@ -24,6 +24,13 @@ header img {
   margin: 0 auto;
 }
 
+.updates-full {
+  display: none;
+}
+.updates-mobile {
+  display: block;
+}
+
 // multi-column mode
 @media only screen and (min-width: 750px) {
   .instructions {
@@ -36,5 +43,12 @@ header img {
       flex: 1;
       padding: 0px 15px;
     }
+  }
+
+  .updates-full {
+    display: block;
+  }
+  .updates-mobile {
+    display: none;
   }
 }
