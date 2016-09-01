@@ -4,6 +4,8 @@ import {
   MATCH_OVER_MS
 } from '../../universal/constants';
 
+import toOrdinal from '../util/toOrdinal';
+
 import {
   State,
   MatchEndPlayer,
@@ -156,4 +158,12 @@ export default function renderMatchEnd(ctx: CanvasRenderingContext2D, state: Sta
   drawPodium(ctx, players.get(0), 1, 300);
   drawPodium(ctx, players.get(1), 2, 100);
   drawPodium(ctx, players.get(2), 3, 500);
+
+  const place = players.findIndex((player) => player.id === state.id);
+  if (place > -1) {
+    ctx.fillStyle = 'white';
+    ctx.font = 'normal 16px "Press Start 2P"';
+    ctx.textAlign = 'center';
+    ctx.fillText(`You finished ${toOrdinal(place + 1)} of ${players.size}!`, WIDTH / 2, HEIGHT - 5);
+  }
 }
