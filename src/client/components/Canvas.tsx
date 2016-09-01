@@ -10,8 +10,6 @@ import {
   subscribe as runLoopSubscribe,
 } from '../runLoop';
 
-import scaleCanvas from '../util/scaleCanvas';
-
 import render from '../render';
 
 interface Props {
@@ -29,11 +27,18 @@ function getScaleFactor(originalWidth: number, originalHeight: number, maxWidth:
   return Math.min(heightScale, widthScale);
 }
 
-class Canvas extends React.Component<Props, {}> {
-  private _canvas: HTMLCanvasElement;
-  private _ctx: CanvasRenderingContext2D;
+interface CanvasState {
+  scaleFactor: number;
+  width: number;
+  height: number;
+  canvasWidth: number;
+  canvasHeight: number;
+  styleWidth: string;
+  styleMaxHeight: string;
+}
 
-  state = {
+class Canvas extends React.Component<Props, CanvasState> {
+  state: CanvasState = {
     scaleFactor: 1,
     width: null,
     height: null,
@@ -41,7 +46,10 @@ class Canvas extends React.Component<Props, {}> {
     canvasHeight: null,
     styleWidth: null,
     styleMaxHeight: null,
-  }
+  };
+
+  private _canvas: HTMLCanvasElement;
+  private _ctx: CanvasRenderingContext2D;
 
   componentDidMount() {
     this._canvas = (ReactDOM.findDOMNode(this) as HTMLCanvasElement);
@@ -91,7 +99,7 @@ class Canvas extends React.Component<Props, {}> {
     }, 0);
   }
 
-  handleClick(e) {
+  handleClick(e: React.MouseEvent) {
     const rect = ReactDOM.findDOMNode(this).getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -104,7 +112,7 @@ class Canvas extends React.Component<Props, {}> {
   }
 
   render() {
-    const style ={
+    const style = {
       width: this.state.styleWidth,
       maxHeight: this.state.styleMaxHeight,
     };

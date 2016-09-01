@@ -13,7 +13,7 @@
     "build": "webpack --config webpack/production.js && webpack --config webpack/server.js",
     "deploy": "fly production",
     "deploy-staging": "fly client-staging",
-    "lint": "tslint src/**/*.ts"
+    "lint": "tslint src/**/*.ts src/**/*.tsx"
   },
   "devDependencies": {
     "babel-core": "^6.3.17",

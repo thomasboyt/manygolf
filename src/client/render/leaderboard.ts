@@ -162,7 +162,7 @@ export default function renderLeaderBoard(ctx: CanvasRenderingContext2D, state: 
 
       const sortingElapsedMs = elapsedMs - endCountingMs;
       const progress = sortingElapsedMs / (endSortingMs - endCountingMs);
-      rowY = roundRowY + ((matchRowY - roundRowY) * progress)
+      rowY = roundRowY + ((matchRowY - roundRowY) * progress);
     }
 
     if (rank > 2) {

@@ -23,6 +23,6 @@ export default class IconButton extends React.Component<Props, {}> {
       <button {...this.props} className={`control-button ${className}`}>
         <span style={innerStyle} />
       </button>
-    )
+    );
   }
 }

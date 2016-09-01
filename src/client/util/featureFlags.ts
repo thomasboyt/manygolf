@@ -5,24 +5,26 @@ import qs from 'qs';
 const query = document.location.search.slice(1);  // lop off leading question mark
 const qsObj = qs.parse(query.toLowerCase());
 
-export const flagTypes = {
-  bool(value, name): boolean {
-    // this is a bool
-    if (value === '') {
-      return true;
-    } else if (value === '0' || value === 'false') {
-      return false;
-    } else if (value === '1' || value === 'true') {
-      return true;
-    } else {
-      throw new Error(`could not parse boolean flag ${name}`);
-    }
+type FlagType<T> = (value: string, name: string) => T;
+
+const bool: FlagType<boolean> = (value: string, name: string): boolean => {
+  // this is a bool
+  if (value === '') {
+    return true;
+  } else if (value === '0' || value === 'false') {
+    return false;
+  } else if (value === '1' || value === 'true') {
+    return true;
+  } else {
+    throw new Error(`could not parse boolean flag ${name}`);
   }
 };
 
-// TODO: Figure out how to properly type check this based on type converter
-// e.g. ensure defaultValue is same as return value of type
-export function getFlag(name, type, defaultValue) {
+export const flagTypes = {
+  bool,
+};
+
+export function getFlag<T>(name: string, type: FlagType<T>, defaultValue: T): T {
   const key = name.toLowerCase();
 
   if (qsObj[key] !== undefined) {

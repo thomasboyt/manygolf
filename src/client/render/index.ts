@@ -1,11 +1,8 @@
-import tinycolor from 'tinycolor2';
-
 import {
   WIDTH,
   HEIGHT,
   MIN_POWER,
   MAX_POWER,
-  HURRY_UP_MS,
   GameState,
   ConnectionState,
   Emoticon,
@@ -21,7 +18,6 @@ import {
 } from '../records';
 
 import {calcVectorDegrees} from '../util/math';
-import toOrdinal from '../util/toOrdinal';
 import createMemoizedRender from './util/createMemoizedRender';
 
 import renderLeaderBoard from './leaderboard';

@@ -1,7 +1,7 @@
 import {
   WIDTH,
   HEIGHT,
-  MATCH_OVER_MS
+  MATCH_OVER_MS,
 } from '../../universal/constants';
 
 import toOrdinal from '../util/toOrdinal';
@@ -33,12 +33,12 @@ function drawCrown(ctx: CanvasRenderingContext2D, ballX: number, ballY: number) 
   ctx.fillStyle = 'yellow';
 
   ctx.save();
-  ctx.translate(ballX - 40, ballY - 80)
+  ctx.translate(ballX - 40, ballY - 80);
   drawHalfCrown(ctx);
   ctx.restore();
 
   ctx.save();
-  ctx.translate(ballX + 40, ballY - 80)
+  ctx.translate(ballX + 40, ballY - 80);
   ctx.scale(-1, 1);
   drawHalfCrown(ctx);
   ctx.restore();

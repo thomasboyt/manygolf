@@ -14,12 +14,12 @@ interface ControlProps {
 }
 
 export default class GameControl extends React.Component<ControlProps, {}> {
-  handleTouchStart(e) {
+  handleTouchStart(e: React.TouchEvent | React.MouseEvent) {
     e.preventDefault();
     buttonsDown.add(this.props.type);
   }
 
-  handleTouchEnd(e) {
+  handleTouchEnd(e: React.TouchEvent | React.MouseEvent) {
     e.preventDefault();
     buttonsDown.delete(this.props.type);
   }

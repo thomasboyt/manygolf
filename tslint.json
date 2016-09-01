@@ -9,10 +9,6 @@
     ],
     "label-position": true,
     "label-undefined": true,
-    "max-line-length": [
-      true,
-      100
-    ],
     "member-ordering": [
       true,
       "public-before-private",
@@ -38,7 +34,7 @@
     "no-trailing-whitespace": true,
     "no-unreachable": true,
     "no-unused-expression": true,
-    "no-unused-variable": true,
+    "no-unused-variable": [true, "react"],
     "no-use-before-declare": true,
     "no-var-keyword": true,
     "no-var-requires": false,

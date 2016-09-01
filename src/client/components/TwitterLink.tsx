@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
+import {State} from '../records';
 
 interface Props {
   name: string;
@@ -22,14 +23,14 @@ class TwitterLink extends React.Component<Props, {}> {
         rel="noopener">
         make tweet
       </a>
-    )
+    );
   }
 }
 
-function select(state) {
+function select(state: State) {
   return {
     name: state.name,
-  }
+  };
 }
 
 export default connect(select)(TwitterLink);

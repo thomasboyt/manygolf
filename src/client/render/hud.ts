@@ -125,7 +125,7 @@ export function renderHud(ctx: CanvasRenderingContext2D, state: State) {
       const fmtMinutes = matchMinutes + '';
       const fmtSeconds = matchSeconds < 10 ? '0' + matchSeconds : matchSeconds;
 
-      ctx.fillText(`Match ends in: ${fmtMinutes}:${fmtSeconds}`, WIDTH / 2, 30)
+      ctx.fillText(`Match ends in: ${fmtMinutes}:${fmtSeconds}`, WIDTH / 2, 30);
     }
 
     ctx.font = 'normal 16px "Press Start 2P"';

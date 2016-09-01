@@ -34,7 +34,8 @@ export class OffscreenCanvas {
  * passed args, so works well with ImmutableJS state. Also will always re-render if scaleFactor
  * changes.
  */
-export default function createMemoizedRender(fn: (ctx: CanvasRenderingContext2D, ...args) => void) {
+export default function createMemoizedRender(
+  fn: (ctx: CanvasRenderingContext2D, ...args: any[]) => void) {
   let prevScaleFactor = null;
   let prevArgs = [];
   let prevCanvas = null;

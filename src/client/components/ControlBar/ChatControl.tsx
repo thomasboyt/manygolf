@@ -15,10 +15,14 @@ import {
   ControlButton,
 } from '../../buttons';
 
-export default class ChatControl extends React.Component<{}, {}> {
-  state = {
+interface ChatControlState {
+  chatOptsOpen: boolean;
+}
+
+export default class ChatControl extends React.Component<{}, ChatControlState> {
+  state: ChatControlState = {
     chatOptsOpen: false,
-  }
+  };
 
   handleClick() {
     this.setState({

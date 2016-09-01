@@ -1,3 +1,5 @@
+/* tslint:disable */
+
 import {
   MATCH_OVER_MS
 } from './universal/constants';
