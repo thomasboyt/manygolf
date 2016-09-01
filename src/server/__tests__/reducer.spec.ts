@@ -75,30 +75,46 @@ describe('rankPlayers', () => {
   });
 });
 
+function generateRankedPlayers(n: number) {
+  let players = I.Map<number, Player>();
+
+  for (let i = 0; i < n; i++) {
+    players = players.set(i, new Player({
+      id: i,
+      scored: true,
+    }));
+  }
+
+  const ranked = players.map((player) => player.id).toList();
+
+  return {players, ranked};
+}
+
 describe('updatePoints', () => {
-  it('adds new points based on scores', () => {
-    let players = I.Map<number, Player>();
-
-    players = players
-      .set(1, new Player({
-        id: 1,
-        scored: true,
-        strokes: 3,
-        scoreTime: 1,
-      }))
-      .set(2, new Player({
-        id: 2,
-        scored: true,
-        strokes: 4,
-        scoreTime: 1,
-        points: 5,
-      }));
-
-    const ranked = rankPlayers(players);
+  it('sets the top 3 scores', () => {
+    let {players, ranked} = generateRankedPlayers(3);
     players = updatePoints(players, ranked);
 
-    expect(players.get(1).points).toEqual(10);
-    expect(players.get(2).points).toEqual(5 + 8);
+    expect(players.get(0).points).toEqual(20);
+    expect(players.get(1).points).toEqual(15);
+    expect(players.get(2).points).toEqual(12);
+  });
+
+  it('sets top 25% and top 50% scores', () => {
+    let {players, ranked} = generateRankedPlayers(20);
+    players = updatePoints(players, ranked);
+
+    const points = players.map((player) => player.points).toList();
+
+    expect(points.toJS()).toEqual([
+      20,
+      15,
+      12,
+      10,
+      10,
+      5, 5, 5, 5, 5,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    ]);
   });
 
   it('does not award points to players who failed to score', () => {
@@ -123,7 +139,7 @@ describe('updatePoints', () => {
     players = updatePoints(players, ranked);
 
     expect(players.get(1).points).toEqual(0);
-    expect(players.get(2).points).toEqual(5 + 10);
+    expect(players.get(2).points).toEqual(25);
   });
 });
 

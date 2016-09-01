@@ -48,19 +48,25 @@ function leaveGame(player: Player, state: State) {
   return player.set('body', null);
 }
 
-// Map of rank index -> number of points awarded
-const points = I.Map<number, number>()
-  .set(0, 10)
-  .set(1, 8)
-  .set(2, 6)
-  .set(3, 4)
-  .set(4, 2);
-
-function pointsForRank(index: number): number {
-  if (index > 4) {
-    return 0;
+function pointsForRank(place: number, total: number): number {
+  if (place === 1) {
+    // first place
+    return 20;
+  } else if (place === 2) {
+    // second place
+    return 15;
+  } else if (place === 3) {
+    // third place
+    return 12;
+  } else if (place / total <= 0.25) {
+    // top 25%
+    return 10;
+  } else if (place / total <= 0.5) {
+    // top 50%
+    return 5;
   } else {
-    return points.get(index);
+    // participation award! (you don't get this if you didn't sink it)
+    return 1;
   }
 }
 
@@ -75,7 +81,8 @@ export function updatePoints(players: I.Map<number, Player>, rankedPlayerIds: I.
       }
 
       return players
-        .updateIn([rankedPlayerId, 'points'], (points) => points + pointsForRank(index));
+        .updateIn([rankedPlayerId, 'points'],
+                  (points) => points + pointsForRank(index + 1, players.size));
     }, players);
 }
 
