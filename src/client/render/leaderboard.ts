@@ -56,6 +56,15 @@ function renderLeaderboardPoints(
 
 }
 
+function renderSeperatorLine(ctx: CanvasRenderingContext2D, centerX: number, y: number) {
+  // draw line above this to split top 3 from rest
+  ctx.strokeStyle = 'white';
+  ctx.lineWidth = 1;
+  ctx.moveTo(centerX - 200, y);
+  ctx.lineTo(centerX + 200, y);
+  ctx.stroke();
+}
+
 export default function renderLeaderBoard(ctx: CanvasRenderingContext2D, state: State) {
   ctx.font = 'normal 16px "Press Start 2P"';
   ctx.textAlign = 'center';
@@ -98,7 +107,7 @@ export default function renderLeaderBoard(ctx: CanvasRenderingContext2D, state: 
   const pointsX = x + 160;
 
   // Draw header
-  const headerY = y + 20;
+  const headerY = y + 18;
   ctx.textAlign = 'left';
   ctx.fillText('Name', nameX, headerY);
   ctx.textAlign = 'right';
@@ -116,28 +125,49 @@ export default function renderLeaderBoard(ctx: CanvasRenderingContext2D, state: 
   const startTime = state.round.expTime - OVER_TIMER_MS;
   const elapsedMs = Date.now() - startTime;
 
+  const numPlayers = state.round.roundRankedPlayers.size;
+  if (numPlayers > 3) {
+    renderSeperatorLine(ctx, x, (y + 30 + 3 * 14) - 10);
+  }
+
   state.round.roundRankedPlayers.forEach((player, roundPos) => {
 
     // TODO: this lookup sucks, combine with above memoization to map a map of {id => pos} or
     // something
     const matchPos = matchRankedPlayers.findIndex((matchPlayer) => matchPlayer.id === player.id);
 
-    const roundRowY = y + 30 + roundPos * 12;
-    const matchRowY = y + 30 + matchPos * 12;
+    const roundRowY = y + 30 + roundPos * 14;
+    const matchRowY = y + 30 + matchPos * 14;
 
-    let rowY, pos;
+    let rowY: number;
+    let rank: number;
+    let displayedRank: string;
+
     if (elapsedMs < endCountingMs) {
-      pos = player.scored ? roundPos + 1 : '';
+      // Displaying round ranking
+      rank = roundPos;
+      displayedRank = player.scored ? `${roundPos + 1}` : '';
       rowY = roundRowY;
+
     } else if (elapsedMs > endSortingMs) {
-      pos = matchPos + 1;
+      // Displaying match ranking
+      rank = matchPos;
+      displayedRank = `${matchPos + 1}`;
       rowY = matchRowY;
+
     } else {
-      pos = matchPos + 1;
+      // Transitioning from round to match ranking
+      rank = matchPos;
+      displayedRank = '';
 
       const sortingElapsedMs = elapsedMs - endCountingMs;
       const progress = sortingElapsedMs / (endSortingMs - endCountingMs);
       rowY = roundRowY + ((matchRowY - roundRowY) * progress)
+    }
+
+    if (rank > 2) {
+      // Add padding around separator line
+      rowY += 4;
     }
 
     const strokes = player.scored ? `${player.strokes}` : '---';
@@ -145,7 +175,7 @@ export default function renderLeaderBoard(ctx: CanvasRenderingContext2D, state: 
 
     // Render place
     ctx.textAlign = 'left';
-    ctx.fillText(pos, placeX, rowY);
+    ctx.fillText(displayedRank, placeX, rowY);
 
     // Render name
     if (tinycolor(player.color).isDark()) {
