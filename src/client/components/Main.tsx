@@ -95,13 +95,16 @@ export default class Main extends React.Component<{}, {}> {
             <div className="section">
               <h2>newest changes</h2>
               <p>
-                <em>Aug 30</em> - Big news: <span style={{color: 'white'}}>
-                Manygolf now has a <a href="http://steamcommunity.com/sharedfiles/filedetails/?id=751794609">Steam Greenlight page</a> and an <a href="https://docs.google.com/forms/d/e/1FAIpQLScAJAsaPGTE_elKg5MbqXgsa-W1rbrWRdDQGi-gXLBgaTM34Q/viewform">iOS beta test</a>!
-                </span> More info on <a href="http://devlog.disco.zone/2016/08/30/manygolf-steam-ios/">my dev blog</a>.
+                <em>Aug 31</em> -{' '}
+                <a href="https://play.google.com/apps/testing/com.thomasboyt.manygolf">
+                  An Android beta is now available on the Play Store!
+                </a>
               </p>
 
               <p>
-                <em>Aug 30, again</em> - Hi NeoGAF!! There are a lot of you, wow. Sorry for any nasty lag you may experience in this period of peak activity. You may find the <a href="https://client-staging.manygolf.club/">beta client</a> performs better!
+                <em>Aug 30</em> - Big news: <span style={{color: 'white'}}>
+                Manygolf now has a <a href="http://steamcommunity.com/sharedfiles/filedetails/?id=751794609">Steam Greenlight page</a> and an <a href="https://docs.google.com/forms/d/e/1FAIpQLScAJAsaPGTE_elKg5MbqXgsa-W1rbrWRdDQGi-gXLBgaTM34Q/viewform">iOS beta test</a>!
+                </span> More info on <a href="http://devlog.disco.zone/2016/08/30/manygolf-steam-ios/">my dev blog</a>.
               </p>
             </div>
           </div>
