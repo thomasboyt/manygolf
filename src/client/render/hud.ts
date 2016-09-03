@@ -18,6 +18,7 @@ export function renderMessages(ctx: CanvasRenderingContext2D, state: State, scal
   // Messages
   if (state.displayMessage) {
     ctx.fillStyle = textColor;
+    ctx.strokeStyle = textColor;
     ctx.font = 'normal 8px "Press Start 2P"';
     ctx.textAlign = 'left';
 
