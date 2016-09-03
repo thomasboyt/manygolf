@@ -260,7 +260,7 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
   ctx.fill();
   ctx.closePath();
 
-  renderBall(ctx, ballPos[0], ballPos[1], ballColor, ballColor);
+  renderBall(ctx, ballPos[0], ballPos[1], state.color, textColor);
 
   if (state.match.leaderId === state.id) {
     drawCrown(ctx, ballPos[0], ballPos[1]);
