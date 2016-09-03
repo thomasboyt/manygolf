@@ -3,6 +3,7 @@ import {
   HEIGHT,
   MIN_POWER,
   MAX_POWER,
+  BALL_RADIUS,
   GameState,
   ConnectionState,
   Emoticon,
@@ -185,10 +186,24 @@ function drawCrown(ctx: CanvasRenderingContext2D, ballX: number, ballY: number) 
   ctx.restore();
 }
 
-function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
+function renderBall(ctx: CanvasRenderingContext2D, x: number, y: number, fill: string, stroke: string) {
   // ball border width
   ctx.lineWidth = 1;
+  ctx.fillStyle = fill;
+  ctx.strokeStyle = stroke;
 
+  ctx.beginPath();
+  ctx.arc(x, y, BALL_RADIUS, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.closePath();
+
+  ctx.beginPath();
+  ctx.arc(x, y, BALL_RADIUS - ctx.lineWidth / 2, 0, 2 * Math.PI);
+  ctx.stroke();
+  ctx.closePath();
+}
+
+function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
   //
   // Draw other players
   //
@@ -199,13 +214,7 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
     }
 
     const pos = player.body.interpolatedPosition;
-    ctx.beginPath();
-    ctx.arc(pos[0], pos[1], 2.5, 0, 2 * Math.PI);
-    ctx.strokeStyle = textColor;
-    ctx.fillStyle = player.color;
-    ctx.fill();
-    ctx.stroke();
-    ctx.closePath();
+    renderBall(ctx, pos[0], pos[1], player.color, textColor);
 
     if (state.match.leaderId === player.id) {
       drawCrown(ctx, pos[0], pos[1]);
@@ -251,13 +260,7 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
   //
   const ballPos = state.round.ball.body.interpolatedPosition;
 
-  ctx.beginPath();
-  ctx.arc(ballPos[0], ballPos[1], 2.5, 0, 2 * Math.PI);
-  ctx.fillStyle = ballColor;
-  ctx.strokeStyle = ballColor; // add stroke so it's the same size as the ghosts
-  ctx.fill();
-  ctx.stroke();
-  ctx.closePath();
+  renderBall(ctx, ballPos[0], ballPos[1], ballColor, ballColor);
 
   if (state.match.leaderId === state.id) {
     drawCrown(ctx, ballPos[0], ballPos[1]);

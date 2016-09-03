@@ -2,8 +2,9 @@ export const WIDTH = 600;
 export const HEIGHT = 300;
 
 export const HOLE_HEIGHT = 10;
+export const HOLE_CURVE_DEPTH = 7;
 export const HOLE_WIDTH = 10;
-export const BALL_RADIUS = 2.5;
+export const BALL_RADIUS = 3;
 
 export const MIN_POWER = 10;
 export const MAX_POWER = 100;

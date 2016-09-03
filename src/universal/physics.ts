@@ -5,6 +5,7 @@ import {
   WIDTH,
   HEIGHT,
   HOLE_HEIGHT,
+  HOLE_CURVE_DEPTH,
   HOLE_WIDTH,
   BALL_RADIUS,
 } from './constants';
@@ -13,9 +14,16 @@ const ballMaterial = new p2.Material();
 
 const groundMaterial = new p2.Material();
 
+const holeMaterial = new p2.Material();
+
 const ballGroundContact = new p2.ContactMaterial(ballMaterial, groundMaterial, {
   friction: 1,
   restitution: 0.5,
+});
+
+const ballHoleContact = new p2.ContactMaterial(ballMaterial, holeMaterial, {
+  friction: 1,
+  restitution: 0.3,
 });
 
 const BALL_GROUP = Math.pow(2,1);
@@ -29,6 +37,7 @@ export function createWorld() {
   world.sleepMode = p2.World.BODY_SLEEPING;
 
   world.addContactMaterial(ballGroundContact);
+  world.addContactMaterial(ballHoleContact);
 
   return world;
 }
@@ -104,8 +113,9 @@ export function addHolePoints(level: any) {
   // ...then insert hole between points
   const holePoints = I.fromJS([
     [level.hole.get(0) - HOLE_WIDTH / 2, level.hole.get(1)],
-    [level.hole.get(0) - HOLE_WIDTH / 2, level.hole.get(1) + HOLE_HEIGHT],
-    [level.hole.get(0) + HOLE_WIDTH / 2, level.hole.get(1) + HOLE_HEIGHT],
+    [level.hole.get(0) - HOLE_WIDTH / 2, level.hole.get(1) + HOLE_CURVE_DEPTH],
+    [level.hole.get(0), level.hole.get(1) + HOLE_HEIGHT],
+    [level.hole.get(0) + HOLE_WIDTH / 2, level.hole.get(1) + HOLE_CURVE_DEPTH],
     [level.hole.get(0) + HOLE_WIDTH / 2, level.hole.get(1)],
   ]);
 
@@ -128,12 +138,20 @@ export function createGround(level: any): p2.Body[] {
     [beforeHole.last().get(0), HEIGHT],
     [0, HEIGHT],
   ]);
+
+  // Creates this shape:
+  // |\/|
+  // |  |
+  // |  |
+  // |__|
   const vertsHole = [
-    [level.hole.get(0) - HOLE_WIDTH / 2, level.hole.get(1) + HOLE_HEIGHT],
-    [level.hole.get(0) + HOLE_WIDTH / 2, level.hole.get(1) + HOLE_HEIGHT],
+    [level.hole.get(0) - HOLE_WIDTH / 2, level.hole.get(1) + HOLE_CURVE_DEPTH],
+    [level.hole.get(0), level.hole.get(1) + HOLE_HEIGHT],
+    [level.hole.get(0) + HOLE_WIDTH / 2, level.hole.get(1) + HOLE_CURVE_DEPTH],
     [level.hole.get(0) + HOLE_WIDTH / 2, HEIGHT],
     [level.hole.get(0) - HOLE_WIDTH / 2, HEIGHT],
   ];
+
   const vertsAfterHole = afterHole.toJS().concat([
     [WIDTH, HEIGHT],
     [afterHole.get(0).get(0), HEIGHT],
@@ -147,7 +165,12 @@ export function createGround(level: any): p2.Body[] {
     body.fromPolygon(verts);
 
     for (let shape of body.shapes) {
-      shape.material = groundMaterial;
+      if (verts === vertsHole) {
+        shape.material = holeMaterial;
+      } else {
+        shape.material = groundMaterial;
+      }
+
       shape.collisionGroup = GROUND_GROUP;
       shape.collisionMask = BALL_GROUP;
     }

@@ -54,15 +54,40 @@ export function getSegmentWidths(totalWidth: number, minWidth: number): number[]
   return widths;
 }
 
-export default function levelGen() {
+interface Level {
+  points: [number, number][];
+  hole: [number, number];
+  spawn: [number, number];
+  color: string;
+}
+
+const testLevel: Level = {
+  points: [
+    [0, 200],
+    [WIDTH, 200],
+  ],
+  hole: [100, 200],
+  spawn: [50, 200],
+  color: 'white',
+};
+
+export default function levelGen(): Level {
+  // this is a pretty lame hack, but...
+  if (process.env.MANYGOLF_TEST_LEVEL) {
+    return testLevel;
+  }
+
   const segmentWidths = getSegmentWidths(WIDTH, 12);
   const numSegments = segmentWidths.length;
 
   const spawnSegment = randInt(1, Math.floor(numSegments / 3));
   const holeSegment = numSegments - randInt(1, Math.floor(numSegments / 3));
 
-  const points = [];
-  let spawnX, spawnY, holeX, holeY;
+  const points: [number, number][] = [];
+  let spawnX: number;
+  let spawnY: number;
+  let holeX: number;
+  let holeY: number;
 
   const minY = 80;
   const maxY = 250;
@@ -129,10 +154,13 @@ export default function levelGen() {
   const color = sample(colors);
   console.log(points);
 
+  const hole: [number, number] = [holeX, holeY];
+  const spawn: [number, number] = [spawnX, spawnY];
+
   const level = {
     points,
-    hole: [holeX, holeY],
-    spawn: [spawnX, spawnY],
+    hole,
+    spawn,
     color,
   };
 
