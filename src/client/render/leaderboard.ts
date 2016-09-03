@@ -170,6 +170,16 @@ export default function renderLeaderBoard(ctx: CanvasRenderingContext2D, state: 
       rowY += 4;
     }
 
+    const isCurrentPlayer = player.id === state.id;
+
+    if (isCurrentPlayer) {
+      // highlight current row
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+      ctx.fillRect(x - 200, rowY - 12, 400, 14);
+    }
+
+    ctx.fillStyle = 'white';
+
     const strokes = player.scored ? `${player.strokes}` : '---';
     const elapsed = player.scored ? (player.scoreTime / 1000).toFixed(2) : '---';
 
