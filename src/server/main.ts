@@ -167,7 +167,7 @@ server.listen(port, () => { console.log('Listening on ' + server.address().port)
 if (process.env.NODE_ENV === 'production') {
   console.log('*** Installing Raven');
 
-  const dsn = require('../../secret.json').ravenDSNPrivate;
+  const dsn = process.env.RAVEN_DSN_PRIVATE;
 
   raven.patchGlobal(dsn, (sentryError, err) => {
     console.error(err.stack);
