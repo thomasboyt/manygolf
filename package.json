@@ -4,6 +4,9 @@
   "version": "0.0.1",
   "description": "",
   "author": "",
+  "engines": {
+    "node": "4.x"
+  },
   "scripts": {
     "lint": "tslint src/**/*.ts src/**/*.tsx",
     "test": "webpack --config webpack/test.js && mocha --no-colors build/test.bundle.js",
