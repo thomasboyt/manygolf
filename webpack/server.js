@@ -22,7 +22,7 @@ module.exports = {
   target: 'node',
 
   output: {
-    path: './build/',
+    path: './build/server',
     filename: '[name].bundle.js'
   },
 

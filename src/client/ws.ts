@@ -10,6 +10,16 @@ if (simulateLag) {
 
 (<any>window).msgLog = [];
 
+function getUrl() {
+  // this is NULL in development to allow ngrok proxying to work against dev server
+  if (process.env.SERVER_URL) {
+    return process.env.SERVER_URL;
+  } else {
+    const scheme = document.location.protocol === 'https:' ? 'wss' : 'ws';
+    return `${scheme}://${document.location.host}/server`;
+  }
+}
+
 class WSConnection {
   private _ws: WebSocket;
   private _store: Store<State>;
@@ -17,17 +27,7 @@ class WSConnection {
   init(store: Store<State>) {
     this._store = store;
 
-    let scheme = 'ws';
-    if (document.location.protocol === 'https:') {
-      scheme = 'wss';
-    }
-
-    let url = `${scheme}://${document.location.host}/server`;
-
-    // hack for client-staging environment
-    if (document.location.host === 'client-staging.manygolf.club') {
-      url = `${scheme}://manygolf.club/server`;
-    }
+    let url = getUrl();
 
     if (document.location.search.indexOf('observe') !== -1) {
       url += '?observe';

@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-NODE_ENV=production node build/server.bundle.js

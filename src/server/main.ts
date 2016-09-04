@@ -35,7 +35,7 @@ import {
 const server = http.createServer();
 const wss = new ws.Server({server});
 const app = express();
-const port = 4080;
+const port = process.env.PORT || 4080;
 
 const store = createStore(reducer);
 

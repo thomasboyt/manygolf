@@ -16,7 +16,7 @@ function onBuild(err, stats) {
 }
 
 nodemon({
-  script: path.join(__dirname, '../build/server.bundle.js'),
+  script: path.join(__dirname, '../build/server/server.bundle.js'),
 
   // we're just using nodemon to restart the process
   ignore: ['*'],
