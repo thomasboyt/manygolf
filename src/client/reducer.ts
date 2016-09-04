@@ -25,6 +25,7 @@ import {
   TYPE_CHAT,
   MessageMatchOver,
   TYPE_MATCH_OVER,
+  SyncPlayer,
 } from '../universal/protocol';
 
 import {
@@ -83,6 +84,8 @@ const moveSpeed = 50;  // degrees per second
 
 function syncWorld(state: State, data: MessageSync): State {
   console.log('sync ----');
+  const syncPositions: SyncPlayer[] = [];
+  let shouldReset = false;
 
   // Update player states if they are over some threshold at time
   data.players.forEach((playerPosition) => {
@@ -102,18 +105,28 @@ function syncWorld(state: State, data: MessageSync): State {
 
     if (Math.abs(xDiff) >= SYNC_THRESHOLD || Math.abs(yDiff) >= SYNC_THRESHOLD) {
       console.log(`syncing ${playerPosition.id} (x: ${xDiff} y: ${yDiff})`);
+      shouldReset = true;
+      syncPositions.push(playerPosition);
+    }
+  });
+
+  if (shouldReset) {
+    const dt = (state.time - data.time) / 1000;
+
+    state.round.world.step(fixedStep, -(dt * 3), maxSubSteps);
+
+    syncPositions.forEach((playerPosition) => {
       // move ball to synced location
-      const body = state.round.playerPhysics.get(player.id).ball;
+      const body = state.round.playerPhysics.get(playerPosition.id).ball;
       body.position[0] = playerPosition.position[0];
       body.position[1] = playerPosition.position[1];
       body.velocity[0] = playerPosition.velocity[0];
       body.velocity[1] = playerPosition.velocity[1];
+    });
 
-      // Step to catch up from snapshot time to the current render time
-      const dt = (state.time - data.time) / 1000;
-      state.round.playerPhysics.get(player.id).world.step(fixedStep, dt * 3, maxSubSteps);
-    }
-  });
+    // Step to catch up from snapshot time to the current render time
+    state.round.world.step(fixedStep, dt * 3, maxSubSteps);
+  }
 
   return state;
 }
@@ -127,18 +140,7 @@ function enterScored(state: State) {
 }
 
 // TODO: typedef for player w/ position, velocity
-function createPlayerPhysics(level: Level, player?: any) {
-  const world = createWorld();
-
-  const groundBodies = createGround(level);
-  const holeSensor = createHoleSensor(level.hole);
-
-  for (let body of groundBodies) {
-    world.addBody(body);
-  }
-
-  world.addBody(holeSensor);
-
+function createPlayerPhysics(world: p2.World, level: Level, player?: any) {
   let ball;
   if (player) {
     ball = createBallFromInitial(player.position, player.velocity);
@@ -150,8 +152,6 @@ function createPlayerPhysics(level: Level, player?: any) {
 
   return new PlayerPhysics({
     ball,
-    world,
-    holeSensor,
   });
 }
 
@@ -162,19 +162,30 @@ function newLevel(state: State, data: MessageInitial) {
   const level = new Level(I.fromJS(levelData))
     .update(addHolePoints);
 
+  const world = createWorld();
+
+  const groundBodies = createGround(level);
+  const holeSensor = createHoleSensor(level.hole);
+
+  for (let body of groundBodies) {
+    world.addBody(body);
+  }
+
+  world.addBody(holeSensor);
+
   let playerPhysicsMap = I.Map<number, PlayerPhysics>();
 
   if (data.players) {
     // Initial connection includes players with positions+velocities
     playerPhysicsMap = data.players.reduce((playerPhysicsMap, player) => {
-      const playerPhysics = createPlayerPhysics(level, player);
+      const playerPhysics = createPlayerPhysics(world, level, player);
       return playerPhysicsMap.set(player.id, playerPhysics);
     }, playerPhysicsMap);
 
   } else {
     // New level on existing connection
     playerPhysicsMap = state.players.reduce((playerPhysicsMap, player) => {
-      const playerPhysics = createPlayerPhysics(level);
+      const playerPhysics = createPlayerPhysics(world, level);
       return playerPhysicsMap.set(player.id, playerPhysics);
     }, playerPhysicsMap);
   }
@@ -193,7 +204,9 @@ function newLevel(state: State, data: MessageInitial) {
 
     playerPhysics: playerPhysicsMap,
     level,
+    world,
     expTime,
+    holeSensor,
   }));
 }
 
@@ -208,6 +221,8 @@ function applySwing(state: State, data: MessagePlayerSwing) {
     return state;
   }
 
+  state.round.world.step(fixedStep, -(dt * 3), maxSubSteps);
+
   const body = state.round.playerPhysics.get(player.id).ball;
 
   body.position[0] = data.position[0];
@@ -215,13 +230,13 @@ function applySwing(state: State, data: MessagePlayerSwing) {
   body.velocity[0] = data.velocity[0];
   body.velocity[1] = data.velocity[1];
 
-  state.round.playerPhysics.get(data.id).world.step(fixedStep, dt * 3, maxSubSteps);
+  state.round.world.step(fixedStep, dt * 3, maxSubSteps);
 
   return state;
 }
 
 function enterGame(state: State) {
-  const playerPhysics = createPlayerPhysics(state.round.level);
+  const playerPhysics = createPlayerPhysics(state.round.world, state.round.level);
 
   return state
     .setIn(['round', 'playerPhysics', state.id], playerPhysics)
@@ -249,7 +264,8 @@ export default createImmutableReducer<State>(new State(), {
 
     let overlapping;
     if (getCurrentPlayerPhysics(state)) {
-      const {holeSensor, ball} = getCurrentPlayerPhysics(state);
+      const {ball} = getCurrentPlayerPhysics(state);
+      const holeSensor = state.round.holeSensor;
       ensureBallInBounds(ball, state.round.level);
 
       // overlaps() can't be used on a sleeping object, so we check overlapping before tick
@@ -258,9 +274,7 @@ export default createImmutableReducer<State>(new State(), {
 
     // XXX: MMMMMonster hack
     // dt is set to dt * 3 because that's the speed I actually want
-    state.round.playerPhysics.forEach((phys) => {
-      phys.world.step(fixedStep, dt * 3, maxSubSteps);
-    });
+    state.round.world.step(fixedStep, dt * 3, maxSubSteps);
 
     // update saved positions
     state = state.set('players', state.players.map((player) => {
@@ -434,7 +448,7 @@ export default createImmutableReducer<State>(new State(), {
   [`ws:${TYPE_PLAYER_CONNECTED}`]: (state: State, action) => {
     const data = <MessagePlayerConnected>action.data;
 
-    const playerPhysics = createPlayerPhysics(state.round.level);
+    const playerPhysics = createPlayerPhysics(state.round.world, state.round.level);
 
     return state
       .setIn(['round', 'playerPhysics', data.id], playerPhysics)

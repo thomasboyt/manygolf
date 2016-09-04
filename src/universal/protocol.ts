@@ -136,7 +136,7 @@ export function messageLevel(params: MessageLevel) {
 }
 
 
-interface SyncPlayer {
+export interface SyncPlayer {
   id: number;
   position: number[];
   velocity: number[];

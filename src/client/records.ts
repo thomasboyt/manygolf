@@ -19,16 +19,12 @@ export enum SwingMeterDirection {
 
 const PlayerPhysicsRec = I.Record({
   ball: null,
-  holeSensor: null,
-  world: null,
 
   lastBallX: null,
 });
 
 export class PlayerPhysics extends PlayerPhysicsRec {
   ball: p2.Body;
-  holeSensor: p2.Body;
-  world: p2.World;
 
   lastBallX: number;
 }
@@ -119,12 +115,14 @@ const RoundRec = I.Record({
   goalText: null,
 
   roundRankedPlayers: null,
+
+  holeSensor: null,
+  world: null,
 });
 
 export class Round extends RoundRec {
   level: Level;
   playerPhysics: I.Map<number, PlayerPhysics>;
-  holeSensor: p2.Body;
 
   aimDirection: number;
   swingPower: number;
@@ -139,6 +137,9 @@ export class Round extends RoundRec {
   goalText: string;
 
   roundRankedPlayers: I.List<LeaderboardPlayer>;
+
+  holeSensor: p2.Body;
+  world: p2.World;
 }
 
 
