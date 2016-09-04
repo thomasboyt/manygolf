@@ -52,7 +52,7 @@
     "immutable": "https://github.com/thomasboyt/immutable-js.git#fix-record-update-return-types",
     "lodash.clamp": "^4.0.1",
     "lodash.sample": "^4.1.1",
-    "p2": "https://github.com/thomasboyt/p2.js#fix-material-options",
+    "p2": "https://github.com/thomasboyt/p2.js#master-built",
     "raf": "^3.2.0",
     "randomcolor": "^0.4.3",
     "raven": "^0.10.0",
