@@ -7,6 +7,11 @@ const config = Object.assign(baseConfig, {
     test: './src/testEntry.js',
   },
 
+  output: {
+    path: './build/test',
+    filename: '[name].bundle.js'
+  },
+
   devtool: 'inline-source-map',
 
   plugins: [

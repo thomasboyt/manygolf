@@ -9,7 +9,7 @@
   },
   "scripts": {
     "lint": "tslint src/**/*.ts src/**/*.tsx",
-    "test": "webpack --config webpack/test.js && mocha --no-colors build/test.bundle.js",
+    "test": "webpack --config webpack/test.js && mocha --no-colors build/test/test.bundle.js",
     "test-watch": "scripts/test-watch",
     "client-watch": "webpack-dev-server --config webpack/dev.js",
     "server-watch": "scripts/server-watch",

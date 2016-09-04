@@ -9,7 +9,7 @@ const webpack = require('webpack');
 const config = require('../webpack/test');
 
 const binPath = path.join(__dirname, '../node_modules/.bin/mocha')
-const testsPath = path.join(__dirname, '../build/test.bundle.js');
+const testsPath = path.join(__dirname, '../build/test/test.bundle.js');
 
 let runningMochaProc = null;
 
