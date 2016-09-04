@@ -14,7 +14,7 @@ module.exports = webpackMerge(config, {
         NODE_ENV: '"production"',
         RAVEN_DSN: `"${secret.ravenDSNPublic}"`,
         BUILD_SHA: `"${sha}"`,
-        SERVER_URL: 'wss://manygolf.herokuapp.com/'
+        SERVER_URL: '"wss://manygolf.herokuapp.com/"'
       }
     }),
 
