@@ -16,9 +16,9 @@
     "server": "webpack --config webpack/server.js && node build/server.bundle.js",
     "build": "webpack --config webpack/production.js && webpack --config webpack/server.js",
     "build-client": "rm -rf build/client && webpack --config webpack/production.js",
-    "deploy": "git push heroku master && npm run deploy-client",
-    "deploy-client": "npm run build-client && surge --domain manygolf.surge.sh --project build/client",
-    "deploy-staging": "npm run build-client && surge --domain manygolf-staging.surge.sh --project build/client",
+    "deploy": " npm run deploy-client && git push heroku master",
+    "deploy-client": "fly production",
+    "deploy-staging": "fly client-staging",
     "postinstall": "webpack --config webpack/server.js"
   },
   "devDependencies": {
@@ -27,6 +27,7 @@
     "expect": "^1.13.2",
     "extract-text-webpack-plugin": "^1.0.1",
     "file-loader": "^0.8.3",
+    "flightplan": "^0.6.14",
     "glob": "^7.0.3",
     "html-webpack-plugin": "^2.19.0",
     "json-loader": "^0.5.4",
@@ -66,7 +67,7 @@
     "ts-loader": "^0.8.1",
     "typescript": "^1.8.9",
     "uws": "^0.8.0",
-    "ws": "^1.0.1",
-    "webpack": "^1.12.9"
+    "webpack": "^1.12.9",
+    "ws": "^1.0.1"
   }
 }
