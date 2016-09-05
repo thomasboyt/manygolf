@@ -434,6 +434,12 @@ export default createImmutableReducer<State>(new State(), {
   [`ws:${TYPE_INITIAL}`]: (prevState: State, action) => {
     const data = <MessageInitial>action.data;
 
+    // TODO: Yeah this shouldn't be in a reducer
+    if (data.self.authToken) {
+      const token = data.self.authToken;
+      localStorage.setItem('accessToken', token);
+    }
+
     let newState = prevState
       .set('connectionState', ConnectionState.connected)
       .set('name', data.self.name)

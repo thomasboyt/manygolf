@@ -1,11 +1,10 @@
 import {Store} from 'redux';
-import randomColor from 'randomcolor';
 
 import SocketManager from './util/SocketManager';
-import nameGen from './nameGen';
 
 import WebSocket from 'uws';
 import p2 from 'p2';
+import url from 'url';
 
 import {
   messagePlayerConnected,
@@ -27,6 +26,10 @@ import {
 } from './records';
 
 import {createInitial} from './messages';
+import {
+  getUserByAuthToken,
+  createUser,
+} from './models';
 
 /*
  * Connection manager
@@ -40,29 +43,34 @@ export default class ManygolfSocketManager extends SocketManager {
     this.store = store;
   }
 
-  onConnect(id: number, ws: WebSocket) {
-    const url = ws.upgradeReq.url;
+  async onConnect(id: number, ws: WebSocket) {
+    const location = url.parse(ws.upgradeReq.url, true);
+
+    let authToken = location.query.auth_token;
+
+    let user;
+    if (authToken) {
+      user = await getUserByAuthToken(authToken);
+    } else {
+      user = await createUser();
+    }
 
     // XXX: lol
     let isObserver = false;
-    if (url.indexOf('observe') !== -1) {
+    if (location.query.observe) {
       isObserver = true;
     }
-
-    const color = randomColor();
-    const name = nameGen();
 
     this.store.dispatch({
       type: 'playerConnected',
       id,
-      color,
-      name,
+      color: user.color,
+      name: user.name,
       isObserver,
     });
 
-    this.sendInitial(id);
-
     const state = this.store.getState();
+    this.sendTo(id, createInitial(state, id, user.authToken));
 
     if (!isObserver) {
       const player = state.players.get(id);
@@ -160,7 +168,8 @@ export default class ManygolfSocketManager extends SocketManager {
     } else if (msg.type === TYPE_REQUEST_RESUME_STREAM) {
       this.resume(id);
 
-      this.sendInitial(id);
+      const state = this.store.getState();
+      this.sendTo(id, createInitial(state, id));
 
     } else {
       console.error(`unrecognized message type ${msg.type}`);
@@ -180,11 +189,5 @@ export default class ManygolfSocketManager extends SocketManager {
       messageText: `{{${name}}} joined`,
       color,
     }));
-  }
-
-  sendInitial(id: number) {
-    const state = this.store.getState();
-
-    this.sendTo(id, createInitial(state, id));
   }
 }

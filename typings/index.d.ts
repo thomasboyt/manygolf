@@ -3,6 +3,7 @@
 /// <reference path="globals/mime/index.d.ts" />
 /// <reference path="globals/mocha/index.d.ts" />
 /// <reference path="globals/node/index.d.ts" />
+/// <reference path="globals/pg-promise/index.d.ts" />
 /// <reference path="globals/qs/index.d.ts" />
 /// <reference path="globals/react-dom/index.d.ts" />
 /// <reference path="globals/react/index.d.ts" />

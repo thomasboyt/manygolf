@@ -2,7 +2,7 @@ import {messageLevelOver, messageInitial, messageMatchOver} from '../universal/p
 import {State} from './records';
 import {GameState} from '../universal/constants';
 
-export function createInitial(state: State, playerId: number) {
+export function createInitial(state: State, playerId: number, authToken?: string) {
   const players = state.players.map((player, id) => {
     return {
       id,
@@ -35,6 +35,10 @@ export function createInitial(state: State, playerId: number) {
       color: observer.color,
     };
     isObserver = true;
+  }
+
+  if (authToken) {
+    self.authToken = authToken;
   }
 
   const levelOverState = state.gameState === GameState.levelOver ? createLevelOver(state).data : null;

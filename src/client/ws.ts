@@ -33,6 +33,14 @@ class WSConnection {
       url += '?observe';
     }
 
+    const token = localStorage.getItem('accessToken');
+
+    if (token) {
+      // Y O L O
+      // This should probably be sent as an initial message instead!!!
+      url += `?auth_token=${token}`;
+    }
+
     this._ws = new WebSocket(url);
 
     this._ws.onmessage = this.handleMessage.bind(this);

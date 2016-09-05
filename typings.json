@@ -5,6 +5,7 @@
     "mime": "registry:dt/mime#0.0.0+20160316155526",
     "mocha": "registry:dt/mocha#2.2.5+20160317120654",
     "node": "registry:dt/node#4.0.0+20160330064709",
+    "pg-promise": "github:vitaly-t/pg-promise",
     "qs": "registry:dt/qs#0.0.0+20160317120654",
     "react": "registry:dt/react#0.14.0+20160423065914",
     "react-dom": "registry:dt/react-dom#0.14.0+20160412154040",

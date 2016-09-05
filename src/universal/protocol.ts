@@ -41,6 +41,9 @@ interface Level {
   color: string;
 }
 
+interface InitialPlayer extends Player {
+  authToken?: string;
+}
 
 export const TYPE_INITIAL = 'initial';
 
