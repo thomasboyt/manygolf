@@ -2,6 +2,6 @@
 
 BEGIN;
 
-DROP TABLE players;
+DROP TABLE manygolf.players;
 
 COMMIT;
