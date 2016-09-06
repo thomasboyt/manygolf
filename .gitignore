@@ -2,3 +2,4 @@ node_modules/
 build/
 secret.json
 .env
+sqitch/sqitch.conf
