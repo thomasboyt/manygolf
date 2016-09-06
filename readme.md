@@ -61,6 +61,8 @@ it's up to you to expose the server (port `4080`) and the files in `build/` to t
 
 ### database
 
+#### migrations
+
 Manygolf uses the [sqitch](https://github.com/theory/sqitch/) tool for DB migrations. To use locally:
 
 ```
@@ -76,6 +78,14 @@ Sqitch is also used to deploy to remote targets. You can add a remote target to 
 
 ```
 sqitch target add production "`heroku config:get DATABASE_URL --remote heroku`"
+```
+
+#### configuring locally
+
+Manygolf uses [dotenv](https://www.npmjs.com/package/dotenv) to load the database configuration from a `.env` file. Just `cp _env .env` and replace the database URL with your local DB, e.g.:
+
+```
+DATABASE_URL=postgres://your_username_here@localhost:5432/manygolf
 ```
 
 ## todos
