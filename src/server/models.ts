@@ -60,7 +60,7 @@ export async function createUser(): Promise<User> {
     iterations += 1;
 
     if (iterations > 10) {
-      throw new Error(`failed to create name for user after 10 iterations`)
+      throw new Error(`failed to create name for user after 10 iterations`);
     }
   }
 
