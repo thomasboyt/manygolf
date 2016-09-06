@@ -72,7 +72,11 @@ sqitch deploy
 
 This should create the local schema for you.
 
-Sqitch is also used to deploy to remote targets. You can add a remote target to sqitch.conf using `sqitch target add`. sqitch.conf is gitignored for this reason.
+Sqitch is also used to deploy to remote targets. You can add a remote target to sqitch.conf using `sqitch target add`. sqitch.conf is gitignored for this reason. If you're using Heroku, you can add a remote target like this:
+
+```
+sqitch target add production "`heroku config:get DATABASE_URL --remote heroku`"
+```
 
 ## todos
 
