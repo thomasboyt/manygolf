@@ -169,10 +169,14 @@ if (process.env.NODE_ENV === 'production') {
 
   const dsn = process.env.RAVEN_DSN_PRIVATE;
 
-  raven.patchGlobal(dsn, (sentryError, err) => {
-    console.error(err.stack);
-    process.exit(1);
-  });
+  if (!dsn) {
+    console.log('*** WARNING: No Raven DSN found in RAVEN_DSN_PRIVATE env var');
+
+    raven.patchGlobal(dsn, (sentryError, err) => {
+      console.error(err.stack);
+      process.exit(1);
+    });
+  }
 
 } else {
   process.on('unhandledRejection', (err) => {
