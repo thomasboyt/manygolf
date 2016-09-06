@@ -8,6 +8,8 @@ import RunLoop from '../universal/RunLoop';
 import ManygolfSocketManager from './ManygolfSocketManager';
 import reducer from './reducer';
 
+import {configureDatabase} from './models';
+
 import {
   sweepInactivePlayers,
   ensurePlayersInBounds,
@@ -27,6 +29,12 @@ import {
 import {
   State,
 } from './records';
+
+if (process.env.NODE_ENV !== 'production') {
+ require('dotenv').config();
+}
+
+configureDatabase();
 
 /*
  * Initialize server

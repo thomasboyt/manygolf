@@ -5,9 +5,10 @@ import crypto from 'crypto';
 
 import pgp from 'pg-promise';
 
-const dbUrl = 'postgres://tboyt@localhost:5432/manygolf';
-
-const db = pgp()(dbUrl);
+let db: pgp.IDatabase<any>;
+export function configureDatabase() {
+  db = pgp()(process.env.DATABASE_URL);
+}
 
 interface User {
   name: string;

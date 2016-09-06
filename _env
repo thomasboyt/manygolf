@@ -1,0 +1,2 @@
+# Copy me to ".env"
+DATABASE_URL=postgres://username@localhost:5432/manygolf

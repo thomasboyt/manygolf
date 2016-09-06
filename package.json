@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "css-loader": "^0.13.1",
+    "dotenv": "^2.0.0",
     "eslint": "^1.10.3",
     "expect": "^1.13.2",
     "extract-text-webpack-plugin": "^1.0.1",
