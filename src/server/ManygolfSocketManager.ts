@@ -27,6 +27,8 @@ import {
   Player,
 } from './records';
 
+import {createInitial} from './messages';
+
 /*
  * Connection manager
  */
@@ -184,58 +186,6 @@ export default class ManygolfSocketManager extends SocketManager {
   sendInitial(id: number) {
     const state = this.store.getState();
 
-    const players = state.players.map((player, id) => {
-      return {
-        id,
-        color: player.color,
-        name: player.name,
-        position: [
-          player.body.position[0],
-          player.body.position[1],
-        ],
-        velocity: [
-          player.body.velocity[0],
-          player.body.velocity[1],
-        ],
-        scored: player.scored,
-        strokes: player.strokes,
-      };
-    });
-
-
-    let self;
-    let isObserver: boolean;
-    if (players.has(id)) {
-      self = players.get(id);
-      isObserver = false;
-
-    } else {
-      const observer = state.observers.get(id);
-      self = {
-        id: observer.id,
-        name: observer.name,
-        color: observer.color,
-      };
-      isObserver = true;
-    }
-
-    this.sendTo(id, messageInitial({
-      gameState: state.gameState,
-
-      self,
-
-      isObserver,
-
-      leaderId: state.leaderId,
-
-      players: players.toArray(),
-
-      level: state.levelData,
-      expiresIn: state.expTime - Date.now(),
-
-      time: state.time,
-      matchEndsIn: state.matchEndTime - Date.now(),
-    }));
-
+    this.sendTo(id, createInitial(state, id));
   }
 }

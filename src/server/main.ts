@@ -122,13 +122,13 @@ runLoop.onTick((dt: number) => {
     if (players.size > 0 &&
         players.filter((player) => player.scored).size === players.size) {
       console.log('All players have finished');
-      levelOver(dispatch, socks, {players});
+      levelOver(dispatch, socks);
       return;
     }
 
     if (getState().expTime !== null && getState().expTime < Date.now()) {
       console.log('Timer expired');
-      levelOver(dispatch, socks, {players});
+      levelOver(dispatch, socks);
       return;
     }
 

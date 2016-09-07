@@ -47,11 +47,15 @@ export const TYPE_INITIAL = 'initial';
 // This message should always allow a complete reset of client state
 export interface MessageInitial {
   self: InitialPlayer;
-  gameState: GameState;
 
+  gameState: GameState;
   players: InitialPlayer[];
-  matchEndsIn: number;
   isObserver: boolean;
+
+  levelOverState?: MessageLevelOver;
+  matchOverState?: MessageMatchOver;
+
+  matchEndsIn: number;
 
   // TODO: this should all go under a "current round" sub-message or something. this message should
   // support sending information about "end of round" and "end of match" states too...

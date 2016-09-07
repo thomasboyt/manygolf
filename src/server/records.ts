@@ -22,6 +22,7 @@ const PlayerRec = I.Record({
   scoreTime: null,
 
   points: 0,
+  prevPoints: 0,
 
   lastSwingTime: null,
 });
@@ -40,6 +41,7 @@ export class Player extends PlayerRec {
   scoreTime: number;
 
   points: number;
+  prevPoints: number;
 
   lastSwingTime: number;
 }

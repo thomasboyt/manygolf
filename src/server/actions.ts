@@ -10,7 +10,6 @@ import {
   messageIdleKicked,
   messageLevel,
   messageSync,
-  messageLevelOver,
   messageHurryUp,
   messageMatchOver,
 } from '../universal/protocol';
@@ -32,6 +31,8 @@ import {
   Level,
   State,
 } from './records';
+
+import {createLevelOver} from './messages';
 
 type Dispatch = (action: any) => State;
 
@@ -188,36 +189,12 @@ export function sendSyncMessage(
   }));
 }
 
-export function levelOver(dispatch: Dispatch, socks: ManygolfSocketManager,
-  {players}: {players: PlayersMap}
-) {
+export function levelOver(dispatch: Dispatch, socks: ManygolfSocketManager) {
   const newState = dispatch({
     type: 'levelOver',
   });
 
-  const rankedPlayers = newState.roundRankedPlayers;
-
-  socks.sendAll(messageLevelOver({
-    roundRankedPlayers: rankedPlayers.toArray().map((player) => {
-      // XXX: this references the players map from *before* they are updated with new points
-      const prevPoints = players.get(player.id).points;
-
-      return {
-        id: player.id,
-        color: player.color,
-        name: player.name,
-        strokes: player.strokes,
-        scoreTime: player.scoreTime,
-        scored: player.scored,
-
-        prevPoints,
-        addedPoints: player.points - prevPoints,
-      };
-    }),
-
-    expTime: newState.expTime,
-    leaderId: newState.leaderId,
-  }));
+  socks.sendAll(createLevelOver(newState));
 }
 
 export function checkHurryUp(

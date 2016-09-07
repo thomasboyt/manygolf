@@ -234,6 +234,19 @@ function leaveGame(state: State) {
     .set('isObserver', true);
 }
 
+function levelOver(state: State, data: MessageLevelOver) {
+  const rankedPlayers: I.List<LeaderboardPlayer> = I.fromJS(data.roundRankedPlayers)
+    .map((player) => new LeaderboardPlayer(player));
+
+  const leaderId = data.leaderId;
+
+  return state
+    .set('gameState', GameState.levelOver)
+    .setIn(['match', 'leaderId'], leaderId)
+    .setIn(['round', 'expTime'], data.expTime)
+    .setIn(['round', 'roundRankedPlayers'], rankedPlayers);
+}
+
 function getCurrentPlayerPhysics(state: State): PlayerPhysics {
   return state.round.playerPhysics.get(state.id);
 }
@@ -430,6 +443,10 @@ export default createImmutableReducer<State>(new State(), {
         matchEndsAt: Date.now() + data.matchEndsIn,
       }));
 
+    if (data.gameState === GameState.levelOver) {
+      newState = levelOver(newState, data.levelOverState);
+    }
+
     // resume current-player-specific state
     // (this could theoretically be moved to newLevel logic, I think?)
     if (!data.isObserver) {
@@ -485,17 +502,7 @@ export default createImmutableReducer<State>(new State(), {
 
   [`ws:${TYPE_LEVEL_OVER}`]: (state: State, action) => {
     const data = <MessageLevelOver>action.data;
-
-    const rankedPlayers: I.List<LeaderboardPlayer> = I.fromJS(data.roundRankedPlayers)
-      .map((player) => new LeaderboardPlayer(player));
-
-    const leaderId = data.leaderId;
-
-    return state
-      .set('gameState', GameState.levelOver)
-      .setIn(['match', 'leaderId'], leaderId)
-      .setIn(['round', 'expTime'], data.expTime)
-      .setIn(['round', 'roundRankedPlayers'], rankedPlayers);
+    return levelOver(state, data);
   },
 
   [`ws:${TYPE_HURRY_UP}`]: (state: State, action) => {

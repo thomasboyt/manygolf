@@ -74,21 +74,25 @@ export function updatePoints(players: I.Map<number, Player>, rankedPlayerIds: I.
   return rankedPlayerIds
     .reduce((players, rankedPlayerId, index) => {
       const scored = players.get(rankedPlayerId).scored;
-
       // don't award points to players who did not score
       if (!scored) {
         return players;
       }
 
+      const prevPoints = players.getIn([rankedPlayerId, 'points']);
+
       return players
+        .setIn([rankedPlayerId, 'points'], prevPoints)
         .updateIn([rankedPlayerId, 'points'],
-                  (points) => points + pointsForRank(index + 1, players.size));
+                  (points) => points + pointsForRank(index + 1, players.size))
     }, players);
 }
 
 function resetPoints(players: I.Map<number, Player>) {
   return players.map((player) => {
-    return player.set('points', 0);
+    return player
+      .set('points', 0)
+      .set('prevPoints', 0);
   });
 }
 
