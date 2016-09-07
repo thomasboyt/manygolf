@@ -18,7 +18,8 @@
     "build-client": "rm -rf build/client && webpack --config webpack/production.js",
     "deploy": " npm run deploy-client && git push heroku master",
     "deploy-client": "fly production",
-    "deploy-staging": "fly client-staging",
+    "deploy-beta": "fly client-staging",
+    "deploy-staging-client": "MANYGOLF_SERVER_URL=wss://manygolf-staging.herokuapp.com/ npm run build-client && surge -d manygolf.surge.sh -p ./build/client",
     "postinstall": "webpack --config webpack/server.js"
   },
   "devDependencies": {
