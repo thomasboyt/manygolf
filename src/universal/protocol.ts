@@ -9,17 +9,17 @@ interface Player {
   name: string;
 }
 
-interface Level {
-  points: Array<Array<number>>;
-  hole: Array<number>;
-  spawn: Array<number>;
-  color: string;
+interface InitialPlayer extends Player {
+  position: number[];
+  velocity: number[];
+  strokes: number;
+  scored: boolean;
 }
 
-interface Position {
+interface SyncPlayer {
   id: number;
-  x: number;
-  y: number;
+  position: number[];
+  velocity: number[];
 }
 
 interface LeaderboardPlayer extends Player {
@@ -34,13 +34,22 @@ interface MatchEndPlayer extends Player {
   points: number;
 }
 
+interface Level {
+  points: Array<Array<number>>;
+  hole: Array<number>;
+  spawn: Array<number>;
+  color: string;
+}
+
+
 export const TYPE_INITIAL = 'initial';
 
+// This message should always allow a complete reset of client state
 export interface MessageInitial {
-  self: Player;
+  self: InitialPlayer;
   gameState: GameState;
 
-  players: Array<Player>;
+  players: InitialPlayer[];
   matchEndsIn: number;
   isObserver: boolean;
 
@@ -135,12 +144,6 @@ export function messageLevel(params: MessageLevel) {
   };
 }
 
-
-interface SyncPlayer {
-  id: number;
-  position: number[];
-  velocity: number[];
-}
 
 export const TYPE_SYNC = 'sync';
 
@@ -265,5 +268,23 @@ export function messageMatchOver(params: MessageMatchOver) {
   return {
     type: TYPE_MATCH_OVER,
     data: params,
+  };
+}
+
+
+export const TYPE_REQUEST_PAUSE_STREAM = 'requestPauseStream';
+
+export function messageReqPauseStream() {
+  return {
+    type: TYPE_REQUEST_PAUSE_STREAM,
+  };
+}
+
+
+export const TYPE_REQUEST_RESUME_STREAM = 'requestResumeStream';
+
+export function messageReqResumeStream() {
+  return {
+    type: TYPE_REQUEST_RESUME_STREAM,
   };
 }

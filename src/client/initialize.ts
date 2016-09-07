@@ -11,6 +11,8 @@ import {
 
 import { registerListeners } from './util/inputter';
 
+import {messageReqPauseStream, messageReqResumeStream} from '../universal/protocol';
+
 import testMsgs from '../testData';
 
 /*
@@ -51,6 +53,17 @@ export default function initialize(): Store<State> {
   });
 
   runLoop.start();
+
+  let pausedWs = false;
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      ws.send(messageReqPauseStream());
+      pausedWs = true;
+    } else {
+      ws.send(messageReqResumeStream());
+      pausedWs = false;
+    }
+  });
 
   return store;
 }

@@ -18,6 +18,8 @@ import {
   TYPE_SWING,
   TYPE_ENTER_GAME,
   TYPE_SEND_CHAT,
+  TYPE_REQUEST_PAUSE_STREAM,
+  TYPE_REQUEST_RESUME_STREAM,
 } from '../universal/protocol';
 
 import {
@@ -57,43 +59,9 @@ export default class ManygolfSocketManager extends SocketManager {
       isObserver,
     });
 
+    this.sendInitial(id);
+
     const state = this.store.getState();
-
-    this.sendTo(id, messageInitial({
-      gameState: state.gameState,
-
-      self: {
-        id,
-        color,
-        name,
-      },
-
-      isObserver,
-
-      leaderId: state.leaderId,
-
-      players: state.players.map((player, id) => {
-        return {
-          id,
-          color: player.color,
-          name: player.name,
-          position: [
-            player.body.position[0],
-            player.body.position[1],
-          ],
-          velocity: [
-            player.body.velocity[0],
-            player.body.velocity[1],
-          ],
-        };
-      }).toArray(),
-
-      level: state.levelData,
-      expiresIn: state.expTime - Date.now(),
-
-      time: state.time,
-      matchEndsIn: state.matchEndTime - Date.now(),
-    }));
 
     if (!isObserver) {
       const player = state.players.get(id);
@@ -185,6 +153,14 @@ export default class ManygolfSocketManager extends SocketManager {
         emoticon: msg.data.emoticon,
       }));
 
+    } else if (msg.type === TYPE_REQUEST_PAUSE_STREAM) {
+      this.pause(id);
+
+    } else if (msg.type === TYPE_REQUEST_RESUME_STREAM) {
+      this.resume(id);
+
+      this.sendInitial(id);
+
     } else {
       console.error(`unrecognized message type ${msg.type}`);
     }
@@ -203,5 +179,63 @@ export default class ManygolfSocketManager extends SocketManager {
       messageText: `{{${name}}} joined`,
       color,
     }));
+  }
+
+  sendInitial(id: number) {
+    const state = this.store.getState();
+
+    const players = state.players.map((player, id) => {
+      return {
+        id,
+        color: player.color,
+        name: player.name,
+        position: [
+          player.body.position[0],
+          player.body.position[1],
+        ],
+        velocity: [
+          player.body.velocity[0],
+          player.body.velocity[1],
+        ],
+        scored: player.scored,
+        strokes: player.strokes,
+      };
+    });
+
+
+    let self;
+    let isObserver: boolean;
+    if (players.has(id)) {
+      self = players.get(id);
+      isObserver = false;
+
+    } else {
+      const observer = state.observers.get(id);
+      self = {
+        id: observer.id,
+        name: observer.name,
+        color: observer.color,
+      };
+      isObserver = true;
+    }
+
+    this.sendTo(id, messageInitial({
+      gameState: state.gameState,
+
+      self,
+
+      isObserver,
+
+      leaderId: state.leaderId,
+
+      players: players.toArray(),
+
+      level: state.levelData,
+      expiresIn: state.expTime - Date.now(),
+
+      time: state.time,
+      matchEndsIn: state.matchEndTime - Date.now(),
+    }));
+
   }
 }

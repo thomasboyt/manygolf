@@ -7,17 +7,15 @@ function log(msg: any, ...params: any[]) {
 }
 
 abstract class SocketManager {
-  idCounter: number;
-  _sockets: Map<number, WebSocket>;
+  idCounter: number = 0;
+  _sockets: Map<number, WebSocket> = new Map();
+  private pausedSockets: Set<number> = new Set();
 
   abstract onConnect(id: number, ws?: WebSocket);
   abstract onMessage(id: number, msg: Object);
   abstract onDisconnect(id: number);
 
   constructor(wss: Server) {
-    this.idCounter = 0;
-    this._sockets = new Map();
-
     wss.on('connection', (ws) => this.handleConnection(ws));
   }
 
@@ -68,6 +66,10 @@ abstract class SocketManager {
   }
 
   sendTo(id: number, msg: Object) {
+    if (this.pausedSockets.has(id)) {
+      return;
+    }
+
     const msgStr = JSON.stringify(msg);
 
     log(`sent to ${id}: ${msgStr}`);
@@ -85,12 +87,24 @@ abstract class SocketManager {
     log(`sent: ${msgStr}`);
 
     this._getSockets().forEach((socket, id) => {
+      if (this.pausedSockets.has(id)) {
+        return;
+      }
+
       socket.send(msgStr, (err) => {
         if (err) {
           log(`error sending to ${id}`, err);
         }
       });
     });
+  }
+
+  pause(id: number) {
+    this.pausedSockets.add(id);
+  }
+
+  resume(id: number) {
+    this.pausedSockets.delete(id);
   }
 }
 

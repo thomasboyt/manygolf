@@ -409,7 +409,7 @@ export default createImmutableReducer<State>(new State(), {
   [`ws:${TYPE_INITIAL}`]: (state: State, action) => {
     const data = <MessageInitial>action.data;
 
-    return state
+    let newState = state
       .set('connectionState', ConnectionState.connected)
       .set('name', data.self.name)
       .set('id', data.self.id)
@@ -429,6 +429,19 @@ export default createImmutableReducer<State>(new State(), {
         leaderId: data.leaderId,
         matchEndsAt: Date.now() + data.matchEndsIn,
       }));
+
+    // resume scored state
+    if (!data.isObserver) {
+      if (data.self.scored) {
+        newState = enterScored(newState);
+        // if goal text was previously set, use it
+        if (state.round.goalText) {
+          newState = newState.setIn(['round', 'goalText'], state.round.goalText)
+        }
+      }
+    }
+
+    return newState;
   },
 
   [`ws:${TYPE_PLAYER_CONNECTED}`]: (state: State, action) => {
