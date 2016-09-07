@@ -1,4 +1,4 @@
-import {messageLevelOver, messageInitial} from '../universal/protocol';
+import {messageLevelOver, messageInitial, messageMatchOver} from '../universal/protocol';
 import {State} from './records';
 import {GameState} from '../universal/constants';
 
@@ -38,6 +38,7 @@ export function createInitial(state: State, playerId: number) {
   }
 
   const levelOverState = state.gameState === GameState.levelOver ? createLevelOver(state).data : null;
+  const matchOverState = state.gameState === GameState.matchOver ? createMatchOver(state).data : null;
 
   return messageInitial({
     gameState: state.gameState,
@@ -47,6 +48,7 @@ export function createInitial(state: State, playerId: number) {
     isObserver,
 
     levelOverState,
+    matchOverState,
 
     leaderId: state.leaderId,
 
@@ -80,5 +82,22 @@ export function createLevelOver(state: State) {
 
     expTime: state.expTime,
     leaderId: state.leaderId,
+  });
+}
+
+export function createMatchOver(state: State) {
+  const rankedPlayers = state.matchRankedPlayers;
+
+  return messageMatchOver({
+    nextMatchIn: state.expTime - Date.now(),
+
+    matchRankedPlayers: rankedPlayers.toArray().map((player) => {
+      return {
+        id: player.id,
+        color: player.color,
+        name: player.name,
+        points: player.points,
+      };
+    }),
   });
 }

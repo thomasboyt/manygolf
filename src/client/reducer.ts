@@ -247,6 +247,18 @@ function levelOver(state: State, data: MessageLevelOver) {
     .setIn(['round', 'roundRankedPlayers'], rankedPlayers);
 }
 
+function matchOver(state: State, data: MessageMatchOver) {
+  const rankedPlayers: I.List<MatchEndPlayer> = I.fromJS(data.matchRankedPlayers)
+    .map((player) => new MatchEndPlayer(player));
+
+  const nextMatchTime = Date.now() + data.nextMatchIn;
+
+  return state
+    .set('gameState', GameState.matchOver)
+    .setIn(['match', 'matchRankedPlayers'], rankedPlayers)
+    .setIn(['match', 'nextMatchTime'],  nextMatchTime);
+}
+
 function getCurrentPlayerPhysics(state: State): PlayerPhysics {
   return state.round.playerPhysics.get(state.id);
 }
@@ -445,6 +457,8 @@ export default createImmutableReducer<State>(new State(), {
 
     if (data.gameState === GameState.levelOver) {
       newState = levelOver(newState, data.levelOverState);
+    } else if (data.gameState === GameState.matchOver) {
+      newState = matchOver(newState, data.matchOverState);
     }
 
     // resume current-player-specific state
@@ -541,15 +555,7 @@ export default createImmutableReducer<State>(new State(), {
   },
 
   [`ws:${TYPE_MATCH_OVER}`]: (state: State, {data}: {data: MessageMatchOver}) => {
-    const rankedPlayers: I.List<MatchEndPlayer> = I.fromJS(data.matchRankedPlayers)
-      .map((player) => new MatchEndPlayer(player));
-
-    const nextMatchTime = Date.now() + data.nextMatchIn;
-
-    return state
-      .set('gameState', GameState.matchOver)
-      .setIn(['match', 'matchRankedPlayers'], rankedPlayers)
-      .setIn(['match', 'nextMatchTime'],  nextMatchTime);
+    return matchOver(state, data);
   },
 
   'disconnect': (state: State) => {

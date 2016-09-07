@@ -11,7 +11,6 @@ import {
   messageLevel,
   messageSync,
   messageHurryUp,
-  messageMatchOver,
 } from '../universal/protocol';
 
 import {
@@ -32,7 +31,7 @@ import {
   State,
 } from './records';
 
-import {createLevelOver} from './messages';
+import {createLevelOver, createMatchOver} from './messages';
 
 type Dispatch = (action: any) => State;
 
@@ -128,19 +127,7 @@ export function endMatch(dispatch: Dispatch, socks: ManygolfSocketManager) {
     nextMatchAt,
   });
 
-  const rankedPlayers = state.matchRankedPlayers;
-
-  socks.sendAll(messageMatchOver({
-    nextMatchIn: MATCH_OVER_MS,
-    matchRankedPlayers: rankedPlayers.toArray().map((player) => {
-      return {
-        id: player.id,
-        color: player.color,
-        name: player.name,
-        points: player.points,
-      };
-    }),
-  }));
+  socks.sendAll(createMatchOver(state));
 }
 
 export function cycleLevel(dispatch: Dispatch, socks: ManygolfSocketManager) {
