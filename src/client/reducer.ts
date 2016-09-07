@@ -406,10 +406,10 @@ export default createImmutableReducer<State>(new State(), {
     return newState;
   },
 
-  [`ws:${TYPE_INITIAL}`]: (state: State, action) => {
+  [`ws:${TYPE_INITIAL}`]: (prevState: State, action) => {
     const data = <MessageInitial>action.data;
 
-    let newState = state
+    let newState = prevState
       .set('connectionState', ConnectionState.connected)
       .set('name', data.self.name)
       .set('id', data.self.id)
@@ -430,13 +430,17 @@ export default createImmutableReducer<State>(new State(), {
         matchEndsAt: Date.now() + data.matchEndsIn,
       }));
 
-    // resume scored state
+    // resume current-player-specific state
+    // (this could theoretically be moved to newLevel logic, I think?)
     if (!data.isObserver) {
+      newState = newState.setIn(['round', 'strokes'], data.self.strokes);
+
+      // restore scored state
       if (data.self.scored) {
         newState = enterScored(newState);
         // if goal text was previously set, use it
-        if (state.round.goalText) {
-          newState = newState.setIn(['round', 'goalText'], state.round.goalText)
+        if (prevState.round.goalText) {
+          newState = newState.setIn(['round', 'goalText'], prevState.round.goalText)
         }
       }
     }
