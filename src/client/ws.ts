@@ -88,6 +88,10 @@ class WSConnection {
       this._ws.send(strMsg);
     }
   }
+
+  get connected(): boolean {
+    return this._ws.readyState === this._ws.OPEN;
+  }
 }
 
 const ws = new WSConnection();

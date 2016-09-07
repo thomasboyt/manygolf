@@ -56,12 +56,14 @@ export default function initialize(): Store<State> {
 
   let pausedWs = false;
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-      ws.send(messageReqPauseStream());
-      pausedWs = true;
-    } else {
-      ws.send(messageReqResumeStream());
-      pausedWs = false;
+    if (ws.connected) {
+      if (document.hidden) {
+        ws.send(messageReqPauseStream());
+        pausedWs = true;
+      } else {
+        ws.send(messageReqResumeStream());
+        pausedWs = false;
+      }
     }
   });
 
