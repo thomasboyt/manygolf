@@ -8,7 +8,6 @@ import WebSocket from 'uws';
 import p2 from 'p2';
 
 import {
-  messageInitial,
   messagePlayerConnected,
   messagePlayerDisconnected,
   messageDisplayMessage,

@@ -168,6 +168,6 @@ export default function renderMatchEnd(ctx: CanvasRenderingContext2D, state: Sta
   if (place > -1) {
     ctx.fillText(`You finished ${toOrdinal(place + 1)} of ${players.size}!`, WIDTH / 2, HEIGHT - 5);
   } else {
-    ctx.fillText('Next match starts soon...', WIDTH / 2, HEIGHT - 5)
+    ctx.fillText('Next match starts soon...', WIDTH / 2, HEIGHT - 5);
   }
 }

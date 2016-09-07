@@ -471,7 +471,7 @@ export default createImmutableReducer<State>(new State(), {
         newState = enterScored(newState);
         // if goal text was previously set, use it
         if (prevState.round.goalText) {
-          newState = newState.setIn(['round', 'goalText'], prevState.round.goalText)
+          newState = newState.setIn(['round', 'goalText'], prevState.round.goalText);
         }
       }
     }

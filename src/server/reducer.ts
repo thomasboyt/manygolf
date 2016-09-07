@@ -84,7 +84,7 @@ export function updatePoints(players: I.Map<number, Player>, rankedPlayerIds: I.
       return players
         .setIn([rankedPlayerId, 'prevPoints'], prevPoints)
         .updateIn([rankedPlayerId, 'points'],
-                  (points) => points + pointsForRank(index + 1, players.size))
+                  (points) => points + pointsForRank(index + 1, players.size));
     }, players);
 }
 
