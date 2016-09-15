@@ -89,12 +89,12 @@ module.exports = {
 
   devServer: {
     contentBase: 'static',
-    historyApiFallback: true,
 
     proxy: {
       '/server': {
-        target: 'ws://localhost:4080',
-        ws: true,
+        target: 'http://localhost:4080',
+        pathRewrite: {'^/server' : ''},
+        logLevel: 'debug',
       },
     },
   },

@@ -11,13 +11,7 @@ if (simulateLag) {
 (<any>window).msgLog = [];
 
 function getUrl() {
-  // this is NULL in development to allow ngrok proxying to work against dev server
-  if (process.env.SERVER_URL) {
-    return process.env.SERVER_URL;
-  } else {
-    const scheme = document.location.protocol === 'https:' ? 'wss' : 'ws';
-    return `${scheme}://${document.location.host}/server`;
-  }
+  return process.env.SERVER_URL;
 }
 
 class WSConnection {
