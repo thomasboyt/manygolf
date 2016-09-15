@@ -10,3 +10,4 @@
 /// <reference path="globals/serve-static/index.d.ts" />
 /// <reference path="globals/tinycolor/index.d.ts" />
 /// <reference path="globals/ws/index.d.ts" />
+/// <reference path="modules/body-parser/index.d.ts" />

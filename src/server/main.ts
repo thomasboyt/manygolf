@@ -1,12 +1,14 @@
 import http from 'http';
 import ws from 'uws';
 import express from 'express';
+import bodyParser from 'body-parser';
 import { createStore } from 'redux';
 import raven from 'raven';
 
 import RunLoop from '../universal/RunLoop';
 import ManygolfSocketManager from './ManygolfSocketManager';
 import reducer from './reducer';
+import registerTwitterEndpoints from './twitter';
 
 import {configureDatabase} from './models';
 
@@ -43,6 +45,8 @@ configureDatabase();
 const server = http.createServer();
 const wss = new ws.Server({server});
 const app = express();
+app.use(bodyParser.json());
+
 const port = process.env.PORT || 4080;
 
 const store = createStore(reducer);
@@ -161,6 +165,8 @@ runLoop.onTick((dt: number) => {
 });
 
 runLoop.start();
+
+registerTwitterEndpoints(app);
 
 app.get('/player-count', (req, res) => {
   res.type('text/plain');

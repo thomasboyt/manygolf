@@ -1,2 +1,5 @@
 # Copy me to ".env"
 DATABASE_URL=postgres://username@localhost:5432/manygolf
+APP_URL=http://localhost:8080
+TWITTER_API_KEY=
+TWITTER_API_SECRET=

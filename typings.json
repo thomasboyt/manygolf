@@ -13,5 +13,7 @@
     "tinycolor": "registry:dt/tinycolor#1.1.1+20160317120654",
     "ws": "registry:dt/ws#0.0.0+20160317120654"
   },
-  "dependencies": {}
+  "dependencies": {
+    "body-parser": "registry:npm/body-parser#1.15.2+20160815132839"
+  }
 }

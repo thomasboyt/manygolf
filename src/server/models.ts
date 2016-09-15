@@ -94,3 +94,27 @@ export async function getUserByAuthToken(token: string): Promise<User> {
     authToken: row.authentication_token,
   };
 }
+
+export async function getUserByTwitterId(twitterId: string): Promise<User> {
+  const rows = await db.query('SELECT * FROM manygolf.players WHERE twitter_id=$1', [twitterId]);
+
+  const row = rows[0];
+
+  if (!row) {
+    return null;
+  }
+
+  return {
+    id: row.id,
+    name: row.name,
+    color: row.color,
+    authToken: row.authentication_token,
+  };
+}
+
+export async function setUserTwitterInformation(
+  userId: number, twitterId: string, twitterToken: string, twitterSecret: string) {
+  await db.query(
+    'UPDATE manygolf.players SET twitter_id=$1, twitter_token=$2, twitter_secret=$3 WHERE id=$4',
+    [twitterId, twitterToken, twitterSecret, userId]);
+}

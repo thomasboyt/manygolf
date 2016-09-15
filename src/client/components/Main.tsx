@@ -48,6 +48,10 @@ export default class Main extends React.Component<{}, {}> {
     }
   }
 
+  handleTwitterAuth() {
+    window.open('/server/twitter-sign-in', 'TwitterSignIn', 'resizable,scrolbars,status,width=500,height=400');
+  }
+
   render() {
     return (
       <div>
@@ -58,6 +62,12 @@ export default class Main extends React.Component<{}, {}> {
 
           <GameContainer />
           {this.maybeRenderMobileHelp()}
+        </div>
+
+        <div className="row">
+          <p style={{textAlign: 'center'}}>
+            <a onClick={this.handleTwitterAuth}>Sign in with Twitter</a>
+          </p>
         </div>
 
         <div className="instructions">

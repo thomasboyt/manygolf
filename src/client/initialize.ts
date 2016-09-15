@@ -67,5 +67,36 @@ export default function initialize(): Store<State> {
     }
   });
 
+  window.addEventListener('message', (event: MessageEvent) => {
+    const data = JSON.parse(event.data);
+
+    if (data.type === 'twitterAuth') {
+      const {token, secret} = data;
+
+      window.fetch('/server/twitter-auth-token', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          authToken: localStorage.getItem('accessToken'),
+          twitterToken: token,
+          twitterSecret: secret,
+        }),
+      }).then((resp) => {
+        if (resp.status === 200) {
+          return resp.json();
+        } else {
+          console.log(resp);
+          throw new Error('Twitter auth error');
+        }
+      }).then((data) => {
+        localStorage.setItem('accessToken', data.authToken);
+        document.location.reload();
+      });
+    }
+  });
+
   return store;
 }
