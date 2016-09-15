@@ -96,6 +96,10 @@ function resetPoints(players: I.Map<number, Player>) {
   });
 }
 
+function removeDisconnected(players: I.Map<number, Player>) {
+  return players.filter((player) => !player.disconnected);
+}
+
 export function rankPlayers(players: I.Map<number, Player>): I.List<number> {
   const playersList = players.toList();
 
@@ -182,7 +186,7 @@ export default createImmutableReducer<State>(new State(), {
   },
 
   'playerConnected': (state: State, {id, name, color, isObserver}: AddPlayerOpts) => {
-    const player = new Player({
+    const newPlayer = new Player({
       id,
       color,
       name,
@@ -190,23 +194,31 @@ export default createImmutableReducer<State>(new State(), {
     });
 
     if (isObserver) {
-      return state.setIn(['observers', id], player);
+      if (state.observers.has(id)) {
+        // reconnected
+        return state.setIn(['observers', id, 'disconnected'], false);
+      } else {
+        return state.setIn(['observers', id], newPlayer);
+      }
 
     } else {
-      return state.setIn(['players', id], enterGame(player, state));
-    };
+      if (state.players.has(id)) {
+        // reconnected
+        return state.setIn(['observers', id, 'disconnected'], false);
+      } else {
+        return state.setIn(['players', id], enterGame(newPlayer, state));
+      }
+    }
   },
 
   'playerDisconnected': (state: State, {id}: {id: number}) => {
     const player = state.players.get(id);
 
     if (player) {
-      return state
-        .setIn(['players', id], leaveGame(player, state))
-        .deleteIn(['players', id]);
+      return state.setIn(['players', id, 'disconnected'], true);
+    } else {
+      return state.setIn(['observers', id, 'disconnected'], true);
     }
-
-    return state.deleteIn(['observers', id]);
   },
 
   'swing': (state: State, {id, vec}: {id: number; vec: Coordinates}) => {
@@ -238,12 +250,15 @@ export default createImmutableReducer<State>(new State(), {
      return state
        .set('matchEndTime', endTime)
        .update('players', resetPoints)
-       .update('observers', resetPoints);
+       .update('observers', resetPoints)
+       .update('players', removeDisconnected)
+       .update('observers', removeDisconnected);
   },
 
   'level': (state: State,
             {levelData, expTime, startTime}:
             {levelData: any; startTime: number; expTime: number}) => {
+
     const level = new Level(I.fromJS(levelData))
       .update(addHolePoints);
 
@@ -268,6 +283,12 @@ export default createImmutableReducer<State>(new State(), {
       observers: state.observers,
       matchEndTime: state.matchEndTime,
     });
+
+    // move disconnected players into observers
+    // XXX: this is ugly and can probably be done more elegantly?
+    const disconnected = nextState.players.filter((player) => player.disconnected);
+    nextState = nextState.set('players', state.players.filter((player) => !player.disconnected));
+    nextState = nextState.update('observers', (observers) => observers.concat(disconnected));
 
     // XXX: This is done separately because it depends on the updated `state`
     nextState = nextState.set('players', state.players.map((player) => {

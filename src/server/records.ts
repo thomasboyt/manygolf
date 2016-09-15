@@ -12,6 +12,7 @@ export interface Coordinates {
 
 const PlayerRec = I.Record({
   id: null,
+  disconnected: false,
 
   body: null,
   color: null,
@@ -31,6 +32,7 @@ export type PlayersMap = I.Map<number, Player>;
 
 export class Player extends PlayerRec {
   id: number;
+  disconnected: boolean;
 
   body: p2.Body;
   color: string;
