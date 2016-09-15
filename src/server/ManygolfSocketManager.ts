@@ -1,6 +1,6 @@
 import {Store} from 'redux';
 
-import SocketManager from './util/SocketManager';
+import ManygolfSocket from './util/ManygolfSocket';
 
 import WebSocket from 'uws';
 import p2 from 'p2';
@@ -29,21 +29,75 @@ import {createInitial} from './messages';
 import {
   getUserByAuthToken,
   createUser,
+  User,
 } from './models';
 
-/*
- * Connection manager
- */
 
-export default class ManygolfSocketManager extends SocketManager {
+/**
+ * TODO: This thing's huge! It may be worth breaking the logic of the connect and message
+ * handlers down into something smaller and easier to manage.
+ */
+export default class ManygolfSocketManager {
   store: Store<State>;
 
+  // maps player ID -> socket
+  private sockets: Map<number, ManygolfSocket> = new Map();
+
+  private pausedSockets: Set<number> = new Set();
+
   constructor(wss: WebSocket.Server, store: Store<State>) {
-    super(wss);
+    wss.on('connection', (ws) => this.onConnect(ws));
     this.store = store;
   }
 
-  async onConnect(id: number, ws: WebSocket) {
+  pause(id: number) {
+    this.pausedSockets.add(id);
+  }
+
+  resume(id: number) {
+    this.pausedSockets.delete(id);
+  }
+
+  closeSocket(socketId: number, didReplace?: boolean) {
+    const socket = this.sockets.get(socketId);
+    if (didReplace) {
+      socket.replace();
+    } else {
+      socket.close();
+    }
+  }
+
+  sendTo(id: number, msg: Object) {
+    if (this.pausedSockets.has(id)) {
+      return;
+    }
+
+    const msgStr = JSON.stringify(msg);
+
+    return this.sockets.get(id).send(msgStr, (err) => {
+      if (err) {
+        console.log(`error sending to ${id}`, err);
+      }
+    });
+  }
+
+  sendAll(msg: Object) {
+    const msgStr = JSON.stringify(msg);
+
+    this.sockets.forEach((socket, id) => {
+      if (this.pausedSockets.has(id)) {
+        return;
+      }
+
+      socket.send(msgStr, (err) => {
+        if (err) {
+          console.log(`error sending to ${id}`, err);
+        }
+      });
+    });
+  }
+
+  private async getUser(ws: WebSocket): Promise<User> {
     const location = url.parse(ws.upgradeReq.url, true);
 
     let authToken = location.query.auth_token;
@@ -55,52 +109,56 @@ export default class ManygolfSocketManager extends SocketManager {
       user = await createUser();
     }
 
+    return user;
+  }
+
+  private async onConnect(ws: WebSocket) {
+    const location = url.parse(ws.upgradeReq.url, true);
+
+    const user = await this.getUser(ws);
+
+    // user already had a connection
+    // set new socket IDs, send initial message, otherwise stays the same
+    const wasConnected = this.sockets.has(user.id);
+
+    if (wasConnected) {
+      // close previous socket before creating new one
+      this.closeSocket(user.id, true);
+    }
+
+    const socket = new ManygolfSocket(ws);
+
+    socket.onMessage = (msg) => this.onMessage(user.id, msg);
+    socket.onDisconnect = () => this.onDisconnect(user.id);
+
+    this.sockets.set(user.id, socket);
+
     // XXX: lol
     let isObserver = false;
     if (location.query.observe) {
       isObserver = true;
     }
 
-    this.store.dispatch({
-      type: 'playerConnected',
-      id,
-      color: user.color,
-      name: user.name,
-      isObserver,
-    });
+    if (!wasConnected) {
+      this.store.dispatch({
+        type: 'playerConnected',
+        id: user.id,
+        color: user.color,
+        name: user.name,
+        isObserver,
+      });
+    }
 
     const state = this.store.getState();
-    this.sendTo(id, createInitial(state, id, user.authToken));
+    this.sendTo(user.id, createInitial(state, user.id, user.authToken));
 
-    if (!isObserver) {
-      const player = state.players.get(id);
+    if (!isObserver && !wasConnected) {
+      const player = state.players.get(user.id);
       this.playerJoined(player);
     }
   }
 
-  onDisconnect(id: number) {
-    const state = this.store.getState();
-
-    const player = state.players.get(id);
-
-    this.store.dispatch({
-      type: 'playerDisconnected',
-      id,
-    });
-
-    if (player) {
-      this.sendAll(messagePlayerDisconnected({
-        id,
-      }));
-
-      this.sendAll(messageDisplayMessage({
-        messageText: `{{${player.name}}} left`,
-        color: player.color,
-      }));
-    }
-  }
-
-  onMessage(id: number, msg: any) {
+  private onMessage(id: number, msg: any) {
     const prevState = this.store.getState();
 
     if (msg.type === TYPE_SWING) {
@@ -176,7 +234,31 @@ export default class ManygolfSocketManager extends SocketManager {
     }
   }
 
-  playerJoined(player: Player) {
+  private onDisconnect(id: number) {
+    this.sockets.delete(id);
+
+    const state = this.store.getState();
+
+    const player = state.players.get(id);
+
+    this.store.dispatch({
+      type: 'playerDisconnected',
+      id,
+    });
+
+    if (player) {
+      this.sendAll(messagePlayerDisconnected({
+        id,
+      }));
+
+      this.sendAll(messageDisplayMessage({
+        messageText: `{{${player.name}}} left`,
+        color: player.color,
+      }));
+    }
+  }
+
+  private playerJoined(player: Player) {
     const {id, color, name} = player;
 
     this.sendAll(messagePlayerConnected({
@@ -190,4 +272,5 @@ export default class ManygolfSocketManager extends SocketManager {
       color,
     }));
   }
+
 }

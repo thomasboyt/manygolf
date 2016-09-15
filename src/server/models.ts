@@ -10,7 +10,8 @@ export function configureDatabase() {
   db = pgp()(process.env.DATABASE_URL);
 }
 
-interface User {
+export interface User {
+  id: number;
   name: string;
   color: string;
   authToken: string;
@@ -65,9 +66,12 @@ export async function createUser(): Promise<User> {
     }
   }
 
-  await db.query('INSERT INTO manygolf.players (color, name, authentication_token) VALUES ($1, $2, $3)', [color, name, authToken]);
+  const rows = await db.query('INSERT INTO manygolf.players (color, name, authentication_token) VALUES ($1, $2, $3) RETURNING id', [color, name, authToken]);
+
+  const row = rows[0];
 
   return {
+    id: row.id,
     name,
     color,
     authToken,
@@ -84,6 +88,7 @@ export async function getUserByAuthToken(token: string): Promise<User> {
   }
 
   return {
+    id: row.id,
     name: row.name,
     color: row.color,
     authToken: row.authentication_token,
