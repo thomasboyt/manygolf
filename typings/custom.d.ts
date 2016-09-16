@@ -57,3 +57,7 @@ declare module "uws" {
   import ws from 'ws';
   export = ws;
 }
+
+declare module "oauth" {
+  export var OAuth: any;
+}
