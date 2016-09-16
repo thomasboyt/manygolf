@@ -1,5 +1,11 @@
 # Copy me to ".env"
+
+# The URL of the Manygolf database. This is set automatically by Heroku.
 DATABASE_URL=postgres://username@localhost:5432/manygolf
+
+# The root origin of the Manygolf app. This is used for the Twitter OAuth callback.
 APP_URL=http://localhost:8080
+
+# Twitter API key and secret, used for Twitter OAuth.
 TWITTER_API_KEY=
 TWITTER_API_SECRET=

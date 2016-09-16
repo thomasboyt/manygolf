@@ -7,6 +7,21 @@ import {
   setUserTwitterInformation,
 } from './models';
 
+/*
+ * Here's how Twitter auth works:
+ * 1. Visit /twitter-sign-in in a new window. This gets a request token and sends you to
+ *    twitter.com/oauth/authenticate to do the Twitter OAuth flow.
+ *
+ * 2. Get redirected to /twitter-sign-in-callback. This page gets an access token, and then
+ *    sends it back to the original page using window.opener.postMessage.
+ *
+ * 3. Original page then sends the Twitter token+secret to POST /twitter-auth-token, along with
+ *    their Manygolf auth token. This endpoint either fetches the account already associated with
+ *    this Twitter ID, or adds the Twitter token+secret+ID to the current auth token's account.
+ *    Either way, an auth token is returned that is the new Manygolf auth token for the client.
+ *    The client sets this auth token and refreshes.
+ */
+
 export default function registerTwitterEndpoints(app: Express) {
   const oa = new OAuth(
     'https://api.twitter.com/oauth/request_token',
