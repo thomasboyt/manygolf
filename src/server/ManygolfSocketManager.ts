@@ -126,6 +126,11 @@ export default class ManygolfSocketManager {
       this.closeSocket(user.id, true);
     }
 
+    // ensure socket is unpaused if it was left in a paused state
+    if (this.pausedSockets.has(user.id)) {
+      this.pausedSockets.delete(user.id);
+    }
+
     const socket = new ManygolfSocket(ws);
 
     socket.onMessage = (msg) => this.onMessage(user.id, msg);
