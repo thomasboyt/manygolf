@@ -9,5 +9,7 @@
 /// <reference path="globals/react/index.d.ts" />
 /// <reference path="globals/serve-static/index.d.ts" />
 /// <reference path="globals/tinycolor/index.d.ts" />
+/// <reference path="globals/whatwg-fetch/index.d.ts" />
+/// <reference path="globals/whatwg-streams/index.d.ts" />
 /// <reference path="globals/ws/index.d.ts" />
 /// <reference path="modules/body-parser/index.d.ts" />

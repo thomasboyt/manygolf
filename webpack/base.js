@@ -4,8 +4,8 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: {
-    app: './src/client/main.tsx',
-    standalone: './src/client/standalone.tsx',
+    app: ['whatwg-fetch', './src/client/main.tsx'],
+    standalone: ['whatwg-fetch', './src/client/standalone.tsx'],
   },
 
   output: {

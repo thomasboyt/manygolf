@@ -73,7 +73,7 @@ export default function initialize(): Store<State> {
     if (data.type === 'twitterAuth') {
       const {token, secret} = data;
 
-      window.fetch('/server/twitter-auth-token', {
+      fetch('/server/twitter-auth-token', {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
