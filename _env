@@ -12,3 +12,6 @@ STATIC_URL=http://localhost:8080
 # Twitter API key and secret, used for Twitter OAuth.
 TWITTER_API_KEY=
 TWITTER_API_SECRET=
+
+# This is not used in development, but is listed here for posterity
+# RAVEN_DSN_PRIVATE=
