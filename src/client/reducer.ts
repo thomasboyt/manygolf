@@ -7,6 +7,7 @@ import {
   TYPE_INITIAL,
   TYPE_PLAYER_CONNECTED,
   TYPE_PLAYER_DISCONNECTED,
+  TYPE_PLAYER_IDLE_KICKED,
   TYPE_LEVEL,
   TYPE_DISPLAY_MESSAGE,
   TYPE_LEVEL_OVER,
@@ -16,7 +17,6 @@ import {
   MessageLevelOver,
   TYPE_HURRY_UP,
   MessageHurryUp,
-  TYPE_IDLE_KICKED,
   MessagePlayerSwing,
   TYPE_PLAYER_SWING,
   TYPE_SYNC,
@@ -173,6 +173,10 @@ function newLevel(state: State, data: MessageInitial) {
 
   } else {
     // New level on existing connection
+
+    // Remove disconnected players
+    state = state.update('players', (players) => players.filter((player) => !player.disconnected));
+
     playerPhysicsMap = state.players.reduce((playerPhysicsMap, player) => {
       const playerPhysics = createPlayerPhysics(level);
       return playerPhysicsMap.set(player.id, playerPhysics);
@@ -488,6 +492,11 @@ export default createImmutableReducer<State>(new State(), {
   [`ws:${TYPE_PLAYER_CONNECTED}`]: (state: State, action) => {
     const data = <MessagePlayerConnected>action.data;
 
+    if (state.players.get(data.id)) {
+      // player was already connected
+      return state.setIn(['players', data.id, 'disconnected'], false);
+    }
+
     const playerPhysics = createPlayerPhysics(state.round.level);
 
     return state
@@ -500,7 +509,15 @@ export default createImmutableReducer<State>(new State(), {
   },
 
   [`ws:${TYPE_PLAYER_DISCONNECTED}`]: (state: State, action) => {
-    return state.deleteIn(['players', action.data.id]);
+    return state.setIn(['players', action.data.id, 'disconnected'], true);
+  },
+
+  [`ws:${TYPE_PLAYER_IDLE_KICKED}`]: (state: State, action) => {
+    if (action.data.id === state.id) {
+      return leaveGame(state);
+    } else {
+      return state.deleteIn(['players', action.data.id]);
+    }
   },
 
   [`ws:${TYPE_PLAYER_SWING}`]: (state: State, {data}: {data: MessagePlayerSwing}) => {
@@ -534,10 +551,6 @@ export default createImmutableReducer<State>(new State(), {
       .setIn(['round', 'expTime'], expTime)
       .set('displayMessage', 'Hurry up!')
       .set('displayMessageTimeout', Date.now() + 5 * 1000);
-  },
-
-  [`ws:${TYPE_IDLE_KICKED}`]: (state: State) => {
-    return leaveGame(state);
   },
 
   [`ws:${TYPE_SYNC}`]: (state: State, {data}: {data: MessageSync}) => {

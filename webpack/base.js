@@ -94,7 +94,6 @@ module.exports = {
       '/server': {
         target: 'http://localhost:4080',
         pathRewrite: {'^/server' : ''},
-        logLevel: 'debug',
       },
     },
   },

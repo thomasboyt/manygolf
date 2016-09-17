@@ -257,7 +257,7 @@ export default class ManygolfSocketManager {
       }));
 
       this.sendAll(messageDisplayMessage({
-        messageText: `{{${player.name}}} left`,
+        messageText: `{{${player.name}}} disconnected`,
         color: player.color,
       }));
     }

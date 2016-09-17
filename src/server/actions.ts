@@ -7,7 +7,7 @@ import levelGen from '../universal/levelGen';
 import {
   messageDisplayMessage,
   messagePlayerDisconnected,
-  messageIdleKicked,
+  messagePlayerIdleKicked,
   messageLevel,
   messageSync,
   messageHurryUp,
@@ -41,18 +41,23 @@ export function sweepInactivePlayers(
 ) {
   players.forEach((player, id) => {
     if (now > player.lastSwingTime  + IDLE_KICK_MS) {
-      console.log(`Idle kicking ${player.name}`);
-
       dispatch({
         type: 'leaveGame',
         id,
       });
 
+      if (player.disconnected) {
+        // this player already disconnected, so...
+        return;
+      }
+
+      console.log(`Idle kicking ${player.name}`);
+
       socks.sendAll(messagePlayerDisconnected({
         id,
       }));
 
-      socks.sendTo(id, messageIdleKicked());
+      socks.sendTo(id, messagePlayerIdleKicked({id}));
 
       const msg = `{{${player.name}}} is now spectating`;
 
@@ -190,7 +195,9 @@ export function checkHurryUp(
 ) {
   // Go into hurry-up mode if the number of players who have yet to score is === 1 or less than
   // 25% of the remaining players and time is over hurry-up threshold
-  const numRemaining = players.filter((player) => !player.scored).size;
+  const numRemaining = players
+    .filter((player) => !player.scored && !player.disconnected)
+    .size;
 
   if (players.size > 1 && numRemaining === 1 || (numRemaining / players.size) < 0.25) {
     const newTime = Date.now() + HURRY_UP_MS;

@@ -106,6 +106,20 @@ export function messagePlayerDisconnected(params: MessagePlayerDisconnected) {
 }
 
 
+export const TYPE_PLAYER_IDLE_KICKED = 'playerIdleKicked';
+
+export interface MessagePlayerIdleKicked {
+  id: number;
+}
+
+export function messagePlayerIdleKicked(params: MessagePlayerIdleKicked) {
+  return {
+    type: TYPE_PLAYER_IDLE_KICKED,
+    data: params,
+  };
+}
+
+
 export const TYPE_DISPLAY_MESSAGE = 'displayMessage';
 
 export interface MessageDisplayMessage {
@@ -203,15 +217,6 @@ export const TYPE_ENTER_GAME = 'enterGame';
 export function messageEnterGame() {
   return {
     type: TYPE_ENTER_GAME,
-  };
-}
-
-
-export const TYPE_IDLE_KICKED = 'idleKicked';
-
-export function messageIdleKicked() {
-  return {
-    type: TYPE_IDLE_KICKED,
   };
 }
 
