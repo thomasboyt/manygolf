@@ -19,7 +19,7 @@
     "deploy": " npm run deploy-client && git push heroku master",
     "deploy-client": "fly production",
     "deploy-beta": "fly client-staging",
-    "deploy-staging-client": "MANYGOLF_SERVER_URL=wss://manygolf-staging.herokuapp.com/ npm run build-client && surge -d manygolf-staging.surge.sh -p ./build/client",
+    "deploy-staging-client": "MANYGOLF_SERVER_HOSTNAME=manygolf-staging.herokuapp.com npm run build-client && surge -d manygolf-staging.surge.sh -p ./build/client",
     "postinstall": "webpack --config webpack/server.js"
   },
   "devDependencies": {
