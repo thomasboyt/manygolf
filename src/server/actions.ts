@@ -195,11 +195,10 @@ export function checkHurryUp(
 ) {
   // Go into hurry-up mode if the number of players who have yet to score is === 1 or less than
   // 25% of the remaining players and time is over hurry-up threshold
-  const numRemaining = players
-    .filter((player) => !player.scored && !player.disconnected)
-    .size;
+  const connectedPlayers = players.filter((player) => !player.disconnected);
+  const numRemaining = connectedPlayers.filter((player) => !player.scored).size;
 
-  if (players.size > 1 && numRemaining === 1 || (numRemaining / players.size) < 0.25) {
+  if (connectedPlayers.size > 1 && numRemaining === 1 || (numRemaining / connectedPlayers.size) < 0.25) {
     const newTime = Date.now() + HURRY_UP_MS;
 
     if (expTime > newTime) {
