@@ -147,11 +147,7 @@ export default class ManygolfSocketManager {
 
     this.sockets.set(user.id, socket);
 
-    // XXX: lol
-    let isObserver = false;
-    if (location.query.observe) {
-      isObserver = true;
-    }
+    const isObserver = location.query.observe ? true : false;
 
     this.sendTo(user.id, createIdentity(user));
 
