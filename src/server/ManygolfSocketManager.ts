@@ -21,11 +21,19 @@ import {
 } from '../universal/protocol';
 
 import {
+  PlayerState,
+} from '../universal/constants';
+
+import {
   State,
   Player,
 } from './records';
 
-import {createInitial} from './messages';
+import {
+  createInitial,
+  createIdentity,
+} from './messages';
+
 import {
   getUserByAuthToken,
   createUser,
@@ -144,22 +152,26 @@ export default class ManygolfSocketManager {
       isObserver = true;
     }
 
-    if (!wasConnected) {
+    this.sendTo(user.id, createIdentity(user));
+
+    // if the user is already in the players map, they're rejoining
+    const rejoining = this.store.getState().players.has(user.id);
+
+    if (!wasConnected && !isObserver) {
       this.store.dispatch({
-        type: 'playerConnected',
+        type: 'playerJoined',
         id: user.id,
         color: user.color,
         name: user.name,
-        isObserver,
       });
     }
 
     const state = this.store.getState();
-    this.sendTo(user.id, createInitial(state, user.id, user.authToken));
+    this.sendTo(user.id, createInitial(state, user.id));
 
     if (!isObserver && !wasConnected) {
       const player = state.players.get(user.id);
-      this.playerJoined(player);
+      this.playerJoined(player, rejoining);
     }
   }
 
@@ -197,19 +209,21 @@ export default class ManygolfSocketManager {
       }));
 
     } else if (msg.type === TYPE_ENTER_GAME) {
-      if (!prevState.observers.get(id)) {
+      const rejoining = this.store.getState().players.has(id);
+
+      if (rejoining && prevState.players.get(id).state === PlayerState.active) {
         return;
       }
 
       this.store.dispatch({
-        type: 'enterGame',
+        type: 'playerJoined',
         id,
       });
 
       const state = this.store.getState();
       const player = state.players.get(id);
 
-      this.playerJoined(player);
+      this.playerJoined(player, rejoining);
 
     } else if (msg.type === TYPE_SEND_CHAT) {
       const state = this.store.getState();
@@ -246,12 +260,14 @@ export default class ManygolfSocketManager {
 
     const player = state.players.get(id);
 
-    this.store.dispatch({
-      type: 'playerDisconnected',
-      id,
-    });
-
     if (player) {
+      if (player.state === PlayerState.active) {
+        this.store.dispatch({
+          type: 'playerLeft',
+          id,
+        });
+      }
+
       this.sendAll(messagePlayerDisconnected({
         id,
       }));
@@ -263,7 +279,7 @@ export default class ManygolfSocketManager {
     }
   }
 
-  private playerJoined(player: Player) {
+  private playerJoined(player: Player, didRejoin: boolean) {
     const {id, color, name} = player;
 
     this.sendAll(messagePlayerConnected({
@@ -273,7 +289,7 @@ export default class ManygolfSocketManager {
     }));
 
     this.sendAll(messageDisplayMessage({
-      messageText: `{{${name}}} joined`,
+      messageText: `{{${name}}} ${didRejoin ? 'rejoined' : 'joined'}`,
       color,
     }));
   }

@@ -1,44 +1,51 @@
-import {messageLevelOver, messageInitial, messageMatchOver} from '../universal/protocol';
+import {
+  messageLevelOver,
+  messageInitial,
+  messageMatchOver,
+  messageSync,
+  messageIdentity,
+} from '../universal/protocol';
 import {State} from './records';
-import {GameState} from '../universal/constants';
+import {GameState, PlayerState} from '../universal/constants';
+import {User as UserModel} from './models';
 
-export function createInitial(state: State, playerId: number, authToken?: string) {
-  const players = state.players.map((player, id) => {
-    return {
-      id,
-      color: player.color,
-      name: player.name,
-      position: [
-        player.body.position[0],
-        player.body.position[1],
-      ],
-      velocity: [
-        player.body.velocity[0],
-        player.body.velocity[1],
-      ],
-      scored: player.scored,
-      strokes: player.strokes,
-    };
+export function createIdentity(user: UserModel) {
+  return messageIdentity({
+    id: user.id,
+    color: user.color,
+    name: user.name,
+    authToken: user.authToken,
   });
+}
 
-  let self;
+export function createInitial(state: State, playerId: number) {
+  const players = state.players
+    .filter((player) => player.state !== PlayerState.leftMatch)
+    .map((player, id) => {
+      return {
+        id,
+        color: player.color,
+        name: player.name,
+        state: player.state,
+        position: [
+          player.body.position[0],
+          player.body.position[1],
+        ],
+        velocity: [
+          player.body.velocity[0],
+          player.body.velocity[1],
+        ],
+        scored: player.scored,
+        strokes: player.strokes,
+      };
+    });
+
   let isObserver: boolean;
   if (players.has(playerId)) {
-    self = players.get(playerId);
     isObserver = false;
 
   } else {
-    const observer = state.observers.get(playerId);
-    self = {
-      id: observer.id,
-      name: observer.name,
-      color: observer.color,
-    };
     isObserver = true;
-  }
-
-  if (authToken) {
-    self.authToken = authToken;
   }
 
   const levelOverState = state.gameState === GameState.levelOver ? createLevelOver(state).data : null;
@@ -46,8 +53,6 @@ export function createInitial(state: State, playerId: number, authToken?: string
 
   return messageInitial({
     gameState: state.gameState,
-
-    self,
 
     isObserver,
 
@@ -103,5 +108,28 @@ export function createMatchOver(state: State) {
         points: player.points,
       };
     }),
+  });
+}
+
+export function createSync(state: State) {
+  const syncPlayers = state.players
+    .filter((player) => player.state === PlayerState.active || player.state === PlayerState.leftRound)
+    .map((player, id) => {
+      return {
+        id,
+        position: [
+          player.body.position[0],
+          player.body.position[1],
+        ],
+        velocity: [
+          player.body.velocity[0],
+          player.body.velocity[1],
+        ],
+      };
+  }).toArray();
+
+  return messageSync({
+    players: syncPlayers,
+    time: state.time,
   });
 }

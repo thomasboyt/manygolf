@@ -5,6 +5,8 @@ import I from 'immutable';
 
 import {Player, State} from '../records';
 import reducer, {rankPlayers, updatePoints} from '../reducer';
+import {PlayerState} from '../../universal/constants';
+import levelGen from '../../universal/levelGen';
 
 describe('rankPlayers', () => {
   it('ranks players by strokes', () => {
@@ -144,12 +146,9 @@ describe('updatePoints', () => {
 });
 
 describe('startMatch', () => {
-  it('resets the points of players and observers', () => {
+  it('resets the points of players', () => {
     const initialState = new State()
       .setIn(['players', 1], new Player({
-        points: 10,
-      }))
-      .setIn(['observers', 2], new Player({
         points: 10,
       }));
 
@@ -159,6 +158,99 @@ describe('startMatch', () => {
     });
 
     expect(state.players.get(1).points).toEqual(0);
-    expect(state.observers.get(2).points).toEqual(0);
+  });
+});
+
+describe('playerLeft', () => {
+  it('sets an active player to be in leftRound state', () => {
+    const initialState = new State().setIn(['players', 1], new Player());
+
+    const state = reducer(initialState, {
+      type: 'playerLeft',
+      id: 1,
+    });
+
+    expect(state.players.get(1).state).toEqual(PlayerState.leftRound);
+  });
+});
+
+describe('playerJoined', () => {
+  it('sets a leftRound player to be in active state', () => {
+    const initialState = new State()
+      .setIn(['players', 1], new Player({state: PlayerState.leftRound}));
+
+    const state = reducer(initialState, {
+      type: 'playerJoined',
+      id: 1,
+    });
+
+    expect(state.players.get(1).state).toEqual(PlayerState.active);
+  });
+
+  it('creates a new ball for a leftMatch player', () => {
+    const initialState = new State()
+      .setIn(['players', 1], new Player({state: PlayerState.leftMatch}));
+
+    const levelState = reducer(initialState, {
+      type: 'level',
+      levelData: levelGen(),
+      expTime: Date.now() + 5000,
+      startTime: Date.now(),
+    });
+
+    const state = reducer(levelState, {
+      type: 'playerJoined',
+      id: 1,
+    });
+
+    expect(state.players.get(1).state).toEqual(PlayerState.active);
+    expect(state.players.get(1).body).toExist();
+  });
+});
+
+describe('level', () => {
+  it('sets leftRound players to be in leftMatch state', () => {
+    const initialState = new State().setIn(['players', 1], new Player({state: PlayerState.leftRound}));
+
+    const state = reducer(initialState, {
+      type: 'level',
+      levelData: levelGen(),
+      expTime: Date.now() + 5000,
+      startTime: Date.now(),
+    });
+
+    expect(state.players.get(1).state).toEqual(PlayerState.leftMatch);
+    expect(state.players.get(1).body).toEqual(null);
+  });
+
+  it('does not create balls for leftMatch players', () => {
+    const initialState = new State().setIn(['players', 1], new Player({state: PlayerState.leftMatch}));
+
+    const state = reducer(initialState, {
+      type: 'level',
+      levelData: levelGen(),
+      expTime: Date.now() + 5000,
+      startTime: Date.now(),
+    });
+
+    expect(state.players.get(1).state).toEqual(PlayerState.leftMatch);
+    expect(state.players.get(1).body).toEqual(null);
+  });
+});
+
+describe('startMatch', () => {
+  it('removes leftRound & leftMatch players from the current state', () => {
+    const initialState = new State()
+      .setIn(['players', 1], new Player({state: PlayerState.leftRound}))
+      .setIn(['players', 2], new Player({state: PlayerState.leftMatch}))
+      .setIn(['players', 3], new Player({state: PlayerState.active}));
+
+    const state = reducer(initialState, {
+      type: 'startMatch',
+      endTime: Date.now() + 5000,
+    });
+
+    expect(state.players.size).toEqual(1);
+    expect(state.players.has(3)).toEqual(true);
   });
 });

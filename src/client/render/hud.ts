@@ -75,7 +75,7 @@ export function renderHud(ctx: CanvasRenderingContext2D, state: State) {
   ctx.textAlign = 'right';
 
   const playerCount = state.players.size;
-  ctx.fillText(`${playerCount} players connected`, WIDTH - 10, 11);
+  ctx.fillText(`${playerCount} players in round`, WIDTH - 10, 11);
 
   if (!state.isObserver) {
     ctx.fillStyle = textColor;

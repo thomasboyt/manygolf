@@ -5,6 +5,7 @@ import {
   ConnectionState,
   GameState,
   Emoticon,
+  PlayerState,
 } from '../universal/constants';
 
 import {
@@ -39,7 +40,7 @@ const PlayerRec = I.Record({
   name: null,
   id: null,
   pastPositions: I.Map(),
-  disconnected: false,
+  state: PlayerState.active,
 });
 
 export class Player extends PlayerRec {
@@ -47,7 +48,7 @@ export class Player extends PlayerRec {
   name: string;
   id: number;
   pastPositions: I.Map<number, number[]>;
-  disconnected: boolean;
+  state: PlayerState;
 }
 
 

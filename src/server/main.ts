@@ -7,7 +7,7 @@ import raven from 'raven';
 
 import RunLoop from '../universal/RunLoop';
 import ManygolfSocketManager from './ManygolfSocketManager';
-import reducer from './reducer';
+import reducer, {getInWorldPlayers, getActivePlayers} from './reducer';
 import registerTwitterEndpoints from './twitter';
 
 import {configureDatabase} from './models';
@@ -86,7 +86,7 @@ runLoop.onTick((dt: number) => {
   const prevState = <State>store.getState();
 
   // overlaps() can't be used on a sleeping object, so we check overlapping before tick
-  const overlappingMap = prevState.players.map((player) => {
+  const overlappingMap = getInWorldPlayers(prevState).map((player) => {
     return player.body.overlaps(prevState.holeSensor);
   });
 
@@ -117,23 +117,25 @@ runLoop.onTick((dt: number) => {
     }
 
   } else if (gameState === GameState.roundInProgress) {
+    const inWorldPlayers = getInWorldPlayers(getState());
+
     ensurePlayersInBounds(dispatch, {
       level: getState().level,
-      players: getState().players,
+      players: inWorldPlayers,
     });
 
     checkScored(dispatch, socks, {
       overlappingMap,
-      players: getState().players,
+      players: inWorldPlayers,
       elapsed: Date.now() - getState().startTime,
     });
 
     sweepInactivePlayers(dispatch, socks, {
       now: Date.now(),
-      players: getState().players,
+      players: inWorldPlayers,
     });
 
-    const players = getState().players;
+    const players = getActivePlayers(getState());
 
     if (players.size > 0 &&
         players.filter((player) => player.scored).size === players.size) {
@@ -159,10 +161,7 @@ runLoop.onTick((dt: number) => {
     if (Date.now() - lastSyncSent > 1000) {
       lastSyncSent = Date.now();
 
-      sendSyncMessage(socks, {
-        players,
-        time: getState().time,
-      });
+      sendSyncMessage(socks, getState());
     }
   }
 

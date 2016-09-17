@@ -1,6 +1,7 @@
 import {
   GameState,
   Emoticon,
+  PlayerState,
 } from '../universal/constants';
 
 interface Player {
@@ -14,6 +15,7 @@ interface InitialPlayer extends Player {
   velocity: number[];
   strokes: number;
   scored: boolean;
+  state: PlayerState;
 }
 
 interface SyncPlayer {
@@ -41,16 +43,28 @@ interface Level {
   color: string;
 }
 
-interface InitialPlayer extends Player {
-  authToken?: string;
+// sent on initial connection before MessageInitial
+export const TYPE_IDENTITY = 'identity';
+
+export interface MessageIdentity {
+  id: number;
+  authToken: string;
+  name: string;
+  color: string;
 }
+
+export function messageIdentity(params: MessageIdentity) {
+  return {
+    type: TYPE_IDENTITY,
+    data: params,
+  };
+}
+
 
 export const TYPE_INITIAL = 'initial';
 
 // This message should always allow a complete reset of client state
 export interface MessageInitial {
-  self: InitialPlayer;
-
   gameState: GameState;
   players: InitialPlayer[];
   isObserver: boolean;

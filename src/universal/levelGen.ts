@@ -152,7 +152,6 @@ export default function levelGen(): Level {
   }
 
   const color = sample(colors);
-  console.log(points);
 
   const hole: [number, number] = [holeX, holeY];
   const spawn: [number, number] = [spawnX, spawnY];

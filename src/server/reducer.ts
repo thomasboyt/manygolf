@@ -21,16 +21,22 @@ import {
 import {
   OVER_TIMER_MS,
   GameState,
+  PlayerState,
 } from '../universal/constants';
 
 interface AddPlayerOpts {
   id: number;
   name: string;
   color: string;
-  isObserver: boolean;
 }
 
-function enterGame(player: Player, state: State) {
+/**
+ * Creates a physics entity and round state for a player.
+ *
+ * Called at the beginning of every round for every active player. Also called when a new player
+ * connects, or a returning player who is not in the current round connects.
+ */
+function enterGame(player: Player, state: State): Player {
   const ballBody = createBall(state.level.spawn);
 
   state.world.addBody(ballBody);
@@ -40,12 +46,6 @@ function enterGame(player: Player, state: State) {
     .set('strokes', 0)
     .set('scored', false)
     .set('scoreTime', null);
-}
-
-function leaveGame(player: Player, state: State) {
-  const ball = player.body;
-  state.world.removeBody(ball);
-  return player.set('body', null);
 }
 
 function pointsForRank(place: number, total: number): number {
@@ -96,10 +96,6 @@ function resetPoints(players: I.Map<number, Player>) {
   });
 }
 
-function removeDisconnected(players: I.Map<number, Player>) {
-  return players.filter((player) => !player.disconnected);
-}
-
 export function rankPlayers(players: I.Map<number, Player>): I.List<number> {
   const playersList = players.toList();
 
@@ -132,6 +128,18 @@ export function rankPlayers(players: I.Map<number, Player>): I.List<number> {
     })
     .map((player) => player.id)
     .toList();  // This isn't supposed to be necessary but makes TypeScript happy?
+}
+
+export function getInWorldPlayers(state: State) {
+  // get all players who have participated in the current round
+  return state.players.filter((player) =>
+    player.state === PlayerState.active || player.state === PlayerState.leftRound)
+    .toMap();
+}
+
+export function getActivePlayers(state: State) {
+  // get all currently-in game players
+  return state.players.filter((player) => player.state === PlayerState.active).toMap();
 }
 
 export default createImmutableReducer<State>(new State(), {
@@ -185,40 +193,40 @@ export default createImmutableReducer<State>(new State(), {
       .set('expTime', nextMatchAt);
   },
 
-  'playerConnected': (state: State, {id, name, color, isObserver}: AddPlayerOpts) => {
-    const newPlayer = new Player({
-      id,
-      color,
-      name,
-      lastSwingTime: Date.now(),
-    });
+  /**
+   * Player (re-)connected or (re-)entered from observer mode.
+   */
+  'playerJoined': (state: State, {id, name, color}: AddPlayerOpts) => {
+    let existingPlayer = state.players.get(id);
 
-    if (isObserver) {
-      if (state.observers.has(id)) {
-        // reconnected
-        return state.setIn(['observers', id, 'disconnected'], false);
-      } else {
-        return state.setIn(['observers', id], newPlayer);
+    if (existingPlayer) {
+      if (existingPlayer.state === PlayerState.leftMatch) {
+        existingPlayer = enterGame(existingPlayer, state);
       }
+
+      existingPlayer = existingPlayer
+        .set('state', PlayerState.active)
+        .set('lastSwingTime', Date.now());
+      return state.setIn(['players', id], existingPlayer);
 
     } else {
-      if (state.players.has(id)) {
-        // reconnected
-        return state.setIn(['observers', id, 'disconnected'], false);
-      } else {
-        return state.setIn(['players', id], enterGame(newPlayer, state));
-      }
+      const newPlayer = new Player({
+        id,
+        color,
+        name,
+        lastSwingTime: Date.now(),
+      });
+
+      return state.setIn(['players', id], enterGame(newPlayer, state));
     }
   },
 
-  'playerDisconnected': (state: State, {id}: {id: number}) => {
-    const player = state.players.get(id);
-
-    if (player) {
-      return state.setIn(['players', id, 'disconnected'], true);
-    } else {
-      return state.setIn(['observers', id, 'disconnected'], true);
-    }
+  /**
+   * Player disconnected or went into observer mode.
+   */
+  'playerLeft': (state: State, {id}: {id: number}) => {
+    return state
+      .setIn(['players', id, 'state'], PlayerState.leftRound);
   },
 
   'swing': (state: State, {id, vec}: {id: number; vec: Coordinates}) => {
@@ -250,9 +258,10 @@ export default createImmutableReducer<State>(new State(), {
      return state
        .set('matchEndTime', endTime)
        .update('players', resetPoints)
-       .update('observers', resetPoints)
-       .update('players', removeDisconnected)
-       .update('observers', removeDisconnected);
+       .update('players', (players) => {
+         // remove all inactive players
+         return players.filter((player: Player) => player.state === PlayerState.active);
+       });
   },
 
   'level': (state: State,
@@ -280,41 +289,23 @@ export default createImmutableReducer<State>(new State(), {
       expTime,
       holeSensor,
       leaderId: state.leaderId,
-      observers: state.observers,
       matchEndTime: state.matchEndTime,
     });
 
-    // move disconnected players into observers
-    // XXX: this is ugly and can probably be done more elegantly?
-    const disconnected = nextState.players.filter((player) => player.disconnected);
-    nextState = nextState.set('players', state.players.filter((player) => !player.disconnected));
-    nextState = nextState.update('observers', (observers) => observers.concat(disconnected));
-
     // XXX: This is done separately because it depends on the updated `state`
     nextState = nextState.set('players', state.players.map((player) => {
-      return enterGame(player, nextState);
+      if (player.state === PlayerState.leftRound) {
+        return player
+          .set('state', PlayerState.leftMatch)
+          .set('body', null);
+
+      } else if (player.state === PlayerState.active) {
+        return enterGame(player, nextState);
+      }
+
+      return player;
     }));
 
     return nextState;
-  },
-
-  /*
-   * Observer leave/enter
-   */
-  'enterGame': (state: State, {id}: {id: number}) => {
-    const player = state.observers.get(id);
-
-    return state
-      .setIn(['players', id], enterGame(player, state))
-      .setIn(['players', id, 'lastSwingTime'], Date.now())
-      .deleteIn(['observers', id]);
-  },
-
-  'leaveGame': (state: State, {id}: {id: number}) => {
-    const player = state.players.get(id);
-
-    return state
-      .setIn(['observers', id], leaveGame(player, state))
-      .deleteIn(['players', id]);
   },
 });
