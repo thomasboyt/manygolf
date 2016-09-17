@@ -29,7 +29,7 @@ export default function registerTwitterEndpoints(app: Express) {
     process.env.TWITTER_API_KEY,
     process.env.TWITTER_API_SECRET,
     '1.0A',
-    `${process.env.APP_URL}/server/twitter-sign-in-callback`,
+    `${process.env.SERVER_URL}/twitter-sign-in-callback`,
     'HMAC-SHA1'
   );
 
@@ -65,7 +65,7 @@ export default function registerTwitterEndpoints(app: Express) {
               type: 'twitterAuth',
               token: "${token}",
               secret: "${secret}",
-            }), document.location.origin);
+            }), "${process.env.STATIC_URL}");
             window.close();
           </script>
         </head>

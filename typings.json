@@ -16,6 +16,7 @@
     "ws": "registry:dt/ws#0.0.0+20160317120654"
   },
   "dependencies": {
-    "body-parser": "registry:npm/body-parser#1.15.2+20160815132839"
+    "body-parser": "registry:npm/body-parser#1.15.2+20160815132839",
+    "cors": "registry:npm/cors#2.7.0+20160902012746"
   }
 }

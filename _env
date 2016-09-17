@@ -3,8 +3,11 @@
 # The URL of the Manygolf database. This is set automatically by Heroku.
 DATABASE_URL=postgres://username@localhost:5432/manygolf
 
-# The root origin of the Manygolf app. This is used for the Twitter OAuth callback.
-APP_URL=http://localhost:8080
+# The root origin of the Manygolf server. This is used for the Twitter OAuth callback.
+SERVER_URL=http://localhost:4080
+
+# Static host used for enabling CORS to a specific origin.
+STATIC_URL=http://localhost:8080
 
 # Twitter API key and secret, used for Twitter OAuth.
 TWITTER_API_KEY=

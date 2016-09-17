@@ -3,6 +3,7 @@ import reducer from './reducer';
 import { State } from './records';
 
 import ws from './ws';
+import {getHttpApiUrl} from './api';
 
 import RunLoop from '../universal/RunLoop';
 import {
@@ -72,9 +73,11 @@ export default function initialize(): Store<State> {
 
     if (data.type === 'twitterAuth') {
       const {token, secret} = data;
+      const apiUrl = getHttpApiUrl();
 
-      fetch('/server/twitter-auth-token', {
+      fetch(`${apiUrl}/twitter-auth-token`, {
         method: 'POST',
+        mode: 'cors',
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',

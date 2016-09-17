@@ -1,5 +1,6 @@
 import {Store} from 'redux';
 import {State} from './records';
+import {getWsApiUrl} from './api';
 
 const simulateLag = document.location.search.indexOf('simlag') !== -1;
 const simLagMs = 200;
@@ -10,10 +11,6 @@ if (simulateLag) {
 
 (<any>window).msgLog = [];
 
-function getUrl() {
-  return process.env.SERVER_URL;
-}
-
 class WSConnection {
   private _ws: WebSocket;
   private _store: Store<State>;
@@ -21,7 +18,7 @@ class WSConnection {
   init(store: Store<State>) {
     this._store = store;
 
-    let url = getUrl();
+    let url = getWsApiUrl();
 
     if (document.location.search.indexOf('observe') !== -1) {
       url += '?observe';

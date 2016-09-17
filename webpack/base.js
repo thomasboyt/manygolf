@@ -89,12 +89,5 @@ module.exports = {
 
   devServer: {
     contentBase: 'static',
-
-    proxy: {
-      '/server': {
-        target: 'http://localhost:4080',
-        pathRewrite: {'^/server' : ''},
-      },
-    },
   },
 };

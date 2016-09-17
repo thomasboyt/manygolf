@@ -13,3 +13,4 @@
 /// <reference path="globals/whatwg-streams/index.d.ts" />
 /// <reference path="globals/ws/index.d.ts" />
 /// <reference path="modules/body-parser/index.d.ts" />
+/// <reference path="modules/cors/index.d.ts" />

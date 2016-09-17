@@ -5,6 +5,8 @@ import TwitterLink from './TwitterLink';
 import TwitterTimeline from './Timeline';
 import GameContainer from './GameContainer';
 
+import {getHttpApiUrl} from '../api';
+
 const headerImage = require('../../../assets/header.png');
 
 export default class Main extends React.Component<{}, {}> {
@@ -49,7 +51,12 @@ export default class Main extends React.Component<{}, {}> {
   }
 
   handleTwitterAuth() {
-    window.open('/server/twitter-sign-in', 'TwitterSignIn', 'resizable,scrolbars,status,width=500,height=400');
+    // WHAT A COOL API YOU ARE, WINDOW.OPEN(). JUST REALLY SO INTUITIVE
+    window.open(
+      `${getHttpApiUrl()}/twitter-sign-in`,
+      'TwitterSignIn',
+      'resizable,scrolbars,status,width=500,height=400'
+    );
   }
 
   render() {

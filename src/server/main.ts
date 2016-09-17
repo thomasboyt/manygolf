@@ -11,6 +11,7 @@ import reducer from './reducer';
 import registerTwitterEndpoints from './twitter';
 
 import {configureDatabase} from './models';
+import cors from 'cors';
 
 import {
   sweepInactivePlayers,
@@ -46,6 +47,9 @@ const server = http.createServer();
 const wss = new ws.Server({server});
 const app = express();
 app.use(bodyParser.json());
+app.use(cors({
+  origin: process.env.STATIC_URL,
+}));
 
 const port = process.env.PORT || 4080;
 
