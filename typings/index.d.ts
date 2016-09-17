@@ -5,6 +5,7 @@
 /// <reference path="globals/node/index.d.ts" />
 /// <reference path="globals/pg-promise/index.d.ts" />
 /// <reference path="globals/qs/index.d.ts" />
+/// <reference path="globals/query-string/index.d.ts" />
 /// <reference path="globals/react-dom/index.d.ts" />
 /// <reference path="globals/react/index.d.ts" />
 /// <reference path="globals/serve-static/index.d.ts" />

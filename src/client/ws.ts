@@ -1,6 +1,7 @@
 import {Store} from 'redux';
 import {State} from './records';
 import {getWsApiUrl} from './api';
+import * as qs from 'query-string';
 
 const simulateLag = document.location.search.indexOf('simlag') !== -1;
 const simLagMs = 200;
@@ -18,19 +19,17 @@ class WSConnection {
   init(store: Store<State>) {
     this._store = store;
 
-    let url = getWsApiUrl();
+    const currentQs = qs.parse(document.location.search);
 
-    if (document.location.search.indexOf('observe') !== -1) {
-      url += '?observe';
-    }
+    const observe = currentQs.observe ? true : undefined;
+    const accessToken = localStorage.getItem('accessToken') || undefined;
 
-    const token = localStorage.getItem('accessToken');
+    const newQs = qs.stringify({
+      observe,
+      auth_token: accessToken,
+    });
 
-    if (token) {
-      // Y O L O
-      // This should probably be sent as an initial message instead!!!
-      url += `?auth_token=${token}`;
-    }
+    const url = `${getWsApiUrl()}?${newQs}`;
 
     this._ws = new WebSocket(url);
 

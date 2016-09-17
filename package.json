@@ -66,6 +66,7 @@
     "oauth": "^0.9.14",
     "p2": "https://github.com/thomasboyt/p2.js#master-built",
     "pg-promise": "^5.3.3",
+    "query-string": "^4.2.3",
     "raf": "^3.2.0",
     "randomcolor": "^0.4.3",
     "raven": "^0.10.0",
