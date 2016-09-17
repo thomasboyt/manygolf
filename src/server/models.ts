@@ -95,6 +95,23 @@ export async function getUserByAuthToken(token: string): Promise<User> {
   };
 }
 
+export async function getUserByUserId(id: number): Promise<User> {
+  const rows = await db.query('SELECT * FROM manygolf.players WHERE id=$1', [id]);
+
+  const row = rows[0];
+
+  if (!row) {
+    return null;
+  }
+
+  return {
+    id: row.id,
+    name: row.name,
+    color: row.color,
+    authToken: row.authentication_token,
+  };
+}
+
 export async function getUserByTwitterId(twitterId: string): Promise<User> {
   const rows = await db.query('SELECT * FROM manygolf.players WHERE twitter_id=$1', [twitterId]);
 

@@ -26,8 +26,8 @@ import {
 
 interface AddPlayerOpts {
   id: number;
-  name: string;
-  color: string;
+  name?: string;
+  color?: string;
 }
 
 /**

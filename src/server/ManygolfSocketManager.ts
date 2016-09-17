@@ -36,6 +36,7 @@ import {
 
 import {
   getUserByAuthToken,
+  getUserByUserId,
   createUser,
   User,
 } from './models';
@@ -175,7 +176,7 @@ export default class ManygolfSocketManager {
     }
   }
 
-  private onMessage(id: number, msg: any) {
+  private async onMessage(id: number, msg: any) {
     const prevState = this.store.getState();
 
     if (msg.type === TYPE_SWING) {
@@ -215,10 +216,24 @@ export default class ManygolfSocketManager {
         return;
       }
 
-      this.store.dispatch({
-        type: 'playerJoined',
-        id,
-      });
+      if (rejoining) {
+        this.store.dispatch({
+          type: 'playerJoined',
+          id,
+        });
+
+      } else {
+        // If this user is not loaded into memory already, we need to re-query for their data
+
+        const user = await getUserByUserId(id);
+
+        this.store.dispatch({
+          type: 'playerJoined',
+          id,
+          color: user.color,
+          name: user.name,
+        });
+      }
 
       const state = this.store.getState();
       const player = state.players.get(id);
