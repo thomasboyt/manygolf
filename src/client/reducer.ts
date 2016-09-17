@@ -235,12 +235,6 @@ function enterGame(state: State) {
     .set('isObserver', false);
 }
 
-function leaveGame(state: State) {
-  return state
-    .deleteIn(['round', 'playerPhysics', state.id])
-    .set('isObserver', true);
-}
-
 function levelOver(state: State, data: MessageLevelOver) {
   const rankedPlayers: I.List<LeaderboardPlayer> = I.fromJS(data.roundRankedPlayers)
     .map((player) => new LeaderboardPlayer(player));
@@ -525,10 +519,10 @@ export default createImmutableReducer<State>(new State(), {
 
   [`ws:${TYPE_PLAYER_IDLE_KICKED}`]: (state: State, action) => {
     if (action.data.id === state.id) {
-      return leaveGame(state);
-    } else {
-      return state.setIn(['players', action.data.id, 'state'], PlayerState.leftRound);
+      return state.set('isObserver', true);
     }
+
+    return state.setIn(['players', action.data.id, 'state'], PlayerState.leftRound);
   },
 
   [`ws:${TYPE_PLAYER_SWING}`]: (state: State, {data}: {data: MessagePlayerSwing}) => {
