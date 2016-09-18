@@ -182,7 +182,7 @@ export default class ManygolfSocketManager {
       let player = state.players.get(id);
 
       // Player could be an observer
-      if (!player) {
+      if (!player || !player.body) {
         return;
       }
 
