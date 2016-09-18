@@ -65,6 +65,8 @@ import {
   Match,
 } from './records';
 
+import {enableDebugLog} from './flags';
+
 const runBehind = 50;  // ms to enforce run-behind
 
 const SYNC_THRESHOLD = 2;
@@ -81,8 +83,14 @@ const maxSubSteps = (TIMER_MS / 1000) * (1 / fixedStep);
 
 const moveSpeed = 50;  // degrees per second
 
+function debugLog(msg: any, ...more: any[]) {
+  if (enableDebugLog) {
+    console.log(msg, ...more);
+  }
+}
+
 function syncWorld(state: State, data: MessageSync): State {
-  console.log('sync ----');
+  debugLog('sync ----');
 
   // Update player states if they are over some threshold at time
   data.players.forEach((playerPosition) => {
@@ -101,7 +109,7 @@ function syncWorld(state: State, data: MessageSync): State {
     const yDiff = posAtClock[1] - playerPosition.position[1];
 
     if (Math.abs(xDiff) >= SYNC_THRESHOLD || Math.abs(yDiff) >= SYNC_THRESHOLD) {
-      console.log(`syncing ${playerPosition.id} (x: ${xDiff} y: ${yDiff})`);
+      debugLog(`syncing ${playerPosition.id} (x: ${xDiff} y: ${yDiff})`);
       // move ball to synced location
       const body = state.round.playerPhysics.get(player.id).ball;
       body.position[0] = playerPosition.position[0];
@@ -199,7 +207,7 @@ function newLevel(state: State, data: MessageInitial) {
 
 function applySwing(state: State, data: MessagePlayerSwing) {
   const dt = (state.time - data.time) / 1000;
-  console.log(`playing swing ${dt} ${data.id} ${data.time}`);
+  debugLog(`playing swing ${dt} ${data.id} ${data.time}`);
 
   const player = state.players.get(data.id);
 
@@ -536,6 +544,8 @@ export default createImmutableReducer<State>(new State(), {
 
   [`ws:${TYPE_SYNC}`]: (state: State, {data}: {data: MessageSync}) => {
     const time = data.time;
+
+    debugLog('server runahead', time - state.time);
 
     // if client is ahead of server, due to lag during the time it took to receive message...
     // this should be an exceptional case, ideally
