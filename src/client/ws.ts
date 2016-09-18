@@ -1,7 +1,7 @@
 import {Store} from 'redux';
 import {State} from './records';
 import {getWsApiUrl} from './api';
-import * as qs from 'query-string';
+import qs from 'qs';
 
 const simulateLag = document.location.search.indexOf('simlag') !== -1;
 const simLagMs = 200;
