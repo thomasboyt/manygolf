@@ -1,30 +1,34 @@
 import * as React from 'react';
+import {connect} from 'react-redux';
 
-import {getHttpApiUrl} from '../../api';
+import TwitterAuth from '../TwitterAuth';
 
-class PlayerScreen extends React.Component<{}, {}> {
-  handleTwitterAuth() {
-    window.open(
-      `${getHttpApiUrl()}/twitter-sign-in`,
-      'TwitterSignIn',
-      'resizable,scrolbars,status,width=500,height=400'
-    );
-  }
+interface Props {
+  name: string;
+}
 
+class PlayerScreen extends React.Component<Props, {}> {
   render() {
+    const {name} = this.props;
+
     return (
       <div>
         <h2>account</h2>
-        <p>
-          you are <strong>Cool Golf #1234</strong>
-        </p>
 
         <p>
-          <a onClick={this.handleTwitterAuth}>Sign in with Twitter</a>
+          you are <strong>{name}</strong>
         </p>
+
+        <TwitterAuth />
       </div>
     );
   }
 }
 
-export default PlayerScreen;
+function select(state) {
+  return {
+    name: state.name,
+  };
+}
+
+export default connect(select)(PlayerScreen);

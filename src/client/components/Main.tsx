@@ -6,6 +6,7 @@ import TwitterTimeline from './Timeline';
 import GameContainer from './GameContainer';
 
 import {getHttpApiUrl} from '../api';
+import TwitterAuth from './TwitterAuth';
 
 const headerImage = require('../../../assets/header.png');
 
@@ -71,10 +72,8 @@ export default class Main extends React.Component<{}, {}> {
           {this.maybeRenderMobileHelp()}
         </div>
 
-        <div className="row">
-          <p style={{textAlign: 'center'}}>
-            <a onClick={this.handleTwitterAuth}>Sign in with Twitter</a>
-          </p>
+        <div className="row" style={{textAlign: 'center'}}>
+          <TwitterAuth />
         </div>
 
         <div className="instructions">

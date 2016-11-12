@@ -179,6 +179,7 @@ const StateRec = I.Record({
   players: I.Map(),
 
   name: null,
+  twitterName: null,
   id: null,
   color: null,
   isObserver: false,
@@ -207,6 +208,7 @@ export class State extends StateRec {
   players: I.Map<number, Player>;
 
   name: string;
+  twitterName: string;
   id: number;
   color: string;
   isObserver: boolean;

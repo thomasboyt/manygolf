@@ -451,6 +451,7 @@ export default createImmutableReducer<State>(new State(), {
 
     return prevState
       .set('name', data.name)
+      .set('twitterName', data.twitterName)
       .set('id', data.id)
       .set('color', data.color);
   },
