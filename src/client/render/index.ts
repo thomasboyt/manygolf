@@ -7,7 +7,10 @@ import {
   GameState,
   ConnectionState,
   Emoticon,
+  PlayerState,
 } from '../../universal/constants';
+
+import tinycolor from 'tinycolor2';
 
 import {
   debugRender,
@@ -186,11 +189,20 @@ function drawCrown(ctx: CanvasRenderingContext2D, ballX: number, ballY: number) 
   ctx.restore();
 }
 
-function renderBall(ctx: CanvasRenderingContext2D, x: number, y: number, fill: string, stroke: string) {
+function renderBall(
+  ctx: CanvasRenderingContext2D, x: number, y: number, fill: string, stroke: string, playerState?: PlayerState
+) {
   // ball border width
   ctx.lineWidth = 1;
-  ctx.fillStyle = fill;
-  ctx.strokeStyle = stroke;
+
+  if (playerState && playerState === PlayerState.leftRound) {
+    // make fill translucent
+    ctx.fillStyle = tinycolor(fill).setAlpha(0.5).toRgbString();
+    ctx.strokeStyle = tinycolor(stroke).setAlpha(0.5).toRgbString();
+  } else {
+    ctx.fillStyle = fill;
+    ctx.strokeStyle = stroke;
+  }
 
   ctx.beginPath();
   ctx.arc(x, y, BALL_RADIUS, 0, 2 * Math.PI);
@@ -214,7 +226,7 @@ function renderBalls(ctx: CanvasRenderingContext2D, state: State) {
     }
 
     const pos = state.round.playerPhysics.get(player.id).ball.interpolatedPosition;
-    renderBall(ctx, pos[0], pos[1], player.color, textColor);
+    renderBall(ctx, pos[0], pos[1], player.color, textColor, player.state);
 
     if (state.match.leaderId === player.id) {
       drawCrown(ctx, pos[0], pos[1]);
