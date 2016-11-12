@@ -16,10 +16,6 @@ class TwitterAuth extends React.Component<Props, {}> {
     );
   }
 
-  handleSignOut() {
-    // TODO
-  }
-
   render() {
     const {twitterName} = this.props;
 
@@ -33,8 +29,7 @@ class TwitterAuth extends React.Component<Props, {}> {
     } else {
       return (
         <p>
-          connected to twitter as <span className="twitter-name">@{twitterName}</span><br/>
-          <a className="sign-out" onClick={() => this.handleSignOut()}>(sign out)</a>
+          connected to twitter as <span className="twitter-name">@{twitterName}</span>
         </p>
       )
     }
