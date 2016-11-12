@@ -1,5 +1,6 @@
 {
   "globalDependencies": {
+    "classnames": "registry:dt/classnames#0.0.0+20160316155526",
     "express": "registry:dt/express#4.0.0+20160317120654",
     "express-serve-static-core": "registry:dt/express-serve-static-core#0.0.0+20160322035842",
     "mime": "registry:dt/mime#0.0.0+20160316155526",
