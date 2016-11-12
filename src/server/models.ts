@@ -1,5 +1,6 @@
 import randomColor from 'randomcolor';
 import nameGen from './nameGen';
+import Twit from 'twit';
 
 import crypto from 'crypto';
 
@@ -15,6 +16,7 @@ export interface User {
   name: string;
   color: string;
   authToken: string;
+  twitterId: string;
 }
 
 function padZeroes(num: number): string {
@@ -75,6 +77,7 @@ export async function createUser(): Promise<User> {
     name,
     color,
     authToken,
+    twitterId: row.twitter_id,
   };
 }
 
@@ -92,6 +95,7 @@ export async function getUserByAuthToken(token: string): Promise<User> {
     name: row.name,
     color: row.color,
     authToken: row.authentication_token,
+    twitterId: row.twitter_id,
   };
 }
 
@@ -109,6 +113,7 @@ export async function getUserByUserId(id: number): Promise<User> {
     name: row.name,
     color: row.color,
     authToken: row.authentication_token,
+    twitterId: row.twitter_id,
   };
 }
 
@@ -126,6 +131,7 @@ export async function getUserByTwitterId(twitterId: string): Promise<User> {
     name: row.name,
     color: row.color,
     authToken: row.authentication_token,
+    twitterId: row.twitter_id,
   };
 }
 
@@ -134,4 +140,27 @@ export async function setUserTwitterInformation(
   await db.query(
     'UPDATE manygolf.players SET twitter_id=$1, twitter_token=$2, twitter_secret=$3 WHERE id=$4',
     [twitterId, twitterToken, twitterSecret, userId]);
+}
+
+export async function getTwitterName(user: User): Promise<string> {
+  const [row] = await db.query('SELECT * FROM manygolf.players WHERE id=$1', [user.id]);
+  const twitterToken = row.twitter_token;
+  const twitterSecret = row.twitter_secret;
+  const twitterId = row.twitter_id;
+
+  if (!twitterId) {
+    return null;
+  }
+
+  const twit = new Twit({
+    consumer_key: process.env.TWITTER_API_KEY,
+    consumer_secret: process.env.TWITTER_API_SECRET,
+    access_token: twitterToken,
+    access_token_secret: twitterSecret,
+  });
+
+  const userResource = await twit.get('users/show', {user_id: twitterId} as any);
+  const username = userResource.data.screen_name;
+
+  return username;
 }

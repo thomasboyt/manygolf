@@ -50,6 +50,7 @@ export interface MessageIdentity {
   id: number;
   authToken: string;
   name: string;
+  twitterName: string;
   color: string;
 }
 

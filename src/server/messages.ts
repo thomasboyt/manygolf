@@ -9,12 +9,13 @@ import {State} from './records';
 import {GameState, PlayerState} from '../universal/constants';
 import {User as UserModel} from './models';
 
-export function createIdentity(user: UserModel) {
+export function createIdentity(user: UserModel, twitterName?: string) {
   return messageIdentity({
     id: user.id,
     color: user.color,
     name: user.name,
     authToken: user.authToken,
+    twitterName,
   });
 }
 

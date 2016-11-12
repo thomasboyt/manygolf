@@ -37,6 +37,7 @@ import {
 import {
   getUserByAuthToken,
   getUserByUserId,
+  getTwitterName,
   createUser,
   User,
 } from './models';
@@ -149,7 +150,9 @@ export default class ManygolfSocketManager {
 
     const isObserver = location.query.observe ? true : false;
 
-    this.sendTo(user.id, createIdentity(user));
+    const twitterName = await getTwitterName(user);
+
+    this.sendTo(user.id, createIdentity(user, twitterName));
 
     // if the user is already in the players map, they're rejoining
     const rejoining = this.store.getState().players.has(user.id);
