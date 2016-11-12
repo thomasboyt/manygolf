@@ -51,15 +51,6 @@ export default class Main extends React.Component<{}, {}> {
     }
   }
 
-  handleTwitterAuth() {
-    // WHAT A COOL API YOU ARE, WINDOW.OPEN(). JUST REALLY SO INTUITIVE
-    window.open(
-      `${getHttpApiUrl()}/twitter-sign-in`,
-      'TwitterSignIn',
-      'resizable,scrolbars,status,width=500,height=400'
-    );
-  }
-
   render() {
     return (
       <div>
