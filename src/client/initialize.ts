@@ -60,9 +60,11 @@ export default function initialize(): Store<State> {
       if (document.hidden) {
         ws.send(messageReqPauseStream());
         pausedWs = true;
+        runLoop.stop();
       } else {
         ws.send(messageReqResumeStream());
         pausedWs = false;
+        runLoop.start();
       }
     }
   });
