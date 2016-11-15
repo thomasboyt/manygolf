@@ -1,11 +1,10 @@
 import {Store} from 'redux';
-import randomColor from 'randomcolor';
 
-import SocketManager from './util/SocketManager';
-import nameGen from './nameGen';
+import ManygolfSocket from './util/ManygolfSocket';
 
 import WebSocket from 'uws';
 import p2 from 'p2';
+import url from 'url';
 
 import {
   messagePlayerConnected,
@@ -22,77 +21,161 @@ import {
 } from '../universal/protocol';
 
 import {
+  PlayerState,
+} from '../universal/constants';
+
+import {
   State,
   Player,
 } from './records';
 
-import {createInitial} from './messages';
+import {
+  createInitial,
+  createIdentity,
+} from './messages';
 
-/*
- * Connection manager
+import {
+  getUserByAuthToken,
+  getUserByUserId,
+  getTwitterName,
+  createUser,
+  User,
+} from './models';
+
+
+/**
+ * TODO: This thing's huge! It may be worth breaking the logic of the connect and message
+ * handlers down into something smaller and easier to manage.
  */
-
-export default class ManygolfSocketManager extends SocketManager {
+export default class ManygolfSocketManager {
   store: Store<State>;
 
+  // maps player ID -> socket
+  private sockets: Map<number, ManygolfSocket> = new Map();
+
+  private pausedSockets: Set<number> = new Set();
+
   constructor(wss: WebSocket.Server, store: Store<State>) {
-    super(wss);
+    wss.on('connection', (ws) => this.onConnect(ws));
     this.store = store;
   }
 
-  onConnect(id: number, ws: WebSocket) {
-    const url = ws.upgradeReq.url;
+  pause(id: number) {
+    this.pausedSockets.add(id);
+  }
 
-    // XXX: lol
-    let isObserver = false;
-    if (url.indexOf('observe') !== -1) {
-      isObserver = true;
-    }
+  resume(id: number) {
+    this.pausedSockets.delete(id);
+  }
 
-    const color = randomColor();
-    const name = nameGen();
-
-    this.store.dispatch({
-      type: 'playerConnected',
-      id,
-      color,
-      name,
-      isObserver,
-    });
-
-    this.sendInitial(id);
-
-    const state = this.store.getState();
-
-    if (!isObserver) {
-      const player = state.players.get(id);
-      this.playerJoined(player);
+  closeSocket(socketId: number, didReplace?: boolean) {
+    const socket = this.sockets.get(socketId);
+    if (didReplace) {
+      socket.replace();
+    } else {
+      socket.close();
     }
   }
 
-  onDisconnect(id: number) {
-    const state = this.store.getState();
+  sendTo(id: number, msg: Object) {
+    if (this.pausedSockets.has(id)) {
+      return;
+    }
 
-    const player = state.players.get(id);
+    const msgStr = JSON.stringify(msg);
 
-    this.store.dispatch({
-      type: 'playerDisconnected',
-      id,
+    return this.sockets.get(id).send(msgStr, (err) => {
+      if (err) {
+        console.log(`error sending to ${id}`, err);
+      }
     });
+  }
 
-    if (player) {
-      this.sendAll(messagePlayerDisconnected({
-        id,
-      }));
+  sendAll(msg: Object) {
+    const msgStr = JSON.stringify(msg);
 
-      this.sendAll(messageDisplayMessage({
-        messageText: `{{${player.name}}} left`,
-        color: player.color,
-      }));
+    this.sockets.forEach((socket, id) => {
+      if (this.pausedSockets.has(id)) {
+        return;
+      }
+
+      socket.send(msgStr, (err) => {
+        if (err) {
+          console.log(`error sending to ${id}`, err);
+        }
+      });
+    });
+  }
+
+  private async getUser(ws: WebSocket): Promise<User> {
+    const location = url.parse(ws.upgradeReq.url, true);
+
+    let authToken = location.query.auth_token;
+
+    let user;
+    if (authToken) {
+      user = await getUserByAuthToken(authToken);
+    } else {
+      user = await createUser();
+    }
+
+    return user;
+  }
+
+  private async onConnect(ws: WebSocket) {
+    const location = url.parse(ws.upgradeReq.url, true);
+
+    const user = await this.getUser(ws);
+
+    // user already had a connection
+    // set new socket IDs, send initial message, otherwise stays the same
+    const wasConnected = this.sockets.has(user.id);
+
+    if (wasConnected) {
+      // close previous socket before creating new one
+      this.closeSocket(user.id, true);
+    }
+
+    // ensure socket is unpaused if it was left in a paused state
+    if (this.pausedSockets.has(user.id)) {
+      this.pausedSockets.delete(user.id);
+    }
+
+    const socket = new ManygolfSocket(ws);
+
+    socket.onMessage = (msg) => this.onMessage(user.id, msg);
+    socket.onDisconnect = () => this.onDisconnect(user.id);
+
+    this.sockets.set(user.id, socket);
+
+    const isObserver = location.query.observe ? true : false;
+
+    const twitterName = await getTwitterName(user);
+
+    this.sendTo(user.id, createIdentity(user, twitterName));
+
+    // if the user is already in the players map, they're rejoining
+    const rejoining = this.store.getState().players.has(user.id);
+
+    if (!wasConnected && !isObserver) {
+      this.store.dispatch({
+        type: 'playerJoined',
+        id: user.id,
+        color: user.color,
+        name: user.name,
+      });
+    }
+
+    const state = this.store.getState();
+    this.sendTo(user.id, createInitial(state, user.id));
+
+    if (!isObserver && !wasConnected) {
+      const player = state.players.get(user.id);
+      this.playerJoined(player, rejoining);
     }
   }
 
-  onMessage(id: number, msg: any) {
+  private async onMessage(id: number, msg: any) {
     const prevState = this.store.getState();
 
     if (msg.type === TYPE_SWING) {
@@ -102,7 +185,7 @@ export default class ManygolfSocketManager extends SocketManager {
       let player = state.players.get(id);
 
       // Player could be an observer
-      if (!player) {
+      if (!player || !player.body) {
         return;
       }
 
@@ -126,19 +209,35 @@ export default class ManygolfSocketManager extends SocketManager {
       }));
 
     } else if (msg.type === TYPE_ENTER_GAME) {
-      if (!prevState.observers.get(id)) {
+      const rejoining = this.store.getState().players.has(id);
+
+      if (rejoining && prevState.players.get(id).state === PlayerState.active) {
         return;
       }
 
-      this.store.dispatch({
-        type: 'enterGame',
-        id,
-      });
+      if (rejoining) {
+        this.store.dispatch({
+          type: 'playerJoined',
+          id,
+        });
+
+      } else {
+        // If this user is not loaded into memory already, we need to re-query for their data
+
+        const user = await getUserByUserId(id);
+
+        this.store.dispatch({
+          type: 'playerJoined',
+          id,
+          color: user.color,
+          name: user.name,
+        });
+      }
 
       const state = this.store.getState();
       const player = state.players.get(id);
 
-      this.playerJoined(player);
+      this.playerJoined(player, rejoining);
 
     } else if (msg.type === TYPE_SEND_CHAT) {
       const state = this.store.getState();
@@ -160,14 +259,41 @@ export default class ManygolfSocketManager extends SocketManager {
     } else if (msg.type === TYPE_REQUEST_RESUME_STREAM) {
       this.resume(id);
 
-      this.sendInitial(id);
+      const state = this.store.getState();
+      this.sendTo(id, createInitial(state, id));
 
     } else {
       console.error(`unrecognized message type ${msg.type}`);
     }
   }
 
-  playerJoined(player: Player) {
+  private onDisconnect(id: number) {
+    this.sockets.delete(id);
+
+    const state = this.store.getState();
+
+    const player = state.players.get(id);
+
+    if (player) {
+      if (player.state === PlayerState.active) {
+        this.store.dispatch({
+          type: 'playerLeft',
+          id,
+        });
+      }
+
+      this.sendAll(messagePlayerDisconnected({
+        id,
+      }));
+
+      this.sendAll(messageDisplayMessage({
+        messageText: `{{${player.name}}} disconnected`,
+        color: player.color,
+      }));
+    }
+  }
+
+  private playerJoined(player: Player, didRejoin: boolean) {
     const {id, color, name} = player;
 
     this.sendAll(messagePlayerConnected({
@@ -177,14 +303,9 @@ export default class ManygolfSocketManager extends SocketManager {
     }));
 
     this.sendAll(messageDisplayMessage({
-      messageText: `{{${name}}} joined`,
+      messageText: `{{${name}}} ${didRejoin ? 'rejoined' : 'joined'}`,
       color,
     }));
   }
 
-  sendInitial(id: number) {
-    const state = this.store.getState();
-
-    this.sendTo(id, createInitial(state, id));
-  }
 }

@@ -3,7 +3,7 @@
 "use strict";
 
 const path = require('path');
-const nodemon = require('nodemon');
+const respawn = require('respawn');
 const webpack = require('webpack');
 const config = require('../webpack/server');
 
@@ -15,24 +15,20 @@ function onBuild(err, stats) {
   }
 }
 
-nodemon({
-  script: path.join(__dirname, '../build/server/server.bundle.js'),
+const script = path.join(__dirname, '../build/server/server.bundle.js');
 
-  // we're just using nodemon to restart the process
-  ignore: ['*'],
-  watch: ['fake-folder/'],
-  ext: 'noop'
+const monitor = respawn(['node', script], {
+  name: 'server',
+  maxRestarts: 0,
+  stdio: ['ignore', process.stdout, process.stderr],
 });
 
 webpack(config).watch(100, (err, stats) => {
   onBuild(err, stats);
 
   if (!err) {
-    nodemon.restart();
+    monitor.stop(() => {
+      monitor.start();
+    });
   }
-});
-
-// Without this, an error is raised when you ctrl-c after a watch-reload
-process.once('SIGINT', function(){
-  process.exit(0);
 });

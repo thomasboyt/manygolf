@@ -1,12 +1,17 @@
 import http from 'http';
 import ws from 'uws';
 import express from 'express';
+import bodyParser from 'body-parser';
 import { createStore } from 'redux';
 import raven from 'raven';
 
 import RunLoop from '../universal/RunLoop';
 import ManygolfSocketManager from './ManygolfSocketManager';
-import reducer from './reducer';
+import reducer, {getInWorldPlayers, getActivePlayers} from './reducer';
+import registerTwitterEndpoints from './twitter';
+
+import {configureDatabase} from './models';
+import cors from 'cors';
 
 import {
   sweepInactivePlayers,
@@ -28,6 +33,12 @@ import {
   State,
 } from './records';
 
+if (process.env.NODE_ENV !== 'production') {
+ require('dotenv').config();
+}
+
+configureDatabase();
+
 /*
  * Initialize server
  */
@@ -35,6 +46,11 @@ import {
 const server = http.createServer();
 const wss = new ws.Server({server});
 const app = express();
+app.use(bodyParser.json());
+app.use(cors({
+  origin: process.env.STATIC_URL,
+}));
+
 const port = process.env.PORT || 4080;
 
 const store = createStore(reducer);
@@ -70,7 +86,7 @@ runLoop.onTick((dt: number) => {
   const prevState = <State>store.getState();
 
   // overlaps() can't be used on a sleeping object, so we check overlapping before tick
-  const overlappingMap = prevState.players.map((player) => {
+  const overlappingMap = getInWorldPlayers(prevState).map((player) => {
     return player.body.overlaps(prevState.holeSensor);
   });
 
@@ -101,23 +117,25 @@ runLoop.onTick((dt: number) => {
     }
 
   } else if (gameState === GameState.roundInProgress) {
+    const inWorldPlayers = getInWorldPlayers(getState());
+
     ensurePlayersInBounds(dispatch, {
       level: getState().level,
-      players: getState().players,
+      players: inWorldPlayers,
     });
 
     checkScored(dispatch, socks, {
       overlappingMap,
-      players: getState().players,
+      players: inWorldPlayers,
       elapsed: Date.now() - getState().startTime,
     });
 
     sweepInactivePlayers(dispatch, socks, {
       now: Date.now(),
-      players: getState().players,
+      players: inWorldPlayers,
     });
 
-    const players = getState().players;
+    const players = getActivePlayers(getState());
 
     if (players.size > 0 &&
         players.filter((player) => player.scored).size === players.size) {
@@ -143,16 +161,15 @@ runLoop.onTick((dt: number) => {
     if (Date.now() - lastSyncSent > 1000) {
       lastSyncSent = Date.now();
 
-      sendSyncMessage(socks, {
-        players,
-        time: getState().time,
-      });
+      sendSyncMessage(socks, getState());
     }
   }
 
 });
 
 runLoop.start();
+
+registerTwitterEndpoints(app);
 
 app.get('/player-count', (req, res) => {
   res.type('text/plain');
@@ -169,10 +186,14 @@ if (process.env.NODE_ENV === 'production') {
 
   const dsn = process.env.RAVEN_DSN_PRIVATE;
 
-  raven.patchGlobal(dsn, (sentryError, err) => {
-    console.error(err.stack);
-    process.exit(1);
-  });
+  if (!dsn) {
+    console.log('*** WARNING: No Raven DSN found in RAVEN_DSN_PRIVATE env var');
+
+    raven.patchGlobal(dsn, (sentryError, err) => {
+      console.error(err.stack);
+      process.exit(1);
+    });
+  }
 
 } else {
   process.on('unhandledRejection', (err) => {

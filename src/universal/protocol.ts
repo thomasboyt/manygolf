@@ -1,6 +1,7 @@
 import {
   GameState,
   Emoticon,
+  PlayerState,
 } from '../universal/constants';
 
 interface Player {
@@ -14,6 +15,7 @@ interface InitialPlayer extends Player {
   velocity: number[];
   strokes: number;
   scored: boolean;
+  state: PlayerState;
 }
 
 interface SyncPlayer {
@@ -41,13 +43,29 @@ interface Level {
   color: string;
 }
 
+// sent on initial connection before MessageInitial
+export const TYPE_IDENTITY = 'identity';
+
+export interface MessageIdentity {
+  id: number;
+  authToken: string;
+  name: string;
+  twitterName: string;
+  color: string;
+}
+
+export function messageIdentity(params: MessageIdentity) {
+  return {
+    type: TYPE_IDENTITY,
+    data: params,
+  };
+}
+
 
 export const TYPE_INITIAL = 'initial';
 
 // This message should always allow a complete reset of client state
 export interface MessageInitial {
-  self: InitialPlayer;
-
   gameState: GameState;
   players: InitialPlayer[];
   isObserver: boolean;
@@ -98,6 +116,20 @@ export interface MessagePlayerDisconnected {
 export function messagePlayerDisconnected(params: MessagePlayerDisconnected) {
   return {
     type: TYPE_PLAYER_DISCONNECTED,
+    data: params,
+  };
+}
+
+
+export const TYPE_PLAYER_IDLE_KICKED = 'playerIdleKicked';
+
+export interface MessagePlayerIdleKicked {
+  id: number;
+}
+
+export function messagePlayerIdleKicked(params: MessagePlayerIdleKicked) {
+  return {
+    type: TYPE_PLAYER_IDLE_KICKED,
     data: params,
   };
 }
@@ -200,15 +232,6 @@ export const TYPE_ENTER_GAME = 'enterGame';
 export function messageEnterGame() {
   return {
     type: TYPE_ENTER_GAME,
-  };
-}
-
-
-export const TYPE_IDLE_KICKED = 'idleKicked';
-
-export function messageIdleKicked() {
-  return {
-    type: TYPE_IDLE_KICKED,
   };
 }
 

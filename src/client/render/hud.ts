@@ -75,21 +75,22 @@ export function renderHud(ctx: CanvasRenderingContext2D, state: State) {
   ctx.textAlign = 'right';
 
   const playerCount = state.players.size;
-  ctx.fillText(`${playerCount} players connected`, WIDTH - 10, 11);
+  ctx.fillText(`${playerCount} players in round`, WIDTH - 10, 11);
 
   if (!state.isObserver) {
+    ctx.fillStyle = textColor;
+
+    ctx.fillText('You are', WIDTH - 10, 26);
+
     ctx.fillStyle = state.color;
+    ctx.fillText(state.name, WIDTH - 10, 35);
 
     if (tinycolor(state.color).isDark()) {
-      ctx.strokeText(state.name, WIDTH - 10, 20);
+      ctx.strokeText(state.name, WIDTH - 10, 35);
     }
-
-    ctx.fillText(state.name, WIDTH - 10, 20);
-
-    ctx.fillStyle = textColor;
-    ctx.fillText('You are ', WIDTH - 10 - ctx.measureText(state.name).width, 20);
   }
 
+  ctx.fillStyle = textColor;
   ctx.font = 'normal 16px "Press Start 2P"';
 
   if (state.gameState === GameState.roundInProgress) {
@@ -126,7 +127,7 @@ export function renderHud(ctx: CanvasRenderingContext2D, state: State) {
       const fmtMinutes = matchMinutes + '';
       const fmtSeconds = matchSeconds < 10 ? '0' + matchSeconds : matchSeconds;
 
-      ctx.fillText(`Match ends in: ${fmtMinutes}:${fmtSeconds}`, WIDTH / 2, 30);
+      ctx.fillText(`Match: ${fmtMinutes}:${fmtSeconds}`, WIDTH / 2, 30);
     }
 
     ctx.font = 'normal 16px "Press Start 2P"';

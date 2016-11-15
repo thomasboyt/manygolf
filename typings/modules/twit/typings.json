@@ -1,0 +1,27 @@
+{
+  "resolution": "main",
+  "tree": {
+    "src": "https://raw.githubusercontent.com/Volox/typed-twit/9a1026660b456f7c4d028c55769d52de0862f387/typings.json",
+    "raw": "registry:npm/twit#2.0.0+20160422171648",
+    "main": "index.d.ts",
+    "version": "2.2.3",
+    "global": false,
+    "dependencies": {
+      "geojson": {
+        "src": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/1d3dd1edeef5751eb0415644d20ec1b52e44f19e/geojson/geojson.d.ts",
+        "raw": "registry:dt/geojson#0.0.0+20160319143602",
+        "typings": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/1d3dd1edeef5751eb0415644d20ec1b52e44f19e/geojson/geojson.d.ts"
+      },
+      "es6-promise": {
+        "src": "https://raw.githubusercontent.com/typed-typings/npm-es6-promise/fb04188767acfec1defd054fc8024fafa5cd4de7/typings.json",
+        "raw": "registry:npm/es6-promise#3.0.0+20160211003958",
+        "main": "dist/es6-promise.d.ts",
+        "global": false,
+        "name": "es6-promise",
+        "type": "typings"
+      }
+    },
+    "name": "twit",
+    "type": "typings"
+  }
+}

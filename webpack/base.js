@@ -4,8 +4,8 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: {
-    app: './src/client/main.tsx',
-    standalone: './src/client/standalone.tsx',
+    app: ['whatwg-fetch', './src/client/main.tsx'],
+    standalone: ['whatwg-fetch', './src/client/standalone.tsx'],
   },
 
   output: {
@@ -89,13 +89,5 @@ module.exports = {
 
   devServer: {
     contentBase: 'static',
-    historyApiFallback: true,
-
-    proxy: {
-      '/server': {
-        target: 'ws://localhost:4080',
-        ws: true,
-      },
-    },
   },
 };

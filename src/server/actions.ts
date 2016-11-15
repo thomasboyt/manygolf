@@ -5,11 +5,13 @@ import ManygolfSocketManager from './ManygolfSocketManager';
 import levelGen from '../universal/levelGen';
 
 import {
+  createSync,
+} from './messages';
+
+import {
   messageDisplayMessage,
-  messagePlayerDisconnected,
-  messageIdleKicked,
+  messagePlayerIdleKicked,
   messageLevel,
-  messageSync,
   messageHurryUp,
 } from '../universal/protocol';
 
@@ -23,6 +25,7 @@ import {
   HURRY_UP_MS,
   MATCH_LENGTH_MS,
   MATCH_OVER_MS,
+  PlayerState,
 } from '../universal/constants';
 
 import {
@@ -40,19 +43,21 @@ export function sweepInactivePlayers(
   {players, now}: {players: PlayersMap; now: number}
 ) {
   players.forEach((player, id) => {
-    if (now > player.lastSwingTime  + IDLE_KICK_MS) {
-      console.log(`Idle kicking ${player.name}`);
+    if (player.state !== PlayerState.active) {
+      return;
+    }
 
+    if (now > player.lastSwingTime  + IDLE_KICK_MS) {
       dispatch({
-        type: 'leaveGame',
+        type: 'playerLeft',
         id,
       });
 
-      socks.sendAll(messagePlayerDisconnected({
+      console.log(`Idle kicking ${player.name}`);
+
+      socks.sendAll(messagePlayerIdleKicked({
         id,
       }));
-
-      socks.sendTo(id, messageIdleKicked());
 
       const msg = `{{${player.name}}} is now spectating`;
 
@@ -152,28 +157,8 @@ export function cycleLevel(dispatch: Dispatch, socks: ManygolfSocketManager) {
   }));
 }
 
-export function sendSyncMessage(
-  socks: ManygolfSocketManager,
-  {players, time}: {players: PlayersMap, time: number}
-) {
-  const syncPlayers = players.map((player, id) => {
-    return {
-      id,
-      position: [
-        player.body.position[0],
-        player.body.position[1],
-      ],
-      velocity: [
-        player.body.velocity[0],
-        player.body.velocity[1],
-      ],
-    };
-  }).toArray();
-
-  socks.sendAll(messageSync({
-    players: syncPlayers,
-    time,
-  }));
+export function sendSyncMessage(socks: ManygolfSocketManager, state: State) {
+  socks.sendAll(createSync(state));
 }
 
 export function levelOver(dispatch: Dispatch, socks: ManygolfSocketManager) {
@@ -190,9 +175,10 @@ export function checkHurryUp(
 ) {
   // Go into hurry-up mode if the number of players who have yet to score is === 1 or less than
   // 25% of the remaining players and time is over hurry-up threshold
-  const numRemaining = players.filter((player) => !player.scored).size;
+  const activePlayers = players.filter((player) => player.state === PlayerState.active);
+  const numRemaining = activePlayers.filter((player) => !player.scored).size;
 
-  if (players.size > 1 && numRemaining === 1 || (numRemaining / players.size) < 0.25) {
+  if (activePlayers.size > 1 && numRemaining === 1 || (numRemaining / activePlayers.size) < 0.25) {
     const newTime = Date.now() + HURRY_UP_MS;
 
     if (expTime > newTime) {
