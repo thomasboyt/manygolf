@@ -1,14 +1,15 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "module": "es2015",
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true,
-    "outDir": "tmp-see-ts-loader-issue-171",
+    "target": "es5",
+    "lib": ["dom", "es6", "es2015.promise", "es2015.iterable", "scripthost"],
+    "module": "commonjs",
+    "strictNullChecks": false,
+    "noImplicitAny": true,
     "sourceMap": true,
     "noEmit": true,
-    "moduleResolution": "node",
-    "jsx": "react"
+    "jsx": "react",
+    "typeRoots": ["typings"],
+    "moduleResolution": "node"
   },
   "compileOnSave": false,
   "exclude": [

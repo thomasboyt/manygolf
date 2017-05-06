@@ -1,4 +1,4 @@
-import qs from 'qs';
+import * as qs from 'qs';
 
 // TODO: if we're in a test mode it'd be nice not to have to set document.location.search... pull
 // from global or something instead?

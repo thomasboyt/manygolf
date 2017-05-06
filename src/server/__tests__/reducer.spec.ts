@@ -1,7 +1,7 @@
-/// <reference path="../../../typings/globals/mocha/index.d.ts" />
+/// <reference types="mocha" />
 
-import expect from 'expect';
-import I from 'immutable';
+import * as expect from 'expect';
+import * as I from 'immutable';
 
 import {Player, State} from '../records';
 import reducer, {rankPlayers, updatePoints} from '../reducer';

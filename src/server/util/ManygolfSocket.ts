@@ -1,4 +1,4 @@
-import WebSocket from 'uws';
+import * as WebSocket from 'uws';
 
 /**
  * TODO: This maybe doesn't need to exist and could be replaced with more complex code in

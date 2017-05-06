@@ -2,9 +2,9 @@ import {Store} from 'redux';
 
 import ManygolfSocket from './util/ManygolfSocket';
 
-import WebSocket from 'uws';
-import p2 from 'p2';
-import url from 'url';
+import * as WebSocket from 'uws';
+import * as p2 from 'p2';
+import * as url from 'url';
 
 import {
   messagePlayerConnected,

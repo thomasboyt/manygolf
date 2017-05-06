@@ -1,6 +1,6 @@
 import {WIDTH, HEIGHT} from '../universal/constants';
 
-import sample from 'lodash.sample';
+import {sample} from 'lodash';
 
 const colors = [
   'yellow',

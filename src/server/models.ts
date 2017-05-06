@@ -1,10 +1,10 @@
-import randomColor from 'randomcolor';
+import * as randomColor from 'randomcolor';
+import * as Twit from 'twit';
 import nameGen from './nameGen';
-import Twit from 'twit';
 
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 
-import pgp from 'pg-promise';
+import * as pgp from 'pg-promise';
 
 let db: pgp.IDatabase<any>;
 export function configureDatabase() {

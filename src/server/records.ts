@@ -1,5 +1,5 @@
-import I from 'immutable';
-import p2 from 'p2';
+import * as I from 'immutable';
+import * as p2 from 'p2';
 
 import {
   GameState,

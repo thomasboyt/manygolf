@@ -1,4 +1,4 @@
-import sample from 'lodash.sample';
+import {sample} from 'lodash';
 
 const adjectives = [
   'green',

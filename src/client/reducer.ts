@@ -1,5 +1,5 @@
-import I from 'immutable';
-import p2 from 'p2';
+import * as I from 'immutable';
+import * as p2 from 'p2';
 
 import createImmutableReducer from '../universal/createImmutableReducer';
 
@@ -52,8 +52,7 @@ import {
   ensureBallInBounds,
 } from '../universal/physics';
 
-import clamp from 'lodash.clamp';
-import sample from 'lodash.sample';
+import {clamp, sample} from 'lodash';
 
 import {
   State,

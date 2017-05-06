@@ -1,9 +1,9 @@
-import http from 'http';
-import ws from 'uws';
-import express from 'express';
-import bodyParser from 'body-parser';
+import * as http from 'http';
+import * as ws from 'uws';
+import * as express from 'express';
+import * as bodyParser from 'body-parser';
 import { createStore } from 'redux';
-import raven from 'raven';
+import * as raven from 'raven';
 
 import RunLoop from '../universal/RunLoop';
 import ManygolfSocketManager from './ManygolfSocketManager';
@@ -11,7 +11,7 @@ import reducer, {getInWorldPlayers, getActivePlayers} from './reducer';
 import registerTwitterEndpoints from './twitter';
 
 import {configureDatabase} from './models';
-import cors from 'cors';
+import * as cors from 'cors';
 
 import {
   sweepInactivePlayers,

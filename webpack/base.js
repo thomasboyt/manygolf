@@ -52,13 +52,7 @@ module.exports = {
     loaders: [
       {
         test: /\.tsx?$/,
-        loaders: ['babel', 'ts']
-      },
-
-      {
-        test: /\.js$/,
-        exclude: /(node_modules\/)/,
-        loader: 'babel-loader',
+        loader: 'ts'
       },
 
       {

@@ -1,6 +1,6 @@
-/// <reference path="../../../typings/globals/mocha/index.d.ts" />
+/// <reference types="mocha" />
 
-import expect from 'expect';
+import * as expect from 'expect';
 
 import {getSegmentWidths} from '../levelGen';
 
