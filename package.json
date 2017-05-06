@@ -5,7 +5,7 @@
   "description": "",
   "author": "",
   "engines": {
-    "node": "4.x"
+    "node": "6.x"
   },
   "scripts": {
     "lint": "tslint src/**/*.ts src/**/*.tsx",
