@@ -71,6 +71,10 @@ export default function initialize(): Store<State> {
   });
 
   window.addEventListener('message', (event: MessageEvent) => {
+    if (event.origin !== getHttpApiUrl()) {
+      return;
+    }
+
     const data = JSON.parse(event.data);
 
     if (data.type === 'twitterAuth') {
