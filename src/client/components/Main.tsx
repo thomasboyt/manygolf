@@ -5,6 +5,9 @@ import TwitterLink from './TwitterLink';
 import TwitterTimeline from './Timeline';
 import GameContainer from './GameContainer';
 
+import {getHttpApiUrl} from '../api';
+import TwitterAuth from './TwitterAuth';
+
 const headerImage = require('../../../assets/header.png');
 
 export default class Main extends React.Component<{}, {}> {
@@ -58,6 +61,10 @@ export default class Main extends React.Component<{}, {}> {
 
           <GameContainer />
           {this.maybeRenderMobileHelp()}
+        </div>
+
+        <div className="row" style={{textAlign: 'center'}}>
+          <TwitterAuth />
         </div>
 
         <div className="instructions">

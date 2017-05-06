@@ -3,6 +3,7 @@ import p2 from 'p2';
 
 import {
   GameState,
+  PlayerState,
 } from '../universal/constants';
 
 export interface Coordinates {
@@ -12,6 +13,7 @@ export interface Coordinates {
 
 const PlayerRec = I.Record({
   id: null,
+  state: PlayerState.active,
 
   body: null,
   color: null,
@@ -31,6 +33,7 @@ export type PlayersMap = I.Map<number, Player>;
 
 export class Player extends PlayerRec {
   id: number;
+  state: PlayerState;
 
   body: p2.Body;
   color: string;
@@ -72,7 +75,6 @@ const StateRec = I.Record({
   world: null,
   level: null,
   players: I.Map(),
-  observers: I.Map(),
   startTime: null,
   expTime: null,
   holeSensor: null,
@@ -90,7 +92,6 @@ export class State extends StateRec {
   world: p2.World;
   level: Level;
   players: PlayersMap;
-  observers: PlayersMap;
   startTime: number;
   expTime: number;
   holeSensor: p2.Body;

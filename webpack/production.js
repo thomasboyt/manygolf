@@ -7,6 +7,8 @@ var secret = require('../secret');
 var execSync = require('child_process').execSync;
 var sha = execSync('git rev-parse --short HEAD', {encoding: 'utf8'}).trim();
 
+var serverUrl = process.env.MANYGOLF_SERVER_HOSTNAME || 'manygolf.herokuapp.com';
+
 module.exports = webpackMerge(config, {
   plugins: [
     new webpack.DefinePlugin({
@@ -14,7 +16,7 @@ module.exports = webpackMerge(config, {
         NODE_ENV: '"production"',
         RAVEN_DSN: `"${secret.ravenDSNPublic}"`,
         BUILD_SHA: `"${sha}"`,
-        SERVER_URL: process.env.MANYGOLF_SERVER_URL ? `"${process.env.MANYGOLF_SERVER_URL}"` : `"wss://manygolf.herokuapp.com/"`
+        SERVER_URL: `"${serverUrl}"`,
       }
     }),
 

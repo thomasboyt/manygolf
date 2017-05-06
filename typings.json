@@ -1,16 +1,24 @@
 {
   "globalDependencies": {
+    "classnames": "registry:dt/classnames#0.0.0+20160316155526",
     "express": "registry:dt/express#4.0.0+20160317120654",
     "express-serve-static-core": "registry:dt/express-serve-static-core#0.0.0+20160322035842",
     "mime": "registry:dt/mime#0.0.0+20160316155526",
     "mocha": "registry:dt/mocha#2.2.5+20160317120654",
     "node": "registry:dt/node#4.0.0+20160330064709",
+    "pg-promise": "github:vitaly-t/pg-promise",
     "qs": "registry:dt/qs#0.0.0+20160317120654",
     "react": "registry:dt/react#0.14.0+20160423065914",
     "react-dom": "registry:dt/react-dom#0.14.0+20160412154040",
     "serve-static": "registry:dt/serve-static#0.0.0+20160317120654",
     "tinycolor": "registry:dt/tinycolor#1.1.1+20160317120654",
+    "whatwg-fetch": "registry:dt/whatwg-fetch#0.0.0+20160829180742",
+    "whatwg-streams": "registry:dt/whatwg-streams#0.0.0+20160829180742",
     "ws": "registry:dt/ws#0.0.0+20160317120654"
   },
-  "dependencies": {}
+  "dependencies": {
+    "body-parser": "registry:npm/body-parser#1.15.2+20160815132839",
+    "cors": "registry:npm/cors#2.7.0+20160902012746",
+    "twit": "registry:npm/twit#2.0.0+20160422171648"
+  }
 }

@@ -1,5 +1,7 @@
 import {Store} from 'redux';
 import {State} from './records';
+import {getWsApiUrl} from './api';
+import qs from 'qs';
 
 const simulateLag = document.location.search.indexOf('simlag') !== -1;
 const simLagMs = 200;
@@ -10,16 +12,6 @@ if (simulateLag) {
 
 (<any>window).msgLog = [];
 
-function getUrl() {
-  // this is NULL in development to allow ngrok proxying to work against dev server
-  if (process.env.SERVER_URL) {
-    return process.env.SERVER_URL;
-  } else {
-    const scheme = document.location.protocol === 'https:' ? 'wss' : 'ws';
-    return `${scheme}://${document.location.host}/server`;
-  }
-}
-
 class WSConnection {
   private _ws: WebSocket;
   private _store: Store<State>;
@@ -27,11 +19,17 @@ class WSConnection {
   init(store: Store<State>) {
     this._store = store;
 
-    let url = getUrl();
+    const currentQs = qs.parse(document.location.search);
 
-    if (document.location.search.indexOf('observe') !== -1) {
-      url += '?observe';
-    }
+    const observe = currentQs.observe ? true : undefined;
+    const accessToken = localStorage.getItem('accessToken') || undefined;
+
+    const newQs = qs.stringify({
+      observe,
+      auth_token: accessToken,
+    });
+
+    const url = `${getWsApiUrl()}?${newQs}`;
 
     this._ws = new WebSocket(url);
 

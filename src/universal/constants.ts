@@ -34,6 +34,12 @@ export enum ConnectionState {
   disconnected,
 }
 
+export enum PlayerState {
+  active,
+  leftRound,
+  leftMatch
+}
+
 export enum Emoticon {
   happy,
   sad,

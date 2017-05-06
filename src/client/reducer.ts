@@ -7,6 +7,7 @@ import {
   TYPE_INITIAL,
   TYPE_PLAYER_CONNECTED,
   TYPE_PLAYER_DISCONNECTED,
+  TYPE_PLAYER_IDLE_KICKED,
   TYPE_LEVEL,
   TYPE_DISPLAY_MESSAGE,
   TYPE_LEVEL_OVER,
@@ -16,7 +17,6 @@ import {
   MessageLevelOver,
   TYPE_HURRY_UP,
   MessageHurryUp,
-  TYPE_IDLE_KICKED,
   MessagePlayerSwing,
   TYPE_PLAYER_SWING,
   TYPE_SYNC,
@@ -25,6 +25,8 @@ import {
   TYPE_CHAT,
   MessageMatchOver,
   TYPE_MATCH_OVER,
+  TYPE_IDENTITY,
+  MessageIdentity,
 } from '../universal/protocol';
 
 import {
@@ -37,6 +39,7 @@ import {
   ConnectionState,
   AimDirection,
   MATCH_LENGTH_MS,
+  PlayerState,
 } from '../universal/constants';
 
 import {
@@ -181,6 +184,10 @@ function newLevel(state: State, data: MessageInitial) {
 
   } else {
     // New level on existing connection
+
+    // Remove disconnected players
+    state = state.update('players', (players) => players.filter((player) => player.state === PlayerState.active));
+
     playerPhysicsMap = state.players.reduce((playerPhysicsMap, player) => {
       const playerPhysics = createPlayerPhysics(level);
       return playerPhysicsMap.set(player.id, playerPhysics);
@@ -234,12 +241,6 @@ function enterGame(state: State) {
   return state
     .setIn(['round', 'playerPhysics', state.id], playerPhysics)
     .set('isObserver', false);
-}
-
-function leaveGame(state: State) {
-  return state
-    .deleteIn(['round', 'playerPhysics', state.id])
-    .set('isObserver', true);
 }
 
 function levelOver(state: State, data: MessageLevelOver) {
@@ -439,20 +440,34 @@ export default createImmutableReducer<State>(new State(), {
     return newState;
   },
 
+  [`ws:${TYPE_IDENTITY}`]: (prevState: State, action) => {
+    const data = <MessageIdentity>action.data;
+
+    // TODO: Yeah this shouldn't be in a reducer
+    if (data.authToken) {
+      const token = data.authToken;
+      localStorage.setItem('accessToken', token);
+    }
+
+    return prevState
+      .set('name', data.name)
+      .set('twitterName', data.twitterName)
+      .set('id', data.id)
+      .set('color', data.color);
+  },
+
   [`ws:${TYPE_INITIAL}`]: (prevState: State, action) => {
     const data = <MessageInitial>action.data;
 
     let newState = prevState
       .set('connectionState', ConnectionState.connected)
-      .set('name', data.self.name)
-      .set('id', data.self.id)
-      .set('color', data.self.color)
       .set('isObserver', data.isObserver)
       .set('players', data.players.reduce((balls, player) => {
         return balls.set(player.id, new Player({
           color: player.color,
           name: player.name,
           id: player.id,
+          state: player.state,
         }));
       }, I.Map()))
       .update((s) => newLevel(s, data))
@@ -472,13 +487,14 @@ export default createImmutableReducer<State>(new State(), {
     // resume current-player-specific state
     // (this could theoretically be moved to newLevel logic, I think?)
     if (!data.isObserver) {
-      newState = newState.setIn(['round', 'strokes'], data.self.strokes);
+      const self = data.players.find((player) => player.id === newState.id);
+      newState = newState.setIn(['round', 'strokes'], self.strokes);
 
       // restore scored state
-      if (data.self.scored) {
+      if (self.scored) {
         newState = enterScored(newState);
         // if goal text was previously set, use it
-        if (prevState.round.goalText) {
+        if (prevState.round && prevState.round.goalText) {
           newState = newState.setIn(['round', 'goalText'], prevState.round.goalText);
         }
       }
@@ -489,6 +505,11 @@ export default createImmutableReducer<State>(new State(), {
 
   [`ws:${TYPE_PLAYER_CONNECTED}`]: (state: State, action) => {
     const data = <MessagePlayerConnected>action.data;
+
+    if (state.players.get(data.id)) {
+      // player was already connected
+      return state.setIn(['players', data.id, 'state'], PlayerState.active);
+    }
 
     const playerPhysics = createPlayerPhysics(state.round.level);
 
@@ -502,7 +523,15 @@ export default createImmutableReducer<State>(new State(), {
   },
 
   [`ws:${TYPE_PLAYER_DISCONNECTED}`]: (state: State, action) => {
-    return state.deleteIn(['players', action.data.id]);
+    return state.setIn(['players', action.data.id, 'state'], PlayerState.leftRound);
+  },
+
+  [`ws:${TYPE_PLAYER_IDLE_KICKED}`]: (state: State, action) => {
+    if (action.data.id === state.id) {
+      return state.set('isObserver', true);
+    }
+
+    return state.setIn(['players', action.data.id, 'state'], PlayerState.leftRound);
   },
 
   [`ws:${TYPE_PLAYER_SWING}`]: (state: State, {data}: {data: MessagePlayerSwing}) => {
@@ -536,10 +565,6 @@ export default createImmutableReducer<State>(new State(), {
       .setIn(['round', 'expTime'], expTime)
       .set('displayMessage', 'Hurry up!')
       .set('displayMessageTimeout', Date.now() + 5 * 1000);
-  },
-
-  [`ws:${TYPE_IDLE_KICKED}`]: (state: State) => {
-    return leaveGame(state);
   },
 
   [`ws:${TYPE_SYNC}`]: (state: State, {data}: {data: MessageSync}) => {

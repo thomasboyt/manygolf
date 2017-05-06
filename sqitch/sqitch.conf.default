@@ -1,0 +1,12 @@
+[core]
+	engine = pg
+	# plan_file = sqitch.plan
+	# top_dir = .
+# [engine "pg"]
+	# target = db:pg:
+	# registry = sqitch
+	# client = psql
+[target "manygolf"]
+	uri = db:pg:manygolf
+[engine "pg"]
+	target = manygolf

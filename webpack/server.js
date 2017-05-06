@@ -3,6 +3,17 @@ var webpack = require('webpack');
 
 var nodeModules = {};
 
+const babelSettings = {
+  babelrc: false,
+  plugins: [
+    'transform-es2015-modules-commonjs',
+    'transform-es2015-destructuring',
+    'transform-es2015-spread',
+    'transform-es2015-parameters',
+    'transform-async-to-generator'
+  ],
+};
+
 /*
  * Prevent bundling of node modules
  */
@@ -53,12 +64,13 @@ module.exports = {
     loaders: [
       {
         test: /\.tsx?$/,
-        loaders: ['babel', 'ts']
+        loaders: ['babel?' + JSON.stringify(babelSettings), 'ts'],
       },
       {
         test: /\.js$/,
         exclude: /(node_modules\/)/,
         loader: 'babel-loader',
+        query: babelSettings,
       },
       // needed for raven
       {

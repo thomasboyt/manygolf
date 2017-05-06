@@ -1,0 +1,16 @@
+{
+  "resolution": "main",
+  "tree": {
+    "src": "https://raw.githubusercontent.com/vitaly-t/pg-promise/master/typings.json",
+    "raw": "github:vitaly-t/pg-promise",
+    "files": [
+      "typescript/pg-promise.d.ts",
+      "typescript/ext-promise.d.ts",
+      "typescript/pg-minify.d.ts",
+      "typescript/pg-subset.d.ts"
+    ],
+    "global": true,
+    "name": "pg-promise",
+    "type": "typings"
+  }
+}
