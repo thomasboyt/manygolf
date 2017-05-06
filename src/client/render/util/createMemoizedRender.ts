@@ -36,11 +36,11 @@ export class OffscreenCanvas {
  */
 export default function createMemoizedRender(
   fn: (ctx: CanvasRenderingContext2D, ...args: any[]) => void) {
-  let prevScaleFactor = null;
-  let prevArgs = [];
-  let prevCanvas = null;
+  let prevScaleFactor: number | null = null;
+  let prevArgs: any[] = [];
+  let prevCanvas: OffscreenCanvas | null = null;
 
-  return (ctx: CanvasRenderingContext2D, scaleFactor: number, ...args) => {
+  return (ctx: CanvasRenderingContext2D, scaleFactor: number, ...args: any[]) => {
     let shouldRecompute = false;
 
     if (scaleFactor !== prevScaleFactor) {

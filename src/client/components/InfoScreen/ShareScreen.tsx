@@ -3,7 +3,7 @@ import mobileBridge from '../../mobileBridge';
 import TwitterLink from '../TwitterLink';
 
 class ShareScreen extends React.Component<{}, {}> {
-  handleNativeShare(e: React.MouseEvent) {
+  handleNativeShare(e: React.MouseEvent<any>) {
     mobileBridge.displayNativeShare();
     e.preventDefault();
   }

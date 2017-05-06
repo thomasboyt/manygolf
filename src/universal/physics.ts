@@ -97,7 +97,7 @@ export function addHolePoints(level: any) {
 
   // insert hole
   // get the first point after the hole...
-  const idxAfterHole = level.points.findIndex((point) => point.get(0) > level.hole.get(0));
+  const idxAfterHole = level.points.findIndex((point: any) => point.get(0) > level.hole.get(0));
 
   const x1 = level.hole.get(0) - HOLE_WIDTH / 2;
   const x2 = level.hole.get(0) + HOLE_WIDTH / 2;
@@ -131,8 +131,8 @@ export function createGround(level: any): p2.Body[] {
   // This used to create a single ground shape.
   // Now it creates 3 because this mysteriously fixes a bug where the ground after the hole wasn't
   // working correctly? man I don't even know
-  const beforeHole = level.points.filter((point) => point.get(0) < level.hole.get(0));
-  const afterHole = level.points.filter((point) => point.get(0) > level.hole.get(0));
+  const beforeHole = level.points.filter((point: any) => point.get(0) < level.hole.get(0));
+  const afterHole = level.points.filter((point: any) => point.get(0) > level.hole.get(0));
 
   const vertsBeforeHole = beforeHole.toJS().concat([
     [beforeHole.last().get(0), HEIGHT],

@@ -99,7 +99,7 @@ class Canvas extends React.Component<Props, CanvasState> {
     }, 0);
   }
 
-  handleClick(e: React.MouseEvent) {
+  handleClick(e: React.MouseEvent<any>) {
     const rect = ReactDOM.findDOMNode(this).getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;

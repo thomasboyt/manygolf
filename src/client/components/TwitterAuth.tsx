@@ -2,6 +2,7 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 
 import {getHttpApiUrl} from '../api';
+import {State} from '../records';
 
 interface Props {
   twitterName: string;
@@ -36,7 +37,7 @@ class TwitterAuth extends React.Component<Props, {}> {
   }
 }
 
-function select(state) {
+function select(state: State) {
   return {
     twitterName: state.twitterName,
   };

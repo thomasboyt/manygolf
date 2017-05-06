@@ -185,7 +185,7 @@ function newLevel(state: State, data: MessageInitial) {
     // New level on existing connection
 
     // Remove disconnected players
-    state = state.update('players', (players) => players.filter((player) => player.state === PlayerState.active));
+    state = state.update('players', (players: I.List<Player>) => players.filter((player) => player.state === PlayerState.active));
 
     playerPhysicsMap = state.players.reduce((playerPhysicsMap, player) => {
       const playerPhysics = createPlayerPhysics(level);
@@ -243,8 +243,8 @@ function enterGame(state: State) {
 }
 
 function levelOver(state: State, data: MessageLevelOver) {
-  const rankedPlayers: I.List<LeaderboardPlayer> = I.fromJS(data.roundRankedPlayers)
-    .map((player) => new LeaderboardPlayer(player));
+  const rankedPlayers: I.List<LeaderboardPlayer> = I.fromJS(data)
+    .map((player: any) => new LeaderboardPlayer(player));
 
   const leaderId = data.leaderId;
 
@@ -257,7 +257,7 @@ function levelOver(state: State, data: MessageLevelOver) {
 
 function matchOver(state: State, data: MessageMatchOver) {
   const rankedPlayers: I.List<MatchEndPlayer> = I.fromJS(data.matchRankedPlayers)
-    .map((player) => new MatchEndPlayer(player));
+    .map((player: any) => new MatchEndPlayer(player));
 
   const nextMatchTime = Date.now() + data.nextMatchIn;
 

@@ -189,14 +189,14 @@ if (process.env.NODE_ENV === 'production') {
   if (!dsn) {
     console.log('*** WARNING: No Raven DSN found in RAVEN_DSN_PRIVATE env var');
 
-    raven.patchGlobal(dsn, (sentryError, err) => {
+    raven.patchGlobal(dsn, (sentryError: any, err: any) => {
       console.error(err.stack);
       process.exit(1);
     });
   }
 
 } else {
-  process.on('unhandledRejection', (err) => {
+  process.on('unhandledRejection', (err: any) => {
     console.error(err.stack);
     process.exit(1);
   });

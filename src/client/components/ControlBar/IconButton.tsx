@@ -6,7 +6,7 @@ interface Props extends React.HTMLProps<HTMLButtonElement> {
 
 export default class IconButton extends React.Component<Props, {}> {
   render() {
-    const className = this.props.className || '';
+    const {icon, className, ...props} = this.props;
 
     const innerStyle = {
       backgroundImage: `url("${this.props.icon}")`,
@@ -19,8 +19,10 @@ export default class IconButton extends React.Component<Props, {}> {
       height: '100%',
     };
 
+    // props as {} is a fix for https://github.com/Microsoft/TypeScript/issues/15469
+    // can remove once a new version is out
     return (
-      <button {...this.props} className={`control-button ${className}`}>
+      <button {...props as {}} className={`control-button ${className || ''}`}>
         <span style={innerStyle} />
       </button>
     );

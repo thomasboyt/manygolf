@@ -159,8 +159,8 @@ export async function getTwitterName(user: User): Promise<string> {
     access_token_secret: twitterSecret,
   });
 
-  const userResource = await twit.get('users/show', {user_id: twitterId} as any);
-  const username = userResource.data.screen_name;
+  const userResource = await twit.get('users/show', {user_id: twitterId} as Twit.Params);
+  const username: string = (userResource.data as  any).screen_name;
 
   return username;
 }

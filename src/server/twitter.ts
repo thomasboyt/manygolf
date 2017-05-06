@@ -34,7 +34,7 @@ export default function registerTwitterEndpoints(app: Express) {
   );
 
   app.get('/twitter-sign-in', (req, res) => {
-    oa.getOAuthRequestToken((err, token, tokenSecret, parsedQueryString) => {
+    oa.getOAuthRequestToken((err: any, token: string) => {
       if (err) {
         console.error(`Twitter request token error`);
         console.error(err);
@@ -49,7 +49,7 @@ export default function registerTwitterEndpoints(app: Express) {
   });
 
   app.get('/twitter-sign-in-callback', (req, res) => {
-    oa.getOAuthAccessToken(req.query.oauth_token, '', req.query.oauth_verifier, (err, token, secret, authorizeUrl, additionParameters) => {
+    oa.getOAuthAccessToken(req.query.oauth_token, '', req.query.oauth_verifier, (err: any, token: string, secret: string) => {
       if (err) {
         console.error(`Twitter access token error`);
         console.error(err);
@@ -87,7 +87,7 @@ export default function registerTwitterEndpoints(app: Express) {
       return;
     }
 
-    oa.get('https://api.twitter.com/1.1/account/verify_credentials.json', twitterToken, twitterSecret, async (err, data) => {
+    oa.get('https://api.twitter.com/1.1/account/verify_credentials.json', twitterToken, twitterSecret, async (err: any, data: any) => {
       if (err) {
         console.error(`Twitter user fetch error`);
         console.error(err);
@@ -95,7 +95,7 @@ export default function registerTwitterEndpoints(app: Express) {
         return;
       }
 
-      const twitterId = JSON.parse(data).id_str;
+      const twitterId: string = JSON.parse(data).id_str;
 
       const twitterUser = await getUserByTwitterId(twitterId);
 

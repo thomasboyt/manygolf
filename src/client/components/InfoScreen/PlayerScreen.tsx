@@ -2,6 +2,7 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 
 import TwitterAuth from '../TwitterAuth';
+import {State} from '../../records';
 
 interface Props {
   name: string;
@@ -25,7 +26,7 @@ class PlayerScreen extends React.Component<Props, {}> {
   }
 }
 
-function select(state) {
+function select(state: State) {
   return {
     name: state.name,
   };
