@@ -243,7 +243,7 @@ function enterGame(state: State) {
 }
 
 function levelOver(state: State, data: MessageLevelOver) {
-  const rankedPlayers: I.List<LeaderboardPlayer> = I.fromJS(data)
+  const rankedPlayers: I.List<LeaderboardPlayer> = I.fromJS(data.roundRankedPlayers)
     .map((player: any) => new LeaderboardPlayer(player));
 
   const leaderId = data.leaderId;
