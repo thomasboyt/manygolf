@@ -17,7 +17,7 @@
     "build": "webpack --config webpack/production.js && webpack --config webpack/server.js",
     "build-client": "rm -rf build/client && webpack --config webpack/production.js",
     "deploy-staging-server": "git push staging master",
-    "deploy-staging-client": "MANYGOLF_SERVER_HOSTNAME=manygolf-staging.herokuapp.com npm run build-client && firebase deploy",
+    "deploy-staging-client": "MANYGOLF_SERVER_HOSTNAME=manygolf-staging.herokuapp.com npm run build-client && cp -r static/* build/client && firebase deploy",
     "postinstall": "webpack --config webpack/server.js"
   },
   "devDependencies": {
