@@ -3,3 +3,4 @@ build/
 secret.json
 .env
 sqitch/sqitch.conf
+.firebaserc
