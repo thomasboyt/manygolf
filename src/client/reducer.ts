@@ -67,7 +67,7 @@ import {
   Match,
 } from './records';
 
-import {enableDebugLog} from './flags';
+import debugLog from './util/debugLog';
 
 const runBehind = 50;  // ms to enforce run-behind
 
@@ -85,14 +85,8 @@ const maxSubSteps = (TIMER_MS / 1000) * (1 / fixedStep);
 
 const moveSpeed = 50;  // degrees per second
 
-function debugLog(msg: any, ...more: any[]) {
-  if (enableDebugLog) {
-    console.log(msg, ...more);
-  }
-}
-
 function syncWorld(state: State, data: MessageSync): State {
-  debugLog('sync ----');
+  debugLog(`syncing --- (${state.time - data.time}ms)`);
 
   // Update player states if they are over some threshold at time
   data.players.forEach((playerPosition) => {
@@ -574,6 +568,7 @@ export default createImmutableReducer<State>(new State(), {
     // if client is ahead of server, due to lag during the time it took to receive message...
     // this should be an exceptional case, ideally
     if (time < state.time) {
+      debugLog('Client time is ahead of server, syncing to very old message');
       return syncWorld(state, data);
 
     } else {

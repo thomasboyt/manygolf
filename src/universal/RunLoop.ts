@@ -4,29 +4,33 @@ raf.polyfill();
 type TickListener = (dt: number) => void;
 
 class RunLoop {
-  private _lastTickMs: number;
-  private _nextTick: () => any;
   private _onTick: TickListener;
+  private _stopped: boolean = false;
 
   start() {
-    this._lastTickMs = Date.now();
+    this._stopped = false;
 
-    this._nextTick = this._runLoop.bind(this);
-    requestAnimationFrame(this._nextTick);
+    let lastTickMs = Date.now();
+
+    const nextTick = () => {
+      if (this._stopped) {
+        return;
+      }
+
+      const now = Date.now();
+      const dt = now - lastTickMs;
+      lastTickMs = now;
+
+      this._onTick(dt);
+
+      requestAnimationFrame(nextTick);
+    };
+
+    requestAnimationFrame(nextTick);
   }
 
   stop() {
-    this._nextTick = () => {};
-  }
-
-  _runLoop() {
-    const now = Date.now();
-    const dt = now - this._lastTickMs;
-    this._lastTickMs = now;
-
-    this._onTick(dt);
-
-    requestAnimationFrame(this._nextTick);
+    this._stopped = true;
   }
 
   onTick(listener: TickListener) {

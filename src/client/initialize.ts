@@ -11,6 +11,7 @@ import {
 } from './runLoop';
 
 import { registerListeners } from './util/inputter';
+import debugLog from './util/debugLog';
 
 import {messageReqPauseStream, messageReqResumeStream} from '../universal/protocol';
 
@@ -59,13 +60,19 @@ export default function initialize(): Store<State> {
   document.addEventListener('visibilitychange', () => {
     if (ws.connected) {
       if (document.hidden) {
+        debugLog('paused message stream');
         ws.send(messageReqPauseStream());
         pausedWs = true;
         runLoop.stop();
+
       } else {
-        ws.send(messageReqResumeStream());
-        pausedWs = false;
-        runLoop.start();
+        // NOTE: this has to be queued up to run AFTER the last frame of the stopped runLoop
+        requestAnimationFrame(() => {
+          pausedWs = false;
+          debugLog('started message stream');
+          ws.send(messageReqResumeStream());
+          runLoop.start();
+        });
       }
     }
   });
