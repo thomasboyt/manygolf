@@ -123,8 +123,12 @@ function enterScored(state: State) {
     .setIn(['round', 'goalText'], goalText);
 }
 
-// TODO: typedef for player w/ position, velocity
-function createPlayerPhysics(level: Level, player?: any) {
+interface PlayerData {
+  position: number[];
+  velocity: number[];
+}
+
+function createPlayerPhysics(level: Level, player?: PlayerData) {
   const world = createWorld();
 
   const groundBodies = createGround(level);
