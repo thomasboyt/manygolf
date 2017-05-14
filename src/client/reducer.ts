@@ -418,6 +418,12 @@ export default createImmutableReducer<State>(new State(), {
     return state.setIn(['round', 'aimDirection'], newDir);
   },
 
+  'reconnecting': (state: State, {attemptNumber}: {attemptNumber: number}) => {
+    return state
+      .set('connectionState', ConnectionState.reconnecting)
+      .set('reconnectAttemptNumber', attemptNumber);
+  },
+
   'disconnect': (state: State) => {
     return state.set('connectionState', ConnectionState.disconnected);
   },

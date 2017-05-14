@@ -175,6 +175,7 @@ const StateRec = I.Record({
   gameState: null,
 
   connectionState: ConnectionState.connecting,
+  reconnectAttemptNumber: 0,
 
   players: I.Map(),
 
@@ -206,6 +207,7 @@ export class State extends StateRec {
   gameState: GameState;
 
   connectionState: ConnectionState;
+  reconnectAttemptNumber: number;
 
   players: I.Map<number, Player>;
 
