@@ -17,6 +17,8 @@ export const IDLE_KICK_MS = 60 * 1000;
 export const MATCH_LENGTH_MS = 5 * 60 * 1000;
 export const MATCH_OVER_MS = 10 * 1000;
 
+export const PHYSICS_SPEED_FACTOR = 3;
+
 export enum AimDirection {
   left,
   right,

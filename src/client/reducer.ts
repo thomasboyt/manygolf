@@ -31,6 +31,7 @@ import {
   AimDirection,
   MATCH_LENGTH_MS,
   PlayerState,
+  PHYSICS_SPEED_FACTOR,
 } from '../universal/constants';
 
 import {
@@ -106,7 +107,8 @@ function syncWorld(state: State, data: MessageSync): State {
 
       // Step to catch up from snapshot time to the current render time
       const dt = (state.time - data.time) / 1000;
-      state.round.playerPhysics.get(player.id).world.step(fixedStep, dt * 3, maxSubSteps);
+      const world = state.round.playerPhysics.get(player.id).world;
+      world.step(fixedStep, dt * PHYSICS_SPEED_FACTOR, maxSubSteps);
     }
   });
 
@@ -214,7 +216,8 @@ function applySwing(state: State, data: MessagePlayerSwing) {
   body.velocity[0] = data.velocity[0];
   body.velocity[1] = data.velocity[1];
 
-  state.round.playerPhysics.get(data.id).world.step(fixedStep, dt * 3, maxSubSteps);
+  const world = state.round.playerPhysics.get(data.id).world;
+  world.step(fixedStep, dt * PHYSICS_SPEED_FACTOR, maxSubSteps);
 
   return state;
 }
@@ -274,10 +277,8 @@ export default createImmutableReducer<State>(new State(), {
       overlapping = ball.overlaps(holeSensor);
     }
 
-    // XXX: MMMMMonster hack
-    // dt is set to dt * 3 because that's the speed I actually want
     state.round.playerPhysics.forEach((phys) => {
-      phys.world.step(fixedStep, dt * 3, maxSubSteps);
+      phys.world.step(fixedStep, dt * PHYSICS_SPEED_FACTOR, maxSubSteps);
     });
 
     // update saved positions

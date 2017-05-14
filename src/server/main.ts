@@ -27,6 +27,7 @@ import {
 
 import {
   GameState,
+  PHYSICS_SPEED_FACTOR,
 } from '../universal/constants';
 
 import {
@@ -90,9 +91,7 @@ runLoop.onTick((dt: number) => {
     return player.body.overlaps(prevState.holeSensor);
   });
 
-  // XXX: MMMMMonster hack
-  // dt is set to dt * 3 because that's the speed I actually want
-  getState().world.step(fixedStep, dt * 3, maxSubSteps);
+  getState().world.step(fixedStep, dt * PHYSICS_SPEED_FACTOR, maxSubSteps);
 
   dispatch({
     type: 'tick',
