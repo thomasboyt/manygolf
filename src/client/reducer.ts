@@ -150,7 +150,7 @@ function createPlayerPhysics(level: Level, player?: any) {
   });
 }
 
-function newLevel(state: State, data: MessageInitial) {
+function newLevel(state: State, data: MessageInitial | MessageLevel) {
   const levelData = data.level;
   const expTime = data.expiresIn + Date.now();
 
@@ -159,7 +159,7 @@ function newLevel(state: State, data: MessageInitial) {
 
   let playerPhysicsMap = I.Map<number, PlayerPhysics>();
 
-  if (data.players) {
+  if (data.type === 'initial') {
     // Initial connection includes players with positions+velocities
     playerPhysicsMap = data.players.reduce((playerPhysicsMap, player) => {
       const playerPhysics = createPlayerPhysics(level, player);
