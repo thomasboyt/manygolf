@@ -255,6 +255,11 @@ export default class ManygolfSocketManager {
       const state = this.store.getState();
       this.sendTo(id, createInitial(state, id));
 
+    } else if (msg.type === 'ping') {
+      this.sendTo(id, {
+        type: 'pong',
+      });
+
     } else {
       console.error(`unrecognized message type ${msg.type}`);
     }

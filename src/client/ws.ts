@@ -34,6 +34,9 @@ class WSConnection {
     const url = `${getWsApiUrl()}?${newQs}`;
 
     this._ws = new PersistentWebsocket(url, {
+      pingSendFunction: () => this.sendPing(),
+      pingIntervalSeconds: 5,
+      pingTimeoutMillis: 3000,
       connectTimeoutMillis: 3000,
       maxBackoffDelayMillis: MAX_RECONNECT_BACKOFF_MS,
     });
@@ -83,6 +86,12 @@ class WSConnection {
     } else {
       this._ws.send(strMsg);
     }
+  }
+
+  sendPing() {
+    this.send({
+      type: 'ping',
+    });
   }
 
   handleReconnect(evt: ReconnectEvent) {
