@@ -13,8 +13,6 @@ import {
 import { registerListeners } from './util/inputter';
 import debugLog from './util/debugLog';
 
-import {messageReqPauseStream, messageReqResumeStream} from '../universal/protocol';
-
 import testMsgs from '../testData';
 
 /*
@@ -61,7 +59,9 @@ export default function initialize(): Store<State> {
     if (ws.connected) {
       if (document.hidden) {
         debugLog('paused message stream');
-        ws.send(messageReqPauseStream());
+        ws.send({
+          type: 'requestPauseStream',
+        });
         pausedWs = true;
         runLoop.stop();
 
@@ -70,7 +70,9 @@ export default function initialize(): Store<State> {
         requestAnimationFrame(() => {
           pausedWs = false;
           debugLog('started message stream');
-          ws.send(messageReqResumeStream());
+          ws.send({
+            type: 'requestResumeStream',
+          });
           runLoop.start();
         });
       }

@@ -1,6 +1,7 @@
 import {Store} from 'redux';
 import {State} from './records';
 import {getWsApiUrl} from './api';
+import {Message} from '../universal/protocol';
 import * as qs from 'qs';
 
 const simulateLag = document.location.search.indexOf('simlag') !== -1;
@@ -39,7 +40,7 @@ class WSConnection {
   }
 
   handleMessage(evt: MessageEvent) {
-    const msg = JSON.parse(evt.data);
+    const msg: Message = JSON.parse(evt.data);
 
     (<any>window).msgLog.push({
       time: Date.now(),
@@ -49,15 +50,15 @@ class WSConnection {
     if (simulateLag) {
       setTimeout(() => {
         this._store.dispatch({
-          type: `ws:${msg.type}`,
-          data: msg.data,
+          type: 'websocket',
+          message: msg,
         });
       }, simLagMs);
 
     } else {
       this._store.dispatch({
-        type: `ws:${msg.type}`,
-        data: msg.data,
+        type: 'websocket',
+        message: msg,
       });
     }
   }
@@ -70,7 +71,7 @@ class WSConnection {
     });
   }
 
-  send(msg: Object) {
+  send(msg: Message) {
     if (!this._ws) {
       return;
     }

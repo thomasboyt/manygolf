@@ -7,17 +7,7 @@ import * as p2 from 'p2';
 import * as url from 'url';
 
 import {
-  messagePlayerConnected,
-  messagePlayerDisconnected,
-  messageDisplayMessage,
-  MessageSwing,
-  messagePlayerSwing,
-  messageChat,
-  TYPE_SWING,
-  TYPE_ENTER_GAME,
-  TYPE_SEND_CHAT,
-  TYPE_REQUEST_PAUSE_STREAM,
-  TYPE_REQUEST_RESUME_STREAM,
+  Message,
 } from '../universal/protocol';
 
 import {
@@ -77,7 +67,7 @@ export default class ManygolfSocketManager {
     }
   }
 
-  sendTo(id: number, msg: Object) {
+  sendTo(id: number, msg: Message) {
     if (this.pausedSockets.has(id)) {
       return;
     }
@@ -91,7 +81,7 @@ export default class ManygolfSocketManager {
     });
   }
 
-  sendAll(msg: Object) {
+  sendAll(msg: Message) {
     const msgStr = JSON.stringify(msg);
 
     this.sockets.forEach((socket, id) => {
@@ -175,12 +165,13 @@ export default class ManygolfSocketManager {
     }
   }
 
-  private async onMessage(id: number, msg: any) {
+  private async onMessage(id: number, msg: Message) {
+    // TODO: This assumes msg is message which isn't necessarily true, lol
+    // Have some naive runtime check here, at least...
+
     const prevState = this.store.getState();
 
-    if (msg.type === TYPE_SWING) {
-      const data = <MessageSwing>msg.data;
-
+    if (msg.type === 'swing') {
       let state = this.store.getState();
       let player = state.players.get(id);
 
@@ -196,19 +187,20 @@ export default class ManygolfSocketManager {
       this.store.dispatch(Object.assign({
         type: 'swing',
         id,
-      }, data));
+      }, msg));
 
       state = this.store.getState();
       player = state.players.get(id);
 
-      this.sendAll(messagePlayerSwing({
+      this.sendAll({
+        type: 'playerSwing',
         id,
         position: [player.body.position[0], player.body.position[1]],
-        velocity: [data.vec.x, data.vec.y],
+        velocity: [msg.vec.x, msg.vec.y],
         time: Date.now(),
-      }));
+      });
 
-    } else if (msg.type === TYPE_ENTER_GAME) {
+    } else if (msg.type === 'enterGame') {
       const rejoining = this.store.getState().players.has(id);
 
       if (rejoining && prevState.players.get(id).state === PlayerState.active) {
@@ -239,7 +231,7 @@ export default class ManygolfSocketManager {
 
       this.playerJoined(player, rejoining);
 
-    } else if (msg.type === TYPE_SEND_CHAT) {
+    } else if (msg.type === 'sendChat') {
       const state = this.store.getState();
       const player = state.players.get(id);
 
@@ -248,15 +240,16 @@ export default class ManygolfSocketManager {
         return;
       }
 
-      this.sendAll(messageChat({
+      this.sendAll({
+        type: 'chat',
         id,
-        emoticon: msg.data.emoticon,
-      }));
+        emoticon: msg.emoticon,
+      });
 
-    } else if (msg.type === TYPE_REQUEST_PAUSE_STREAM) {
+    } else if (msg.type === 'requestPauseStream') {
       this.pause(id);
 
-    } else if (msg.type === TYPE_REQUEST_RESUME_STREAM) {
+    } else if (msg.type === 'requestResumeStream') {
       this.resume(id);
 
       const state = this.store.getState();
@@ -282,30 +275,34 @@ export default class ManygolfSocketManager {
         });
       }
 
-      this.sendAll(messagePlayerDisconnected({
+      this.sendAll({
+        type: 'disconnected',
         id,
-      }));
+      });
 
-      this.sendAll(messageDisplayMessage({
+      this.sendAll({
+        type: 'displayMessage',
         messageText: `{{${player.name}}} disconnected`,
         color: player.color,
-      }));
+      });
     }
   }
 
   private playerJoined(player: Player, didRejoin: boolean) {
     const {id, color, name} = player;
 
-    this.sendAll(messagePlayerConnected({
+    this.sendAll({
+      type: 'connected',
       id,
       color,
       name,
-    }));
+    });
 
-    this.sendAll(messageDisplayMessage({
+    this.sendAll({
+      type: 'displayMessage',
       messageText: `{{${name}}} ${didRejoin ? 'rejoined' : 'joined'}`,
       color,
-    }));
+    });
   }
 
 }

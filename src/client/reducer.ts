@@ -1,32 +1,23 @@
 import * as I from 'immutable';
 import * as p2 from 'p2';
 
-import createImmutableReducer from '../universal/createImmutableReducer';
+import createImmutableReducer, {IHandlers} from '../universal/createImmutableReducer';
 
 import {
-  TYPE_INITIAL,
-  TYPE_PLAYER_CONNECTED,
-  TYPE_PLAYER_DISCONNECTED,
-  TYPE_PLAYER_IDLE_KICKED,
-  TYPE_LEVEL,
-  TYPE_DISPLAY_MESSAGE,
-  TYPE_LEVEL_OVER,
+  Message,
   MessageInitial,
   MessagePlayerConnected,
   MessageDisplayMessage,
+  MessageLevel,
   MessageLevelOver,
-  TYPE_HURRY_UP,
   MessageHurryUp,
   MessagePlayerSwing,
-  TYPE_PLAYER_SWING,
-  TYPE_SYNC,
   MessageSync,
   MessageChat,
-  TYPE_CHAT,
   MessageMatchOver,
-  TYPE_MATCH_OVER,
-  TYPE_IDENTITY,
   MessageIdentity,
+  MessagePlayerDisconnected,
+  MessagePlayerIdleKicked,
 } from '../universal/protocol';
 
 import {
@@ -420,8 +411,22 @@ export default createImmutableReducer<State>(new State(), {
     return state.setIn(['round', 'aimDirection'], newDir);
   },
 
-  [`ws:${TYPE_LEVEL}`]: (prevState: State, action) => {
-    let newState = newLevel(prevState, action.data)
+  'disconnect': (state: State) => {
+    return state.set('connectionState', ConnectionState.disconnected);
+  },
+
+  'leaveObserver': (state: State) => {
+    return enterGame(state);
+  },
+
+  'websocket': (state: State, {message}: {message: Message}): State => {
+    return websocketHandlers[message.type](state, message);
+  },
+});
+
+const websocketHandlers: IHandlers<State, Message> = {
+  'level': (prevState: State, message: MessageLevel) => {
+    let newState = newLevel(prevState, message)
       .set('gameState', GameState.roundInProgress);
 
     if (prevState.gameState === GameState.matchOver) {
@@ -433,24 +438,22 @@ export default createImmutableReducer<State>(new State(), {
     return newState;
   },
 
-  [`ws:${TYPE_IDENTITY}`]: (prevState: State, action) => {
-    const data = <MessageIdentity>action.data;
-
+  'identity': (prevState: State, message: MessageIdentity) => {
     // TODO: Yeah this shouldn't be in a reducer
-    if (data.authToken) {
-      const token = data.authToken;
+    if (message.authToken) {
+      const token = message.authToken;
       localStorage.setItem('accessToken', token);
     }
 
     return prevState
-      .set('name', data.name)
-      .set('twitterName', data.twitterName)
-      .set('id', data.id)
-      .set('color', data.color);
+      .set('name', message.name)
+      .set('twitterName', message.twitterName)
+      .set('id', message.id)
+      .set('color', message.color);
   },
 
-  [`ws:${TYPE_INITIAL}`]: (prevState: State, action) => {
-    const data = <MessageInitial>action.data;
+  'initial': (prevState: State, message: MessageInitial) => {
+    const data = message;
 
     let newState = prevState
       .set('connectionState', ConnectionState.connected)
@@ -496,8 +499,8 @@ export default createImmutableReducer<State>(new State(), {
     return newState;
   },
 
-  [`ws:${TYPE_PLAYER_CONNECTED}`]: (state: State, action) => {
-    const data = <MessagePlayerConnected>action.data;
+  'connected': (state: State, message: MessagePlayerConnected) => {
+    const data = message;
 
     if (state.players.get(data.id)) {
       // player was already connected
@@ -508,51 +511,46 @@ export default createImmutableReducer<State>(new State(), {
 
     return state
       .setIn(['round', 'playerPhysics', data.id], playerPhysics)
-      .setIn(['players', action.data.id], new Player({
+      .setIn(['players', data.id], new Player({
         color: data.color,
         name: data.name,
         id: data.id,
       }));
   },
 
-  [`ws:${TYPE_PLAYER_DISCONNECTED}`]: (state: State, action) => {
-    return state.setIn(['players', action.data.id, 'state'], PlayerState.leftRound);
+  'disconnected': (state: State, message: MessagePlayerDisconnected) => {
+    return state.setIn(['players', message.id, 'state'], PlayerState.leftRound);
   },
 
-  [`ws:${TYPE_PLAYER_IDLE_KICKED}`]: (state: State, action) => {
-    if (action.data.id === state.id) {
+  'playerIdleKicked': (state: State, message: MessagePlayerIdleKicked) => {
+    if (message.id === state.id) {
       return state.set('isObserver', true);
     }
 
-    return state.setIn(['players', action.data.id, 'state'], PlayerState.leftRound);
+    return state.setIn(['players', message.id, 'state'], PlayerState.leftRound);
   },
 
-  [`ws:${TYPE_PLAYER_SWING}`]: (state: State, {data}: {data: MessagePlayerSwing}) => {
-    if (data.time < state.time) {
-      return applySwing(state, data);
+  'playerSwing': (state: State, message: MessagePlayerSwing) => {
+    if (message.time < state.time) {
+      return applySwing(state, message);
     } else {
-      return state.update('swingQueue', (swingQueue) => swingQueue.push(data));
+      return state.update('swingQueue', (swingQueue) => swingQueue.push(message));
     }
   },
 
-  [`ws:${TYPE_DISPLAY_MESSAGE}`]: (state: State, action) => {
-    const data = <MessageDisplayMessage>action.data;
-
+  'displayMessage': (state: State, message: MessageDisplayMessage) => {
     return state
-      .set('displayMessage', data.messageText)
-      .set('displayMessageColor', data.color)
+      .set('displayMessage', message.messageText)
+      .set('displayMessageColor', message.color)
       .set('displayMessageTimeout', Date.now() + 5 * 1000);
   },
 
-  [`ws:${TYPE_LEVEL_OVER}`]: (state: State, action) => {
-    const data = <MessageLevelOver>action.data;
-    return levelOver(state, data);
+  'levelOver': (state: State, message: MessageLevelOver) => {
+    return levelOver(state, message);
   },
 
-  [`ws:${TYPE_HURRY_UP}`]: (state: State, action) => {
-    const data = <MessageHurryUp>action.data;
-
-    const expTime = Date.now() + data.expiresIn;
+  'hurry-up': (state: State, message: MessageHurryUp) => {
+    const expTime = Date.now() + message.expiresIn;
 
     return state
       .setIn(['round', 'expTime'], expTime)
@@ -560,8 +558,8 @@ export default createImmutableReducer<State>(new State(), {
       .set('displayMessageTimeout', Date.now() + 5 * 1000);
   },
 
-  [`ws:${TYPE_SYNC}`]: (state: State, {data}: {data: MessageSync}) => {
-    const time = data.time;
+  'sync': (state: State, message: MessageSync) => {
+    const time = message.time;
 
     debugLog('server runahead', time - state.time);
 
@@ -569,29 +567,21 @@ export default createImmutableReducer<State>(new State(), {
     // this should be an exceptional case, ideally
     if (time < state.time) {
       debugLog('Client time is ahead of server, syncing to very old message');
-      return syncWorld(state, data);
+      return syncWorld(state, message);
 
     } else {
-      return state.update('syncQueue', (syncQueue) => syncQueue.push(data));
+      return state.update('syncQueue', (syncQueue) => syncQueue.push(message));
     }
   },
 
-  [`ws:${TYPE_CHAT}`]: (state: State, {data}: {data: MessageChat}) => {
-    return state.setIn(['chats', data.id], new ChatMessage({
-      emoticon: data.emoticon,
+  'chat': (state: State, message: MessageChat) => {
+    return state.setIn(['chats', message.id], new ChatMessage({
+      emoticon: message.emoticon,
       timeout: Date.now() + 5 * 1000,
     }));
   },
 
-  [`ws:${TYPE_MATCH_OVER}`]: (state: State, {data}: {data: MessageMatchOver}) => {
-    return matchOver(state, data);
+  'matchOver': (state: State, message: MessageMatchOver) => {
+    return matchOver(state, message);
   },
-
-  'disconnect': (state: State) => {
-    return state.set('connectionState', ConnectionState.disconnected);
-  },
-
-  'leaveObserver': (state: State) => {
-    return enterGame(state);
-  },
-});
+};

@@ -9,13 +9,6 @@ import {
 } from './messages';
 
 import {
-  messageDisplayMessage,
-  messagePlayerIdleKicked,
-  messageLevel,
-  messageHurryUp,
-} from '../universal/protocol';
-
-import {
   ensureBallInBounds,
 } from '../universal/physics';
 
@@ -55,16 +48,18 @@ export function sweepInactivePlayers(
 
       console.log(`Idle kicking ${player.name}`);
 
-      socks.sendAll(messagePlayerIdleKicked({
+      socks.sendAll({
+        type: 'playerIdleKicked',
         id,
-      }));
+      });
 
       const msg = `{{${player.name}}} is now spectating`;
 
-      socks.sendAll(messageDisplayMessage({
+      socks.sendAll({
+        type: 'displayMessage',
         messageText: msg,
         color: player.color,
-      }));
+      });
     }
   });
 }
@@ -106,10 +101,11 @@ export function checkScored(
         const {name, strokes} = player;
         const msg = `{{${name}}} scored! (${strokes} ${strokeLabel} in ${elapsedDisplay}s)`;
 
-        socks.sendAll(messageDisplayMessage({
+        socks.sendAll({
+          type: 'displayMessage',
           messageText: msg,
           color: player.color,
-        }));
+        });
       }
     }
   });
@@ -151,10 +147,11 @@ export function cycleLevel(dispatch: Dispatch, socks: ManygolfSocketManager) {
     startTime,
   });
 
-  socks.sendAll(messageLevel({
+  socks.sendAll({
+    type: 'level',
     level: nextLevel,
     expiresIn: TIMER_MS,
-  }));
+  });
 }
 
 export function sendSyncMessage(socks: ManygolfSocketManager, state: State) {
@@ -189,9 +186,10 @@ export function checkHurryUp(
         expTime: newTime,
       });
 
-      socks.sendAll(messageHurryUp({
+      socks.sendAll({
+        type: 'hurry-up',
         expiresIn: HURRY_UP_MS,
-      }));
+      });
     }
   }
 }

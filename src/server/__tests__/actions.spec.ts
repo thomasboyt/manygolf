@@ -45,9 +45,9 @@ describe('sync messages', () => {
       players,
     }));
 
-    expect(msg.data.players.length).toEqual(2);
-    expect(msg.data.players[0].id).toEqual(1);
-    expect(msg.data.players[1].id).toEqual(2);
+    expect(msg.players.length).toEqual(2);
+    expect(msg.players[0].id).toEqual(1);
+    expect(msg.players[1].id).toEqual(2);
   });
 });
 

@@ -1,25 +1,26 @@
 import {
-  messageLevelOver,
-  messageInitial,
-  messageMatchOver,
-  messageSync,
-  messageIdentity,
+  MessageIdentity,
+  MessageInitial,
+  MessageLevelOver,
+  MessageMatchOver,
+  MessageSync,
 } from '../universal/protocol';
 import {State} from './records';
 import {GameState, PlayerState} from '../universal/constants';
 import {User as UserModel} from './models';
 
-export function createIdentity(user: UserModel, twitterName?: string) {
-  return messageIdentity({
+export function createIdentity(user: UserModel, twitterName?: string): MessageIdentity {
+  return {
+    type: 'identity',
     id: user.id,
     color: user.color,
     name: user.name,
     authToken: user.authToken,
     twitterName,
-  });
+  };
 }
 
-export function createInitial(state: State, playerId: number) {
+export function createInitial(state: State, playerId: number): MessageInitial {
   const players = state.players
     .filter((player) => player.state !== PlayerState.leftMatch)
     .map((player, id) => {
@@ -49,10 +50,12 @@ export function createInitial(state: State, playerId: number) {
     isObserver = true;
   }
 
-  const levelOverState = state.gameState === GameState.levelOver ? createLevelOver(state).data : null;
-  const matchOverState = state.gameState === GameState.matchOver ? createMatchOver(state).data : null;
+  const levelOverState = state.gameState === GameState.levelOver ? createLevelOver(state) : null;
+  const matchOverState = state.gameState === GameState.matchOver ? createMatchOver(state) : null;
 
-  return messageInitial({
+  return {
+    type: 'initial',
+
     gameState: state.gameState,
 
     isObserver,
@@ -69,13 +72,15 @@ export function createInitial(state: State, playerId: number) {
 
     time: state.time,
     matchEndsIn: state.matchEndTime - Date.now(),
-  });
+  };
 }
 
-export function createLevelOver(state: State) {
+export function createLevelOver(state: State): MessageLevelOver {
   const rankedPlayers = state.roundRankedPlayers;
 
-  return messageLevelOver({
+  return {
+    type: 'levelOver',
+
     roundRankedPlayers: rankedPlayers.toArray().map((player) => {
       return {
         id: player.id,
@@ -92,13 +97,15 @@ export function createLevelOver(state: State) {
 
     expTime: state.expTime,
     leaderId: state.leaderId,
-  });
+  };
 }
 
-export function createMatchOver(state: State) {
+export function createMatchOver(state: State): MessageMatchOver {
   const rankedPlayers = state.matchRankedPlayers;
 
-  return messageMatchOver({
+  return {
+    type: 'matchOver',
+
     nextMatchIn: state.expTime - Date.now(),
 
     matchRankedPlayers: rankedPlayers.toArray().map((player) => {
@@ -109,10 +116,10 @@ export function createMatchOver(state: State) {
         points: player.points,
       };
     }),
-  });
+  };
 }
 
-export function createSync(state: State) {
+export function createSync(state: State): MessageSync {
   const syncPlayers = state.players
     .filter((player) => player.state === PlayerState.active || player.state === PlayerState.leftRound)
     .map((player, id) => {
@@ -129,8 +136,10 @@ export function createSync(state: State) {
       };
   }).toArray();
 
-  return messageSync({
+  return{
+    type: 'sync',
+
     players: syncPlayers,
     time: state.time,
-  });
+  };
 }

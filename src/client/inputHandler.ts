@@ -6,10 +6,6 @@ import {calcVectorDegrees} from './util/math';
 import ws from './ws';
 
 import { State } from './records';
-import {
-  messageSwing,
-  messageEnterGame,
-} from '../universal/protocol';
 
 import {
   AimDirection,
@@ -28,7 +24,9 @@ export default function inputHandler(dt: number, state: State, dispatch: Dispatc
         type: 'leaveObserver',
       });
 
-      ws.send(messageEnterGame());
+      ws.send({
+        type: 'enterGame',
+      });
 
       // HACK: To prevent shoot action from being taken next frame, we remove the key here
       keysDown.delete(keyCodes.SPACE);
@@ -75,7 +73,8 @@ export default function inputHandler(dt: number, state: State, dispatch: Dispatc
           vec,
         });
 
-        ws.send(messageSwing({
+        ws.send(({
+          type: 'swing',
           vec,
         }));
       }

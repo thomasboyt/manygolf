@@ -1,7 +1,6 @@
 import * as React from 'react';
 
 import ws from '../../ws';
-import {messageSendChat} from '../../../universal/protocol';
 import {Emoticon} from '../../../universal/constants';
 
 import IconButton from './IconButton';
@@ -32,14 +31,16 @@ export default class ChatControl extends React.Component<{}, ChatControlState> {
 
   handleClickChatIcon(button: ControlButton) {
     if (button === ControlButton.ChatHappy) {
-      ws.send(messageSendChat({
+      ws.send({
+        type: 'sendChat',
         emoticon: Emoticon.happy,
-      }));
+      });
 
     } else if (button === ControlButton.ChatSad) {
-      ws.send(messageSendChat({
+      ws.send({
+        type: 'sendChat',
         emoticon: Emoticon.sad,
-      }));
+      });
     }
 
     this.setState({
