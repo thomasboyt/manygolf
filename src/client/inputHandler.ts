@@ -10,6 +10,7 @@ import { State } from './records';
 import {
   AimDirection,
   GameState,
+  ConnectionState,
 } from '../universal/constants';
 
 import {
@@ -24,6 +25,11 @@ export default function inputHandler(dt: number, state: State, dispatch: Dispatc
     });
 
     keysDown.delete(keyCodes.ESC);
+  }
+
+  if (state.connectionState !== ConnectionState.connected) {
+    // There's no other input support in non-connected modes at the moment
+    return;
   }
 
   if (state.isObserver) {
