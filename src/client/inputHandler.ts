@@ -18,6 +18,14 @@ import {
 } from './buttons';
 
 export default function inputHandler(dt: number, state: State, dispatch: Dispatch<State>) {
+  if (keysDown.has(keyCodes.ESC)) {
+    dispatch({
+      type: 'toggleInfoScreen',
+    });
+
+    keysDown.delete(keyCodes.ESC);
+  }
+
   if (state.isObserver) {
     if (keysDown.has(keyCodes.SPACE) || buttonsDown.has(ControlButton.Shoot)) {
       dispatch({

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {connect} from 'react-redux';
+import {connect, Dispatch} from 'react-redux';
 
 import InfoScreen from './InfoScreen';
 import ControlBar from './ControlBar';
@@ -16,7 +16,9 @@ interface Props {
 }
 
 interface ReduxProps extends Props {
+  infoWindowIsOpen: boolean;
   connectionState: ConnectionState;
+  dispatch: Dispatch<State>;
 }
 
 interface Bounds {
@@ -30,24 +32,10 @@ function inBounds(x: number, y: number, {left, right, top, bottom}: Bounds) {
   return x >= left && x <= right && y >= top && y <= bottom;
 }
 
-interface GameContainerState {
-  showInfoScreen: boolean;
-}
-
-class GameContainer extends React.Component<ReduxProps, GameContainerState> {
-  state: GameContainerState = {
-    showInfoScreen: false,
-  };
-
-  showInfoScreen() {
-    this.setState({
-      showInfoScreen: true,
-    });
-  }
-
+class GameContainer extends React.Component<ReduxProps, {}> {
   hideInfoScreen() {
-    this.setState({
-      showInfoScreen: false,
+    this.props.dispatch({
+      type: 'toggleInfoScreen',
     });
   }
 
@@ -65,7 +53,9 @@ class GameContainer extends React.Component<ReduxProps, GameContainerState> {
         };
 
         if (inBounds(scaledX, scaledY, infoScreenBounds)) {
-          this.showInfoScreen();
+          this.props.dispatch({
+            type: 'toggleInfoScreen',
+          });
         }
       }
     }
@@ -74,7 +64,7 @@ class GameContainer extends React.Component<ReduxProps, GameContainerState> {
   render() {
     return (
       <div className='game-container'>
-        {this.state.showInfoScreen ?
+        {this.props.infoWindowIsOpen ?
           <InfoScreen onRequestClose={() => this.hideInfoScreen()} /> :
           null}
 
@@ -85,8 +75,9 @@ class GameContainer extends React.Component<ReduxProps, GameContainerState> {
   }
 }
 
-function select(state: State, ownProps?: Props) {
+function select(state: State) {
   return {
+    infoWindowIsOpen: state.infoWindowIsOpen,
     connectionState: state.connectionState,
   };
 };

@@ -427,6 +427,10 @@ export default createImmutableReducer<State>(new State(), {
   'websocket': (state: State, {message}: {message: Message}): State => {
     return websocketHandlers[message.type](state, message);
   },
+
+  'toggleInfoScreen': (state: State) => {
+    return state.set('infoWindowIsOpen', !state.infoWindowIsOpen);
+  }
 });
 
 const websocketHandlers: IHandlers<State, Message> = {

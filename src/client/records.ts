@@ -198,6 +198,8 @@ const StateRec = I.Record({
   swingQueue: I.List(),
 
   chats: I.Map(),
+
+  infoWindowIsOpen: false,
 });
 
 export class State extends StateRec {
@@ -227,4 +229,6 @@ export class State extends StateRec {
   swingQueue: I.List<MessagePlayerSwing>;
 
   chats: I.Map<number, ChatMessage>;
+
+  infoWindowIsOpen: boolean;
 }
