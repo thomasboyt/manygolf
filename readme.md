@@ -101,3 +101,4 @@ https://trello.com/b/EfK64dEy/manygolf
   * Excited by Austin Condiff from the Noun Project
   * Disgusted by Austin Condiff from the Noun Project
   * speech-bubble by Austin Condiff from the Noun Project
+  * Gear by Austin Condiff from the Noun Project

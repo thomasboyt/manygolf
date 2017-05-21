@@ -8,6 +8,7 @@ import {GameState} from '../../../universal/constants';
 
 import GameControl from './GameControl';
 import ChatControl from './ChatControl';
+import MenuControl from './MenuControl';
 
 const leftArrowUrl = require('../../../../assets/arrowLeft.png');
 const rightArrowUrl = require('../../../../assets/arrowRight.png');
@@ -35,6 +36,7 @@ class ControlBar extends React.Component<Props, {}> {
   renderDesktopControls() {
     return [
       <ChatControl key="chat" />,
+      <MenuControl key="menu" />,
     ];
   }
 
