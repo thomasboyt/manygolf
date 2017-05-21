@@ -12,10 +12,6 @@ import {
 import {State} from '../records';
 
 interface Props {
-  standalone?: boolean;
-}
-
-interface ReduxProps extends Props {
   infoWindowIsOpen: boolean;
   connectionState: ConnectionState;
   dispatch: Dispatch<State>;
@@ -32,7 +28,7 @@ function inBounds(x: number, y: number, {left, right, top, bottom}: Bounds) {
   return x >= left && x <= right && y >= top && y <= bottom;
 }
 
-class GameContainer extends React.Component<ReduxProps, {}> {
+class GameContainer extends React.Component<Props, {}> {
   hideInfoScreen() {
     this.props.dispatch({
       type: 'toggleInfoScreen',
@@ -44,19 +40,17 @@ class GameContainer extends React.Component<ReduxProps, {}> {
       document.location.reload();
 
     } else {
-      if (this.props.standalone) {
-        const infoScreenBounds = {
-          left: 0,
-          right: 500,
-          top: 0,
-          bottom: 40,
-        };
+      const infoScreenBounds = {
+        left: 0,
+        right: 500,
+        top: 0,
+        bottom: 40,
+      };
 
-        if (inBounds(scaledX, scaledY, infoScreenBounds)) {
-          this.props.dispatch({
-            type: 'toggleInfoScreen',
-          });
-        }
+      if (inBounds(scaledX, scaledY, infoScreenBounds)) {
+        this.props.dispatch({
+          type: 'toggleInfoScreen',
+        });
       }
     }
   }

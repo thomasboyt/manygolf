@@ -15,8 +15,12 @@ header img {
   margin: 0 auto;
 }
 
-.game-container {
-  max-width: 1000px;
+.game-frame {
+  // These numbers are kind of arbitrary, but hold a 16:9 ratio and more or less keep the game
+  // "above the fold"
+  width: 80vw;
+  height: 45vw;
+  max-height: 80vh;
 }
 
 .instructions {
@@ -27,6 +31,7 @@ header img {
 .updates-full {
   display: none;
 }
+
 .updates-mobile {
   display: block;
 }

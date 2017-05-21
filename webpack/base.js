@@ -4,8 +4,8 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: {
-    app: ['whatwg-fetch', './src/client/main.tsx'],
-    standalone: ['whatwg-fetch', './src/client/standalone.tsx'],
+    homepage: ['./src/client/homepage/main.ts'],
+    game: ['whatwg-fetch', './src/client/standalone.tsx'],
   },
 
   output: {
@@ -14,21 +14,25 @@ module.exports = {
   },
 
   plugins: [
-    createVendorChunk(),
+    createVendorChunk({
+      name: 'game.vendor',
+      chunks: ['game'],
+    }),
+
     new ExtractTextPlugin('[name].[chunkhash].css'),
 
     new HtmlWebpackPlugin({
       template: './templates/index.html',
       filename: 'index.html',
       inject: 'body',
-      chunks: ['vendor', 'app'],
+      chunks: ['homepage'],
     }),
 
     new HtmlWebpackPlugin({
       template: './templates/standalone.html',
       filename: 'standalone.html',
       inject: 'body',
-      chunks: ['vendor', 'standalone'],
+      chunks: ['game.vendor', 'game'],
     }),
   ],
 
@@ -73,11 +77,16 @@ module.exports = {
           name: '/assets/[hash].[ext]'
         }
       },
+
       {
         test: /(?:\.json)/,
         loader: 'json-loader'
-      }
+      },
 
+      {
+        test: /\.html$/,
+        loader: 'html-loader'
+      },
     ]
   },
 
