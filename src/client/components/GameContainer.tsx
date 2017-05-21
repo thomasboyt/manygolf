@@ -75,7 +75,7 @@ class GameContainer extends React.Component<ReduxProps, {}> {
   }
 }
 
-function select(state: State) {
+function select(state: State, props: Props) {
   return {
     infoWindowIsOpen: state.infoWindowIsOpen,
     connectionState: state.connectionState,
