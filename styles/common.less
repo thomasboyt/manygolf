@@ -147,3 +147,25 @@ canvas {
 .twitter-name {
   color: #1da1f2;
 }
+
+.logo-pop {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  background-image: url('../assets/header.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  animation: 4s 1s logo-fade ease-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes logo-fade {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}

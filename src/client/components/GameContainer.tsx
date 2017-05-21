@@ -28,6 +28,12 @@ function inBounds(x: number, y: number, {left, right, top, bottom}: Bounds) {
   return x >= left && x <= right && y >= top && y <= bottom;
 }
 
+const LogoPop = () => {
+  return (
+    <div className="logo-pop" />
+  )
+};
+
 class GameContainer extends React.Component<Props, {}> {
   hideInfoScreen() {
     this.props.dispatch({
@@ -61,6 +67,8 @@ class GameContainer extends React.Component<Props, {}> {
         {this.props.infoWindowIsOpen ?
           <InfoScreen onRequestClose={() => this.hideInfoScreen()} /> :
           null}
+
+        <LogoPop />
 
         <Canvas onClick={(x, y) => this.handleCanvasClick(x, y)} />
         <ControlBar />
