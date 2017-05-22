@@ -8,9 +8,7 @@ node_js:
 sudo: false
 
 script:
-  # --silent surpresses that big ol' NPM script error
-  - npm run-script test --silent
-  - npm run-script lint --silent
+  - npm test
 
 cache:
   directories:

@@ -8,7 +8,6 @@
     "node": "6.x"
   },
   "scripts": {
-    "lint": "tslint src/**/*.ts src/**/*.tsx",
     "test": "webpack --config webpack/test.js && mocha --no-colors build/test/test.bundle.js",
     "test-watch": "scripts/test-watch",
     "client-watch": "webpack-dev-server --config webpack/dev.js",
@@ -37,7 +36,6 @@
     "nodemon": "^1.9.1",
     "respawn": "^2.4.1",
     "style-loader": "^0.12.2",
-    "tslint": "^3.7.4",
     "webpack-create-vendor-chunk": "^0.1.1",
     "webpack-dev-server": "^1.15.2",
     "webpack-merge": "^0.3.2"
