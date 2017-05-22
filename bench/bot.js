@@ -21,11 +21,9 @@ function addBot() {
 
     ws.send(JSON.stringify({
       type: 'swing',
-      data: {
-        vec: {
-          x: randInt(-100, 100),
-          y: randInt(-100, 100),
-        }
+      vec: {
+        x: randInt(-100, 100),
+        y: randInt(-100, 100),
       }
     }));
 
