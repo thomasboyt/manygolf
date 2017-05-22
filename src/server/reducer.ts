@@ -38,14 +38,8 @@ interface AddPlayerOpts {
  */
 function enterGame(player: Player, state: State): Player {
   const ballBody = createBall(state.level.spawn);
-
   state.world.addBody(ballBody);
-
-  return player
-    .set('body', ballBody)
-    .set('strokes', 0)
-    .set('scored', false)
-    .set('scoreTime', null);
+  return player.set('body', ballBody)
 }
 
 function pointsForRank(place: number, total: number): number {
@@ -293,7 +287,12 @@ export default createImmutableReducer<State>(new State(), {
     });
 
     // XXX: This is done separately because it depends on the updated `state`
-    nextState = nextState.set('players', state.players.map((player) => {
+    nextState = nextState.set('players', state.players.map((prevPlayer) => {
+      const player = prevPlayer
+        .set('strokes', 0)
+        .set('scored', false)
+        .set('scoreTime', null);
+
       if (player.state === PlayerState.leftRound) {
         return player
           .set('state', PlayerState.leftMatch)

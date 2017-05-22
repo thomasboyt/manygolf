@@ -236,6 +236,38 @@ describe('level', () => {
     expect(state.players.get(1).state).toEqual(PlayerState.leftMatch);
     expect(state.players.get(1).body).toEqual(null);
   });
+
+  it('resets strokes and match scoring for all players', () => {
+    const initialState = new State()
+      .setIn(['players', 1], new Player({
+        state: PlayerState.active,
+        strokes: 1,
+        scored: true,
+        scoreTime: 123,
+      }))
+      .setIn(['players', 2], new Player({
+        state: PlayerState.leftRound,
+        strokes: 1,
+        scored: true,
+        scoreTime: 123,
+      }));
+
+    const state = reducer(initialState, {
+      type: 'level',
+      levelData: levelGen(),
+      expTime: Date.now() + 5000,
+      startTime: Date.now(),
+    });
+
+    const expected = {
+      strokes: 0,
+      scored: false,
+      scoreTime: null as any,
+    };
+
+    expect(state.players.get(1).toJS()).toInclude(expected);
+    expect(state.players.get(2).toJS()).toInclude(expected);
+  });
 });
 
 describe('startMatch', () => {
