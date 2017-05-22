@@ -1,7 +1,7 @@
 language: node_js
 
 node_js:
-  - "5.1"
+  - "6"
 
 # ensure we're using the container-based infrastructure
 # see https://docs.travis-ci.com/user/workers/container-based-infrastructure/#Routing-your-build-to-container-based-infrastructure
