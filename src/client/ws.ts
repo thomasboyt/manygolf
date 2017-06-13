@@ -1,8 +1,11 @@
 import {Store} from 'redux';
+import {PersistentWebsocket, ReconnectEvent} from 'persistent-websocket';
+import * as qs from 'qs';
+
 import {State} from './records';
 import {getWsApiUrl} from './api';
 import {Message} from '../universal/protocol';
-import * as qs from 'qs';
+import {MAX_RECONNECT_BACKOFF_MS, MAX_RECONNECT_ATTEMPTS} from '../universal/constants';
 
 const simulateLag = document.location.search.indexOf('simlag') !== -1;
 const simLagMs = 200;
@@ -14,14 +17,13 @@ if (simulateLag) {
 (<any>window).msgLog = [];
 
 class WSConnection {
-  private _ws: WebSocket;
+  private _ws: PersistentWebsocket;
   private _store: Store<State>;
 
   init(store: Store<State>) {
     this._store = store;
 
     const currentQs = qs.parse(document.location.search);
-
     const observe = currentQs.observe ? true : undefined;
     const accessToken = localStorage.getItem('accessToken') || undefined;
 
@@ -29,14 +31,20 @@ class WSConnection {
       observe,
       auth_token: accessToken,
     });
-
     const url = `${getWsApiUrl()}?${newQs}`;
 
-    this._ws = new WebSocket(url);
+    this._ws = new PersistentWebsocket(url, {
+      pingSendFunction: () => this.sendPing(),
+      pingIntervalSeconds: 5,
+      pingTimeoutMillis: 3000,
+      connectTimeoutMillis: 3000,
+      maxBackoffDelayMillis: MAX_RECONNECT_BACKOFF_MS,
+    });
 
     this._ws.onmessage = this.handleMessage.bind(this);
+    this._ws.onbeforereconnect = this.handleReconnect.bind(this);
 
-    this._ws.onclose = this.handleClose.bind(this);
+    this._ws.open();
   }
 
   handleMessage(evt: MessageEvent) {
@@ -63,14 +71,6 @@ class WSConnection {
     }
   }
 
-  handleClose() {
-    console.error('lost ws connection');
-
-    this._store.dispatch({
-      type: 'disconnect',
-    });
-  }
-
   send(msg: Message) {
     if (!this._ws) {
       return;
@@ -85,6 +85,28 @@ class WSConnection {
 
     } else {
       this._ws.send(strMsg);
+    }
+  }
+
+  sendPing() {
+    this.send({
+      type: 'ping',
+    });
+  }
+
+  handleReconnect(evt: ReconnectEvent) {
+    if (evt.attemptNumber > MAX_RECONNECT_ATTEMPTS) {
+      this._ws.close();
+
+      this._store.dispatch({
+        type: 'disconnect',
+      });
+
+    } else {
+      this._store.dispatch({
+        type: 'reconnecting',
+        attemptNumber: evt.attemptNumber,
+      });
     }
   }
 

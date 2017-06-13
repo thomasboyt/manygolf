@@ -268,7 +268,9 @@ export default createImmutableReducer<State>(new State(), {
     // update stored clock
     state = state.update('time', (time) => time + dt * 1000);
 
-    if (!state.round || state.gameState !== GameState.roundInProgress) {
+    if (!state.round
+        || state.gameState !== GameState.roundInProgress
+        || state.connectionState !== ConnectionState.connected) {
       return state;
     }
 
@@ -414,6 +416,12 @@ export default createImmutableReducer<State>(new State(), {
     const newDir = clamp(dir + step, -180, 0);
 
     return state.setIn(['round', 'aimDirection'], newDir);
+  },
+
+  'reconnecting': (state: State, {attemptNumber}: {attemptNumber: number}) => {
+    return state
+      .set('connectionState', ConnectionState.reconnecting)
+      .set('reconnectAttemptNumber', attemptNumber);
   },
 
   'disconnect': (state: State) => {

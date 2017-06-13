@@ -8,6 +8,7 @@ import {
   ConnectionState,
   Emoticon,
   PlayerState,
+  MAX_RECONNECT_ATTEMPTS,
 } from '../../universal/constants';
 
 import * as tinycolor from 'tinycolor2';
@@ -47,6 +48,17 @@ function renderConnecting(ctx: CanvasRenderingContext2D, state: State) {
   ctx.font = 'normal 16px "Press Start 2P"';
   ctx.textAlign = 'center';
   ctx.fillText('Connecting...', WIDTH / 2, HEIGHT / 2);
+}
+
+function renderReconnecting(ctx: CanvasRenderingContext2D, state: State) {
+  ctx.fillStyle = textColor;
+  ctx.font = 'normal 16px "Press Start 2P"';
+  ctx.textAlign = 'center';
+
+  ctx.fillText('Lost connection to server', WIDTH / 2, HEIGHT / 2 - 30);
+  ctx.fillText('Retrying connection...', WIDTH / 2, HEIGHT / 2 - 10);
+  ctx.fillText(`(attempt #${state.reconnectAttemptNumber}/${MAX_RECONNECT_ATTEMPTS})`,
+               WIDTH / 2, HEIGHT / 2 + 20);
 }
 
 function renderDisconnected(ctx: CanvasRenderingContext2D, state: State) {
@@ -346,6 +358,8 @@ export default function render(ctx: CanvasRenderingContext2D, state: State, scal
     renderConnecting(ctx, state);
   } else if (state.connectionState === ConnectionState.connected) {
     renderInGame(ctx, state, scaleFactor);
+  } else if (state.connectionState === ConnectionState.reconnecting) {
+    renderReconnecting(ctx, state);
   } else if (state.connectionState === ConnectionState.disconnected) {
     renderDisconnected(ctx, state);
   }

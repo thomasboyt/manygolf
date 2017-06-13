@@ -18,6 +18,8 @@ export const MATCH_LENGTH_MS = 5 * 60 * 1000;
 export const MATCH_OVER_MS = 10 * 1000;
 
 export const PHYSICS_SPEED_FACTOR = 3;
+export const MAX_RECONNECT_BACKOFF_MS = 10 * 1000;
+export const MAX_RECONNECT_ATTEMPTS = 10;
 
 export enum AimDirection {
   left,
@@ -33,6 +35,7 @@ export enum GameState {
 export enum ConnectionState {
   connecting,
   connected,
+  reconnecting,
   disconnected,
 }
 
