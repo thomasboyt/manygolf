@@ -1,4 +1,4 @@
-import WebSocket, {Server} from 'uws';
+import WebSocket, {Server} from 'ws';
 
 function log(msg: any, ...params: any[]) {
   if (process.env.LOG_WS) {
