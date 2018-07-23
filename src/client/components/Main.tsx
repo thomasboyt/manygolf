@@ -64,29 +64,6 @@ export default class Main extends React.Component<{}, {}> {
 
           <div className="row">
             <div className="section">
-              <p>
-                <a
-                  style={{color: "#fff203"}}
-                  href="http://steamcommunity.com/sharedfiles/filedetails/?id=751794609">
-                  Vote for Manygolf on Steam Greenlight!
-                </a>
-              </p>
-              <p>
-                <a
-                  href="https://docs.google.com/forms/d/e/1FAIpQLScAJAsaPGTE_elKg5MbqXgsa-W1rbrWRdDQGi-gXLBgaTM34Q/viewform">
-                  Join the iOS beta
-                </a>
-                {' / '}
-                <a
-                  href="https://play.google.com/apps/testing/com.thomasboyt.manygolf">
-                  Join the Android beta
-                </a>
-              </p>
-            </div>
-          </div>
-
-          <div className="row">
-            <div className="section">
               <h2>what</h2>
               <p>
                 manygolf is a massively multiplayer golf game. everyone plays together, simultaneously,
@@ -108,31 +85,6 @@ export default class Main extends React.Component<{}, {}> {
               <p>
                 <TwitterLink />
               </p>
-            </div>
-          </div>
-
-          <div className="updates-full">
-            <div className="row">
-              <div className="section">
-                <h2>updates</h2>
-
-                <TwitterTimeline />
-
-                <p style={{marginTop: '30px'}}>
-                  for more updates &amp; feedback, visit <a href="https://twitter.com/manygolf">@manygolf on twitter</a>
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="updates-mobile">
-            <div className="row">
-              <div className="section">
-                <h2>updates &amp; feedback</h2>
-                <p>
-                  visit <a href="https://twitter.com/manygolf">@manygolf on twitter</a>!
-                </p>
-              </div>
             </div>
           </div>
 
